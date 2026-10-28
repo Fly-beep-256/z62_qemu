@@ -1,0 +1,75 @@
+{
+  "schema": "z62.architecture-fixture-code/1",
+  "classification": "synthetic structural fixture",
+  "original_firmware": false,
+  "Flash_patched": false,
+  "programs": {
+    "e6": {
+      "source": {
+        "path": "tests/architecture/e6.s",
+        "bytes": 3634,
+        "sha256": "c0e96f3eba8b80d2e97ad53c3a602b167713a8b5e57557cc9ca3a7209dca0978"
+      },
+      "binary": {
+        "path": "tests/architecture/e6.bin",
+        "bytes": 424,
+        "sha256": "3bb86522d4c0c3ab8bd9f9a5d21c4b1038ca8bb665dbb31da3ab853f48729c31"
+      },
+      "load_address": 2147483648,
+      "symbols": {
+        "e6_mpidr": 0,
+        "e6_mpidr_done": 12,
+        "e6_store": 16,
+        "e6_store_done": 20,
+        "e6_gic_enable": 24,
+        "e6_gic_enable_done": 68,
+        "e6_sgi_send": 72,
+        "e6_sgi_send_done": 80,
+        "e6_gic_ack": 84,
+        "e6_gic_ack_done": 100,
+        "e6_gic_eoi": 104,
+        "e6_gic_eoi_done": 112,
+        "e6_virtual_timer": 116,
+        "e6_virtual_timer_done": 136,
+        "e6_virtual_timer_off": 140,
+        "e6_virtual_timer_off_done": 152,
+        "e6_secure_timer": 156,
+        "e6_secure_timer_done": 176,
+        "e6_secure_timer_off": 180,
+        "e6_secure_timer_off_done": 192,
+        "e6_counter": 196,
+        "e6_counter_done": 220,
+        "e6_nonsecure_enter": 224,
+        "e6_nonsecure_enter_done": 264,
+        "e6_physical_timer": 268,
+        "e6_physical_timer_done": 288,
+        "e6_physical_timer_off": 292,
+        "e6_physical_timer_off_done": 304,
+        "e6_secure_return": 308,
+        "e6_secure_return_done": 312
+      }
+    },
+    "mcu": {
+      "source": {
+        "path": "tests/architecture/mcu.s",
+        "bytes": 600,
+        "sha256": "8dae2cfc9f3d709f1976f47638d4a443f120535c8d2493cc0f1a4a9ee001085c"
+      },
+      "binary": {
+        "path": "tests/architecture/mcu.bin",
+        "bytes": 32,
+        "sha256": "a6227bbda8e4c7d84c263ea414a7d2e71db23053bb209d4b52b2ec2951a0efd3"
+      },
+      "load_address": 537124864,
+      "symbols": {
+        "mcu_mask": 0,
+        "mcu_mask_done": 2,
+        "mcu_store": 4,
+        "mcu_store_done": 6,
+        "mcu_reset": 8,
+        "mcu_reset_store": 16,
+        "mcu_reset_done": 22
+      }
+    }
+  }
+}

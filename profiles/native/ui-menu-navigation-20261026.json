@@ -1,0 +1,766 @@
+{
+  "schema": "z62.native-ui-observation-plan/2",
+  "purpose": "Bind candidate PCAL4-8 input to MCU bytes, master normalized words, selected object actual method and retained LCD; keep AE upstream observation",
+  "ROM_sha256": {
+    "master": "bb83613121f843d65101da936d942acdc513d86dbd3abc26259d0d870d03f5d4",
+    "slave": "3fd8c2cbdf57fadb03f6d69b596b58a8703efdd61ae82572d5afeea0241a9ed5",
+    "MCU": "4314c17d9a6676a4254aa4d74d4aa35411e3a793ea7056c06f9c83f160da3cb1"
+  },
+  "windows": [
+    {
+      "label": "startup",
+      "start_virtual_ns": 0
+    },
+    {
+      "label": "menu-enter",
+      "start_virtual_ns": 10000000000
+    },
+    {
+      "label": "candidate-right",
+      "start_virtual_ns": 12000000000
+    },
+    {
+      "label": "candidate-down-list",
+      "start_virtual_ns": 13500000000
+    },
+    {
+      "label": "candidate-up-list",
+      "start_virtual_ns": 15000000000
+    },
+    {
+      "label": "candidate-left",
+      "start_virtual_ns": 16500000000
+    },
+    {
+      "label": "candidate-down-tab",
+      "start_virtual_ns": 18000000000
+    },
+    {
+      "label": "candidate-up-tab",
+      "start_virtual_ns": 19500000000
+    },
+    {
+      "label": "candidate-confirm",
+      "start_virtual_ns": 21000000000
+    },
+    {
+      "label": "menu-focus",
+      "start_virtual_ns": 23000000000
+    },
+    {
+      "label": "menu-exit",
+      "start_virtual_ns": 24500000000
+    },
+    {
+      "label": "menu-reenter",
+      "start_virtual_ns": 26000000000
+    }
+  ],
+  "sites": [
+    {
+      "role": "master",
+      "address": "0x1022eee6",
+      "label": "AESEF qualification return",
+      "original_ROM_bytes": "00283fd0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r5",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r5",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r5",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022ef20",
+      "label": "AESEF mask80 claim return",
+      "original_ROM_bytes": "002822d0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r5",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r5",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r5",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1021083e",
+      "label": "AESEF request busy test",
+      "original_ROM_bytes": "09d00068",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "request_context_slot",
+          "register": "r0",
+          "bytes": 4
+        },
+        {
+          "label": "request_context",
+          "register": "r0",
+          "bytes": 96,
+          "path": [
+            {
+              "offset": 0,
+              "dereference": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1021084c",
+      "label": "AESEF mask4 actual post",
+      "original_ROM_bytes": "4cf19ef8",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10210114",
+      "label": "AESEF actual dispatcher mask",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "AESEF_request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "AE_default_input",
+          "address": "0xc20f2a00",
+          "bytes": 488
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10231480",
+      "label": "main AE actual dispatcher mask",
+      "original_ROM_bytes": "2de9fc41",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "selector_pending",
+          "address": "0xc1887d8c",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038dc0c",
+      "label": "original key payload input",
+      "original_ROM_bytes": "34220146",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "incoming_payload",
+          "register": "r0",
+          "bytes": 52
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106319c6",
+      "label": "original MENU request",
+      "original_ROM_bytes": "10b5fef7",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "MENU_state",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10436600",
+      "label": "original raw key payload builder",
+      "original_ROM_bytes": "2de9f74f",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "raw_input",
+          "register": "r0",
+          "bytes": 128
+        },
+        {
+          "label": "builder_payload",
+          "address": "0xc25d6fc0",
+          "bytes": 52
+        },
+        {
+          "label": "phase_descriptor",
+          "address": "0xc18879f8",
+          "bytes": 8
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038db5e",
+      "label": "original normalized key downstream callback",
+      "original_ROM_bytes": "8847606d",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "address": "0xc1f7a5ac",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        },
+        {
+          "label": "MENU_state_array",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1020e05a",
+      "label": "original input downstream table call",
+      "original_ROM_bytes": "9047002e",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "input_callback_table",
+          "register": "r0",
+          "bytes": 64
+        },
+        {
+          "label": "normalized_key_state",
+          "register": "r1",
+          "bytes": 160
+        },
+        {
+          "label": "input_context_dispatch",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 64
+        },
+        {
+          "label": "input_context_flags",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 752
+            }
+          ],
+          "bytes": 16
+        },
+        {
+          "label": "input_context_policy",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 848
+            }
+          ],
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031ad06",
+      "label": "具体工作消息生产边",
+      "original_ROM_bytes": "fbf7a1fa",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_message_container",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        },
+        {
+          "label": "job_callback_flags",
+          "address": "0xc1868bf0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a566",
+      "label": "异步callback中的延期/ready分支",
+      "original_ROM_bytes": "21b10462",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_callback_flags",
+          "address": "0xc1868bf0",
+          "bytes": 128
+        },
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234b60",
+      "label": "selector第一个显式拒绝分支",
+      "original_ROM_bytes": "40b32068",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "input_block",
+          "register": "r4",
+          "bytes": 40
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1029abd0",
+      "label": "original selected object input call",
+      "original_ROM_bytes": "fff7f3fe",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "selected_object",
+          "register": "r0",
+          "bytes": 72
+        },
+        {
+          "label": "normalized_key_state",
+          "register": "r1",
+          "bytes": 160
+        },
+        {
+          "label": "input_selector_owner",
+          "address": "0xc1811e50",
+          "bytes": 96
+        },
+        {
+          "label": "input_selector_gates",
+          "address": "0xc1811eb4",
+          "bytes": 32
+        },
+        {
+          "label": "input_cache",
+          "address": "0xc1f7cbe4",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103fd304",
+      "label": "original selected object method dispatch",
+      "original_ROM_bytes": "426c0846",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "selected_object",
+          "register": "r0",
+          "bytes": 72
+        },
+        {
+          "label": "normalized_key_state",
+          "register": "r1",
+          "bytes": 160
+        },
+        {
+          "label": "input_selector_owner",
+          "address": "0xc1811e50",
+          "bytes": 96
+        },
+        {
+          "label": "input_selector_gates",
+          "address": "0xc1811eb4",
+          "bytes": 32
+        },
+        {
+          "label": "input_cache",
+          "address": "0xc1f7cbe4",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103fd308",
+      "label": "original selected object actual method branch",
+      "original_ROM_bytes": "1047826c",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        }
+      ]
+    },
+    {
+      "role": "MCU",
+      "address": "0x8038058",
+      "label": "original MCU input result and six bytes",
+      "original_ROM_bytes": "0cb50a68",
+      "max_hits_per_window": 8,
+      "samples": [
+        {
+          "label": "six_input_bytes",
+          "register": "r1",
+          "bytes": 6
+        },
+        {
+          "label": "MCU_input_mode",
+          "address": "0x200159a4",
+          "bytes": 24
+        },
+        {
+          "label": "MCU_input_status_primary",
+          "address": "0x20015b74",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_input_status_mode2",
+          "address": "0x20015d30",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "MCU",
+      "address": "0x8037f6a",
+      "label": "original MCU input output copy",
+      "original_ROM_bytes": "e8f7adba",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "MCU_scanner_state",
+          "address": "0x20015bcc",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_output_before_copy",
+          "register": "r1",
+          "bytes": 120
+        },
+        {
+          "label": "MCU_output_previous_copy",
+          "address": "0x20015ad0",
+          "bytes": 120
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031aaac",
+      "label": "original AE old job item producer entry",
+      "original_ROM_bytes": "2de9ff41",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_item_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "old_item_q_pointer",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        },
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        },
+        {
+          "label": "job_callback_flags",
+          "address": "0xc1868bf0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031aada",
+      "label": "original AE old job producer caller",
+      "original_ROM_bytes": "fff7a8fe",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_item_q_pointer",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        },
+        {
+          "label": "old_item_condition",
+          "register": "r0",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 692
+            }
+          ]
+        },
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a882",
+      "label": "original AE old job append call",
+      "original_ROM_bytes": "31f074fb",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        },
+        {
+          "label": "old_item_header",
+          "register": "r1",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a886",
+      "label": "original AE old job append return",
+      "original_ROM_bytes": "002d50d0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10324ce6",
+      "label": "original AE old job reserve call",
+      "original_ROM_bytes": "27f0d1f8",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        }
+      ]
+    }
+  ],
+  "guest_state_injection": false,
+  "physical_pin_names_verified": false,
+  "contract_reports": [
+    "results/native-ui-investigation-20261025/key-navigation-rom-followup-20261026.md",
+    "results/native-ui-investigation-20261025/menu-input-route-20261026.md",
+    "results/native-ui-investigation-20261025/ae-old-job-producer-20261026.md"
+  ]
+}

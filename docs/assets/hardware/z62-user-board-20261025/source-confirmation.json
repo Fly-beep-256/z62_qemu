@@ -1,0 +1,160 @@
+{
+  "schema": "z62.hardware-original-source-confirmation/1",
+  "recorded": "2026-10-25T22:52:18.993742+08:00",
+  "confirmation": "Supplied mainboard photographs confirmed as Nikon Z62 replacement boards; seller URL, serial and assembly revision remain unavailable.",
+  "photos": [
+    {
+      "source_path": "z62_taobao_motherboard1.png",
+      "retained_file": "assets/z62-taobao-motherboard-1.png",
+      "sha256": "4500f0eef42f3854ff62861295bb46ed2b0c7f6e0af5ca7b36c82fde6b1f56eb",
+      "bytes": 7040808,
+      "dimensions": [
+        2920,
+        1436
+      ],
+      "matches_preexisting_package_asset": true,
+      "board_model": "Z62 replacement board (supplied reference photograph)",
+      "listing_URL": null,
+      "physical_revision_and_same_board_pair_verified": false
+    },
+    {
+      "source_path": "z62_taobao_motherboard2.png",
+      "retained_file": "assets/z62-taobao-motherboard-2.png",
+      "sha256": "99ffaf05d90eced787d215d9a9ba83e708c4747f92121a64f40199be9f855b70",
+      "bytes": 7074946,
+      "dimensions": [
+        2920,
+        1436
+      ],
+      "matches_preexisting_package_asset": true,
+      "board_model": "Z62 replacement board (supplied reference photograph)",
+      "listing_URL": null,
+      "physical_revision_and_same_board_pair_verified": false
+    }
+  ],
+  "crops": [
+    {
+      "source": "assets/z62-taobao-motherboard-1.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png1-renesas.png",
+      "box_xyxy": [
+        645,
+        455,
+        841,
+        638
+      ],
+      "rotation_degrees_counterclockwise": 0,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "observed_marking": "R5F56519AD",
+      "sha256": "8a27bccea6489dfe1a3f261ff17a2519ea1255622c5b11083358b40b72dab4aa"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-1.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png1-st-controller.png",
+      "box_xyxy": [
+        1530,
+        644,
+        1815,
+        924
+      ],
+      "rotation_degrees_counterclockwise": 0,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "observed_marking": "ST logo; complete STM32 ordering suffix not independently legible in this photo",
+      "sha256": "968a1f969a0d3b4677b76344a0287d5cc15a64e542a24d67b06924a72ded6d91"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-1.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png1-L6524.png",
+      "box_xyxy": [
+        1150,
+        258,
+        1298,
+        416
+      ],
+      "rotation_degrees_counterclockwise": 180,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "sha256": "6344d9b6407fd767ead9edb89ce9892248771d53bd534bb2004e80bd9fa9f604"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-1.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png1-board-marking.png",
+      "box_xyxy": [
+        1955,
+        379,
+        2245,
+        481
+      ],
+      "rotation_degrees_counterclockwise": 180,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "observed_marking": "2024 01-02 A7 / UMT-KS 2V 94V-0",
+      "sha256": "9d7a2dca5184f231848212780eca36dcc435ef953f1a158775914f8ab5e3d697"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-2.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png2-spansion-flash.png",
+      "box_xyxy": [
+        1010,
+        1042,
+        1400,
+        1350
+      ],
+      "rotation_degrees_counterclockwise": 180,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "observed_marking": "SPANSION GL256S10FHV2 / 020BB493 F / THAILAND",
+      "sha256": "3ed5c5f10e9a00caa3acbcb53f40f558e611d205b70ac8ffc1ba6d01d8a89b78"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-2.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png2-nikon-E1-223.png",
+      "box_xyxy": [
+        754,
+        964,
+        955,
+        1142
+      ],
+      "rotation_degrees_counterclockwise": 90,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "historical_provisional_file": "docs/assets/hardware/z62-user-board-20261025/png2-micron.png",
+      "observed_marking": "Nikon E1-223 / 007636",
+      "correction": "Initial crop filename suggested Micron before visual reading. Nikon is visible; role unknown.",
+      "sha256": "8e4d4f5395ad55c9063b6fca7097bc0437f4b42bf930b42743f6340fa962bace"
+    },
+    {
+      "source": "assets/z62-taobao-motherboard-2.png",
+      "file": "docs/assets/hardware/z62-user-board-20261025/png2-supply-driver-marking.png",
+      "box_xyxy": [
+        534,
+        687,
+        682,
+        839
+      ],
+      "rotation_degrees_counterclockwise": 180,
+      "scale": 3,
+      "interpolation": "nearest-neighbor",
+      "sha256": "aee5eaa0c9845fbb2ba1b85ea2a5c539a65d5dd148708d410f14dd4a8acd5e5a"
+    }
+  ],
+  "pixel_processing": "literal crop, whole-image 90/180 degree rotation, integer nearest-neighbor scale; no invented pixels or generative enhancement",
+  "jpeg_supplements": "Retained as different byte carriers. User confirms the two supplied PNGs are Z62 boards; identical physical assembly and revision across images are not established. The rotated JPEG Spansion region agrees with PNG2. The original overview has distinct Micron-marked packages; do not infer vendor equality or mismatch without package/assembly mapping.",
+  "corrections": [
+    {
+      "initial_label": "NANYA",
+      "historical_file": "docs/assets/hardware/z62-user-board-20261025/supplement-right-nanya.png",
+      "corrected_label": "Spansion GL256S parallel Flash",
+      "corrected_file": "docs/assets/hardware/z62-user-board-20261025/supplement-right-spansion-flash.png",
+      "reason": "Whole-crop 180 degree rotation exposes SPANSION and GL256S10FHV2; initial provisional label was incorrect."
+    },
+    {
+      "initial_label": "Micron",
+      "historical_file": "docs/assets/hardware/z62-user-board-20261025/png2-micron.png",
+      "corrected_label": "Nikon E1-223",
+      "corrected_file": "docs/assets/hardware/z62-user-board-20261025/png2-nikon-E1-223.png",
+      "reason": "Visual readback of supplied PNG2 shows Nikon. No component role assigned."
+    }
+  ]
+}

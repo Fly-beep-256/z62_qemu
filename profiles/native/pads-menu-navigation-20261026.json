@@ -1,0 +1,192 @@
+{
+  "schema": "z62.external-pad-schedule/1",
+  "timebase": "QEMU_CLOCK_VIRTUAL",
+  "physical_button_names_verified": false,
+  "purpose": "Original menu directional/confirmation input and entry/focus/exit/reentry; physical pin names remain candidate",
+  "schedule": [
+    {
+      "at_virtual_seconds": 2,
+      "pad_kind": "GPIO",
+      "port": "C",
+      "mask": 32,
+      "levels": 0,
+      "label": "PC5:close-low"
+    },
+    {
+      "at_virtual_seconds": 10,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:menu-enter-low"
+    },
+    {
+      "at_virtual_seconds": 10.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:menu-enter-release"
+    },
+    {
+      "at_virtual_seconds": 12,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 128,
+      "levels": 0,
+      "label": "PCAL7:candidate-right-low"
+    },
+    {
+      "at_virtual_seconds": 12.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 128,
+      "levels": 128,
+      "label": "PCAL7:candidate-right-release"
+    },
+    {
+      "at_virtual_seconds": 13.5,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 16,
+      "levels": 0,
+      "label": "PCAL4:candidate-down-list-low"
+    },
+    {
+      "at_virtual_seconds": 13.75,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 16,
+      "levels": 16,
+      "label": "PCAL4:candidate-down-list-release"
+    },
+    {
+      "at_virtual_seconds": 15,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 32,
+      "levels": 0,
+      "label": "PCAL5:candidate-up-list-low"
+    },
+    {
+      "at_virtual_seconds": 15.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 32,
+      "levels": 32,
+      "label": "PCAL5:candidate-up-list-release"
+    },
+    {
+      "at_virtual_seconds": 16.5,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 64,
+      "levels": 0,
+      "label": "PCAL6:candidate-left-low"
+    },
+    {
+      "at_virtual_seconds": 16.75,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 64,
+      "levels": 64,
+      "label": "PCAL6:candidate-left-release"
+    },
+    {
+      "at_virtual_seconds": 18,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 16,
+      "levels": 0,
+      "label": "PCAL4:candidate-down-tab-low"
+    },
+    {
+      "at_virtual_seconds": 18.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 16,
+      "levels": 16,
+      "label": "PCAL4:candidate-down-tab-release"
+    },
+    {
+      "at_virtual_seconds": 19.5,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 32,
+      "levels": 0,
+      "label": "PCAL5:candidate-up-tab-low"
+    },
+    {
+      "at_virtual_seconds": 19.75,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 32,
+      "levels": 32,
+      "label": "PCAL5:candidate-up-tab-release"
+    },
+    {
+      "at_virtual_seconds": 21,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 256,
+      "levels": 0,
+      "label": "PCAL8:candidate-confirm-low"
+    },
+    {
+      "at_virtual_seconds": 21.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 256,
+      "levels": 256,
+      "label": "PCAL8:candidate-confirm-release"
+    },
+    {
+      "at_virtual_seconds": 23,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:menu-focus-low"
+    },
+    {
+      "at_virtual_seconds": 23.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:menu-focus-release"
+    },
+    {
+      "at_virtual_seconds": 24.5,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:menu-exit-low"
+    },
+    {
+      "at_virtual_seconds": 24.75,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:menu-exit-release"
+    },
+    {
+      "at_virtual_seconds": 26,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:menu-reenter-low"
+    },
+    {
+      "at_virtual_seconds": 26.25,
+      "pad_kind": "PCAL",
+      "port": null,
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:menu-reenter-release"
+    }
+  ]
+}

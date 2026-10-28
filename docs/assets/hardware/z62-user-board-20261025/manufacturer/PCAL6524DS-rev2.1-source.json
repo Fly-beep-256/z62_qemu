@@ -1,0 +1,63 @@
+{
+  "schema": "z62.manufacturer-source/1",
+  "recorded": "2026-10-25T15:24:26.681928+00:00",
+  "manufacturer": "NXP Semiconductors",
+  "document": "PCAL6524DS",
+  "URL": "https://www.nxp.com/docs/en/data-sheet/PCAL6524DS.pdf",
+  "revision": "2.1",
+  "publication_date": "2025-07-03",
+  "PDF_pages": 60,
+  "PDF": {
+    "path": "docs/assets/hardware/z62-user-board-20261025/manufacturer/PCAL6524DS-rev2.1.pdf",
+    "bytes": 816662,
+    "sha256": "1d288143e686e995ec6b4d1a4bdbcf252ae42f772b536a222ac8a0a1db597797"
+  },
+  "selected_pages_text": {
+    "path": "docs/assets/hardware/z62-user-board-20261025/manufacturer/PCAL6524DS-rev2.1-selected-pages.txt",
+    "bytes": 19085,
+    "sha256": "c6e2575a2cafafa6b365f1b0d836a58f730dfcdbf6fc81a76dcd1309e7efce04"
+  },
+  "selected_PDF_pages": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    57
+  ],
+  "extraction": "pypdf text extraction from the retained original PDF; page numbering is original PDF page / 60",
+  "claims": [
+    {
+      "claim": "Topside L6524 identifies PCAL6524HE, HUQFN32, SOT1426-1, 5 x 5 x 0.56 mm",
+      "PDF_page": 4,
+      "table": 1
+    },
+    {
+      "claim": "VDD(I2C-bus) 0.8 to 3.6 V; VDD(P) 1.65 to 5.5 V; 24 GPIO, Fm+ up to 1 MHz",
+      "PDF_pages": [
+        2,
+        3
+      ]
+    },
+    {
+      "claim": "HUQFN32 SCL=29, SDA=30, VDD(I2C-bus)=31, INT=32, ADDR=26, VDD(P)=27, RESET=28",
+      "PDF_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "claim": "ADDR=VSS yields 7-bit address 0x22, on-wire write byte 0x44 and read byte 0x45; Table4 44h is an address byte",
+      "PDF_page": 7,
+      "table": 4
+    }
+  ],
+  "orderable_packing_suffix_verified": false,
+  "Z62_board_bus_owner_verified": false,
+  "Z62_pin_wiring_verified": false,
+  "camera_access": false,
+  "scope": "manufacturer device identity and function; photographed PCB ownership, wiring and power state remain separate evidence"
+}

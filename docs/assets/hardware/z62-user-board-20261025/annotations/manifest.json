@@ -1,0 +1,118 @@
+{
+  "schema": "z62.hardware-photo-annotations/1",
+  "created": "2026-10-25T15:27:33.169926+00:00",
+  "generator": {
+    "path": "scripts/hardware_photo_report.py",
+    "bytes": 5066,
+    "sha256": "ffa97f50f04314ab257e18f5a7c56755669059233519871c9f1d4d6c6cb38c81"
+  },
+  "source_confirmation": {
+    "path": "docs/assets/hardware/z62-user-board-20261025/source-confirmation.json",
+    "bytes": 6199,
+    "sha256": "defd133b0f01a52f8837d8387e5f7c07af602d7b29aab424cf535b158dcf2393"
+  },
+  "manufacturer_source": {
+    "path": "docs/assets/hardware/z62-user-board-20261025/manufacturer/PCAL6524DS-rev2.1-source.json",
+    "bytes": 1903,
+    "sha256": "d27051f4505e09fccfd50ffd7a68a1a6c2e010f58c38f3adafd03c48f42a166c"
+  },
+  "processing": "literal RGB photo plus numbered rectangles and a separate legend; no reconstruction, rotation or scale",
+  "board_wiring_verified": false,
+  "camera_access": false,
+  "photos": [
+    {
+      "source": {
+        "path": "assets/z62-taobao-motherboard-1.png",
+        "bytes": 7040808,
+        "sha256": "4500f0eef42f3854ff62861295bb46ed2b0c7f6e0af5ca7b36c82fde6b1f56eb"
+      },
+      "source_dimensions": [
+        2920,
+        1436
+      ],
+      "output": {
+        "path": "docs/assets/hardware/z62-user-board-20261025/annotations/board-1-annotated.png",
+        "bytes": 5387936,
+        "sha256": "4969cadcc23fbbf3c2caa198a372089165b5f8cb1002c202b579df90ffed4833"
+      },
+      "output_dimensions": [
+        2920,
+        1676
+      ],
+      "markers": [
+        {
+          "number": 1,
+          "box_xyxy": [
+            645,
+            455,
+            841,
+            638
+          ],
+          "label": "R5F56519AD: Renesas RX651; board role unresolved"
+        },
+        {
+          "number": 2,
+          "box_xyxy": [
+            1530,
+            644,
+            1815,
+            924
+          ],
+          "label": "ST controller; complete ordering code unresolved"
+        },
+        {
+          "number": 3,
+          "box_xyxy": [
+            1150,
+            258,
+            1298,
+            416
+          ],
+          "label": "L6524: NXP PCAL6524HE / HUQFN32; bus owner unresolved"
+        }
+      ]
+    },
+    {
+      "source": {
+        "path": "assets/z62-taobao-motherboard-2.png",
+        "bytes": 7074946,
+        "sha256": "99ffaf05d90eced787d215d9a9ba83e708c4747f92121a64f40199be9f855b70"
+      },
+      "source_dimensions": [
+        2920,
+        1436
+      ],
+      "output": {
+        "path": "docs/assets/hardware/z62-user-board-20261025/annotations/board-2-annotated.png",
+        "bytes": 5315325,
+        "sha256": "4242dbd47757ef465910116ba2bf53db3e41e6c1c4575fcc3b3c87c7cf148c20"
+      },
+      "output_dimensions": [
+        2920,
+        1676
+      ],
+      "markers": [
+        {
+          "number": 4,
+          "box_xyxy": [
+            1010,
+            1042,
+            1400,
+            1350
+          ],
+          "label": "SPANSION GL256S10FHV2: parallel NOR family; bus owner unresolved"
+        },
+        {
+          "number": 5,
+          "box_xyxy": [
+            754,
+            964,
+            955,
+            1142
+          ],
+          "label": "Nikon E1-223 / 007636; device function unresolved"
+        }
+      ]
+    }
+  ]
+}

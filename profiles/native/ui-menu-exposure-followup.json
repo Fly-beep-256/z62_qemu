@@ -1,0 +1,1760 @@
+{
+  "schema": "z62.native-ui-observation-plan/2",
+  "purpose": "Complete native menu pad exploration, input callback-table ABI, serial bit31 regression and original AE input first-writer message/gate evidence",
+  "ROM_sha256": {
+    "master": "bb83613121f843d65101da936d942acdc513d86dbd3abc26259d0d870d03f5d4",
+    "slave": "3fd8c2cbdf57fadb03f6d69b596b58a8703efdd61ae82572d5afeea0241a9ed5",
+    "MCU": "4314c17d9a6676a4254aa4d74d4aa35411e3a793ea7056c06f9c83f160da3cb1"
+  },
+  "windows": [
+    {
+      "label": "startup",
+      "start_virtual_ns": 0
+    },
+    {
+      "label": "menu-enter",
+      "start_virtual_ns": 9800000000
+    },
+    {
+      "label": "pcal-0",
+      "start_virtual_ns": 11800000000
+    },
+    {
+      "label": "pcal-1",
+      "start_virtual_ns": 13300000000
+    },
+    {
+      "label": "pcal-2",
+      "start_virtual_ns": 14800000000
+    },
+    {
+      "label": "pcal-3",
+      "start_virtual_ns": 16300000000
+    },
+    {
+      "label": "menu-toggle",
+      "start_virtual_ns": 17800000000
+    },
+    {
+      "label": "menu-exit",
+      "start_virtual_ns": 19300000000
+    },
+    {
+      "label": "menu-reenter",
+      "start_virtual_ns": 20800000000
+    }
+  ],
+  "sites": [
+    {
+      "role": "master",
+      "address": "0x1022eee6",
+      "label": "AESEF qualification return",
+      "original_ROM_bytes": "00283fd0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r5",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r5",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r5",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022ef20",
+      "label": "AESEF mask80 claim return",
+      "original_ROM_bytes": "002822d0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r5",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r5",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r5",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1021083e",
+      "label": "AESEF request busy test",
+      "original_ROM_bytes": "09d00068",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "request_context_slot",
+          "register": "r0",
+          "bytes": 4
+        },
+        {
+          "label": "request_context",
+          "register": "r0",
+          "bytes": 96,
+          "path": [
+            {
+              "offset": 0,
+              "dereference": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1021084c",
+      "label": "AESEF mask4 actual post",
+      "original_ROM_bytes": "4cf19ef8",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10210114",
+      "label": "AESEF actual dispatcher mask",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 3,
+      "samples": [
+        {
+          "label": "AESEF_request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "AE_default_input",
+          "address": "0xc20f2a00",
+          "bytes": 488
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10210174",
+      "label": "AESEF mask4 generator call",
+      "original_ROM_bytes": "fff791fc",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r0",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022f3ba",
+      "label": "AESEF 041A000A context source",
+      "original_ROM_bytes": "fff783fd",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r0",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10235856",
+      "label": "AESEF main AE mask2 queue source",
+      "original_ROM_bytes": "f9f735fb",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "request_control",
+          "address": "0xc185f484",
+          "bytes": 56
+        },
+        {
+          "label": "task_owner",
+          "address": "0xc20f29d4",
+          "bytes": 44
+        },
+        {
+          "label": "qualification_owner",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "mask80_claim",
+          "address": "0xc25db174",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_flags",
+          "register": "r0",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "qualification_context_result",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 11672
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10231480",
+      "label": "main AE actual dispatcher mask",
+      "original_ROM_bytes": "2de9fc41",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "selector_pending",
+          "address": "0xc1887d8c",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038dc0c",
+      "label": "original key payload input",
+      "original_ROM_bytes": "34220146",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "incoming_payload",
+          "register": "r0",
+          "bytes": 52
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106319c6",
+      "label": "original MENU request",
+      "original_ROM_bytes": "10b5fef7",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "MENU_state",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "MCU",
+      "address": "0x8037ed4",
+      "label": "MCU input template scanner",
+      "original_ROM_bytes": "70b50146",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "scanner_input",
+          "register": "r0",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_raw_input",
+          "address": "0x2001f32c",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_aggregate_input",
+          "address": "0x20015d30",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_scanner_state",
+          "address": "0x20015bcc",
+          "bytes": 44
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237a48",
+      "label": "upstream owner actual dispatcher mask",
+      "original_ROM_bytes": "70b58a4c",
+      "max_hits_per_window": 3,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 68
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10238b8a",
+      "label": "adapter actual dispatcher mask",
+      "original_ROM_bytes": "70b5b34c",
+      "max_hits_per_window": 3,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 68
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237b80",
+      "label": "upstream context request API entry",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 104
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237bc0",
+      "label": "upstream context request actual post",
+      "original_ROM_bytes": "24f1e4be",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 104
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r4",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r4",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023594e",
+      "label": "main AE upstream context processor",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 104
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10235d8e",
+      "label": "main AE upstream qualification entry",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 104
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r0",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10235dd6",
+      "label": "main AE upstream qualification return",
+      "original_ROM_bytes": "284670bd",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 104
+        },
+        {
+          "label": "adapter_control",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r4",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r4",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10235a4a",
+      "label": "main AE queue initialization entry",
+      "original_ROM_bytes": "10b502f0",
+      "max_hits_per_window": 1,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "main_AE_owner",
+          "address": "0xc25dacb8",
+          "bytes": 44
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10235ab4",
+      "label": "main AE queue initialization completed",
+      "original_ROM_bytes": "36486838",
+      "max_hits_per_window": 1,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "main_AE_owner",
+          "address": "0xc25dacb8",
+          "bytes": 44
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10436600",
+      "label": "original raw key payload builder",
+      "original_ROM_bytes": "2de9f74f",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "raw_input",
+          "register": "r0",
+          "bytes": 128
+        },
+        {
+          "label": "builder_payload",
+          "address": "0xc25d6fc0",
+          "bytes": 52
+        },
+        {
+          "label": "phase_descriptor",
+          "address": "0xc18879f8",
+          "bytes": 8
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038dd44",
+      "label": "original phase0 key callback",
+      "original_ROM_bytes": "01780029",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "incoming_descriptor",
+          "register": "r0",
+          "bytes": 8
+        },
+        {
+          "label": "builder_payload",
+          "address": "0xc25d6fc0",
+          "bytes": 52
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038da94",
+      "label": "original key owner actual dispatcher",
+      "original_ROM_bytes": "7cb50546",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "current_previous_key_payload",
+          "address": "0xc1f7a720",
+          "bytes": 104
+        },
+        {
+          "label": "normalized_key_state",
+          "address": "0xc1f7a5ac",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237b70",
+      "label": "041A000A source context store",
+      "original_ROM_bytes": "01610121",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 68
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r1",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "associated_wait_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237b78",
+      "label": "041A000A source actual post",
+      "original_ROM_bytes": "24f108ff",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 68
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10237a5e",
+      "label": "041A000A source actual callback",
+      "original_ROM_bytes": "90472169",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "upstream_control",
+          "address": "0xc1887f94",
+          "bytes": 68
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r1",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "associated_wait_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x102333c8",
+      "label": "AE pending input slot entry",
+      "original_ROM_bytes": "2de9f04f",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "incoming_context_slot",
+          "register": "r0",
+          "bytes": 4
+        },
+        {
+          "label": "incoming_context_header",
+          "register": "r0",
+          "bytes": 96,
+          "path": [
+            {
+              "dereference": true
+            }
+          ]
+        },
+        {
+          "label": "incoming_context_tail",
+          "register": "r0",
+          "bytes": 16,
+          "path": [
+            {
+              "dereference": true
+            },
+            {
+              "offset": 320
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10233480",
+      "label": "AE pending queue append",
+      "original_ROM_bytes": "18f175fd",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "incoming_context_slot",
+          "register": "r9",
+          "bytes": 4
+        },
+        {
+          "label": "context_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r1",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "associated_wait_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022e0e6",
+      "label": "AE simple ready queue append",
+      "original_ROM_bytes": "1df142ff",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r1",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "associated_wait_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234d2c",
+      "label": "AE selector input queue append",
+      "original_ROM_bytes": "17f11ff9",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "input_item_slot",
+          "register": "r4",
+          "bytes": 4
+        },
+        {
+          "label": "input_item_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "item_branch",
+          "register": "r1",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 692
+            }
+          ]
+        },
+        {
+          "label": "item_associated_pointer",
+          "register": "r1",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        },
+        {
+          "label": "item_associated_ready_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 1268,
+              "dereference": true
+            },
+            {
+              "offset": 10308
+            }
+          ]
+        },
+        {
+          "label": "input_block",
+          "register": "r4",
+          "bytes": 40
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234de2",
+      "label": "AE selector return and gate",
+      "original_ROM_bytes": "050072d0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "input_item_header",
+          "register": "r0",
+          "bytes": 96
+        },
+        {
+          "label": "item_branch",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 692
+            }
+          ]
+        },
+        {
+          "label": "item_associated_pointer",
+          "register": "r0",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        },
+        {
+          "label": "item_associated_ready_fields",
+          "register": "r0",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 1268,
+              "dereference": true
+            },
+            {
+              "offset": 10308
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234e2e",
+      "label": "AE selected ready queue append",
+      "original_ROM_bytes": "17f19ef8",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "context_header",
+          "register": "r1",
+          "bytes": 96
+        },
+        {
+          "label": "context_tail",
+          "register": "r1",
+          "bytes": 16,
+          "path": [
+            {
+              "offset": 320
+            }
+          ]
+        },
+        {
+          "label": "associated_wait_fields",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 324,
+              "dereference": true
+            },
+            {
+              "offset": 16
+            }
+          ]
+        },
+        {
+          "label": "input_item_header",
+          "register": "r5",
+          "bytes": 96
+        },
+        {
+          "label": "item_branch",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 692
+            }
+          ]
+        },
+        {
+          "label": "item_associated_pointer",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        },
+        {
+          "label": "item_associated_ready_fields",
+          "register": "r5",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 1268,
+              "dereference": true
+            },
+            {
+              "offset": 10308
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234f5e",
+      "label": "AE selected ready actual post",
+      "original_ROM_bytes": "27f115bd",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "selector_queue",
+          "address": "0xc25db254",
+          "bytes": 32
+        },
+        {
+          "label": "main_AE_owner",
+          "address": "0xc25dacb8",
+          "bytes": 44
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038db5e",
+      "label": "original normalized key downstream callback",
+      "original_ROM_bytes": "8847606d",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "address": "0xc1f7a5ac",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        },
+        {
+          "label": "MENU_state_array",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10204d76",
+      "label": "original registered input callback entry",
+      "original_ROM_bytes": "10b50146",
+      "max_hits_per_window": 3,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1020e05a",
+      "label": "original input downstream table call",
+      "original_ROM_bytes": "9047002e",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "input_callback_table",
+          "register": "r0",
+          "bytes": 64
+        },
+        {
+          "label": "normalized_key_state",
+          "register": "r1",
+          "bytes": 160
+        },
+        {
+          "label": "input_context_dispatch",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 320
+            }
+          ],
+          "bytes": 64
+        },
+        {
+          "label": "input_context_flags",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 752
+            }
+          ],
+          "bytes": 16
+        },
+        {
+          "label": "input_context_policy",
+          "register": "r5",
+          "path": [
+            {
+              "offset": 848
+            }
+          ],
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1036fb48",
+      "label": "original serial bank control bit31 store",
+      "original_ROM_bytes": "10600020",
+      "max_hits_per_window": 1,
+      "samples": []
+    },
+    {
+      "role": "master",
+      "address": "0x1031ad06",
+      "label": "具体工作消息生产边",
+      "original_ROM_bytes": "fbf7a1fa",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_message_container",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        },
+        {
+          "label": "job_callback_flags",
+          "address": "0xc1868bf0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031627a",
+      "label": "固定容器提交与满/未初始化门控",
+      "original_ROM_bytes": "0ff74bfa",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_message_container",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        },
+        {
+          "label": "job_message",
+          "register": "r1",
+          "bytes": 92
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031627e",
+      "label": "job message enqueue return",
+      "original_ROM_bytes": "10480121",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_message_container",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10316284",
+      "label": "真实owner消息唤醒",
+      "original_ROM_bytes": "46f082fb",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_message_owner",
+          "address": "0xc23d9ee8",
+          "bytes": 44
+        },
+        {
+          "label": "job_message_container",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a566",
+      "label": "异步callback中的延期/ready分支",
+      "original_ROM_bytes": "21b10462",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "job_callback_flags",
+          "address": "0xc1868bf0",
+          "bytes": 128
+        },
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a29e",
+      "label": "现存输入资源队列尾item读取",
+      "original_ROM_bytes": "31f02cfe",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "old_job_queue",
+          "address": "0xc23dc9cc",
+          "bytes": 32
+        },
+        {
+          "label": "old_tail_payload",
+          "address": "0xc23dc9cc",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 4,
+              "dereference": true
+            },
+            {
+              "offset": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a2d8",
+      "label": "两个原厂分配资源返回检查",
+      "original_ROM_bytes": "074639d0",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "new_item_header",
+          "register": "r4",
+          "bytes": 32
+        },
+        {
+          "label": "new_q_ready_fields",
+          "register": "r0",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 10308
+            }
+          ]
+        },
+        {
+          "label": "old_job_q_pointer",
+          "register": "r5",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 1268
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10316b5c",
+      "label": "item关联对象的真实writer",
+      "original_ROM_bytes": "c4f8f464",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "new_item_header",
+          "register": "r4",
+          "bytes": 32
+        },
+        {
+          "label": "new_q_ready_fields",
+          "register": "r6",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 10308
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a32e",
+      "label": "input槽最初writer（已选路径）",
+      "original_ROM_bytes": "cde90146",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "new_item_header",
+          "register": "r4",
+          "bytes": 32
+        },
+        {
+          "label": "input_stack_before_writer",
+          "register": "r13",
+          "bytes": 40,
+          "path": [
+            {
+              "offset": 4
+            }
+          ]
+        },
+        {
+          "label": "input_template",
+          "address": "0xc23dc0a0",
+          "bytes": 24
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10234b60",
+      "label": "selector第一个显式拒绝分支",
+      "original_ROM_bytes": "40b32068",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "input_block",
+          "register": "r4",
+          "bytes": 40
+        }
+      ]
+    }
+  ],
+  "guest_state_injection": false,
+  "physical_pin_names_verified": false,
+  "contract_report": "results/native-ui-investigation-20261025/ae-aesef-producer-followup-20261026.md",
+  "contract_reports": [
+    "results/native-ui-investigation-20261025/ae-aesef-producer-followup-20261026.md",
+    "results/native-ui-investigation-20261025/native-key-payload-followup-20261026.md",
+    "results/native-ui-investigation-20261025/ae-request-source-followup-20261026.txt",
+    "results/native-ui-investigation-20261025/serial-control-and-input-dispatch-20261026.md",
+    "results/native-ui-investigation-20261025/ae-input-first-writer-20261026.md"
+  ]
+}

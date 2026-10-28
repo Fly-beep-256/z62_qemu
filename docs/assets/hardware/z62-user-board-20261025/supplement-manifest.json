@@ -1,0 +1,119 @@
+{
+  "schema": "z62.hardware-photo-supplements/1",
+  "photos": [
+    {
+      "source": "supplied replacement-board comparison photograph",
+      "file": "supplement-left.jpg",
+      "sha256": "278977acdbf8482737b47d16e1240b92ad28c98e78d06c7f4dea2b8df052440c",
+      "dimensions": [
+        1200,
+        1200
+      ],
+      "board_model": "Supplied PNG1 and PNG2 are Z62 replacement boards; these retained JPEG images are associated comparison views, not byte-identical sources.",
+      "regions": [
+        {
+          "label": "renesas",
+          "box_xyxy": [
+            260,
+            658,
+            347,
+            741
+          ],
+          "file": "supplement-left-renesas.png"
+        },
+        {
+          "label": "st-controller",
+          "box_xyxy": [
+            625,
+            749,
+            740,
+            866
+          ],
+          "file": "supplement-left-st-controller.png"
+        },
+        {
+          "label": "top-code-D65490",
+          "box_xyxy": [
+            236,
+            509,
+            301,
+            572
+          ],
+          "file": "supplement-left-top-code-D65490.png"
+        },
+        {
+          "label": "top-code-L6524",
+          "box_xyxy": [
+            470,
+            571,
+            538,
+            648
+          ],
+          "file": "supplement-left-top-code-L6524.png"
+        },
+        {
+          "label": "board-date",
+          "box_xyxy": [
+            839,
+            624,
+            1009,
+            678
+          ],
+          "file": "supplement-left-board-date.png"
+        }
+      ],
+      "source_confirmation": "source-confirmation.json"
+    },
+    {
+      "source": "supplied replacement-board comparison photograph",
+      "file": "supplement-right.jpg",
+      "sha256": "db60558c4c0854b903ebf45eb3e13401c190267a16d7f080a20f16421e80ab56",
+      "dimensions": [
+        1200,
+        1200
+      ],
+      "board_model": "Supplied PNG1 and PNG2 are Z62 replacement boards; these retained JPEG images are associated comparison views, not byte-identical sources.",
+      "regions": [
+        {
+          "label": "spansion-flash",
+          "box_xyxy": [
+            423,
+            846,
+            565,
+            974
+          ],
+          "file": "supplement-right-spansion-flash.png",
+          "rotation_degrees_counterclockwise": 180,
+          "observed_marking": "SPANSION GL256S10FHV2",
+          "historical_provisional_files": [
+            "supplement-right-nanya.png",
+            "supplement-right-nanya-rotated.png"
+          ],
+          "correction": "NANYA provisional label rejected by rotated visual readback."
+        },
+        {
+          "label": "processors",
+          "box_xyxy": [
+            287,
+            549,
+            600,
+            840
+          ],
+          "file": "supplement-right-processors.png"
+        },
+        {
+          "label": "power",
+          "box_xyxy": [
+            491,
+            535,
+            840,
+            822
+          ],
+          "file": "supplement-right-power.png"
+        }
+      ],
+      "source_confirmation": "source-confirmation.json"
+    }
+  ],
+  "processing": "literal crop and nearest-neighbor 4x, no generative enhancement"
+}

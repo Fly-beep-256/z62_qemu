@@ -1,0 +1,108 @@
+{
+  "schema": "z62.published-native-milestone-evidence/1",
+  "version": "0.0.2",
+  "research_checkpoint": "V44",
+  "source_run": "20261028-051606-native-display-observation-7a9393",
+  "reference_build": {
+    "directory": "artifacts/rebuilt/20261028-051343-6a9cac",
+    "QEMU_sha256": "acffb3c6b5d6752192c25c28b955f5f0fef7e3f8e02f0ea5b12e50e68f27783e",
+    "compiled_model_sources": 119
+  },
+  "virtual_window_ns": 34000925224,
+  "final_stop_epoch": 2967,
+  "actual_debugger_guest_RAM_register_writes": 0,
+  "checks": {
+    "complete_source_bound_evidence": true,
+    "original_numerical_publication_and_string_observed": true,
+    "original_exposure_LCD_pixels_observed": true,
+    "changing_light_metering_feedback_verified": false,
+    "RAW_ISP_frame_completion_verified": false,
+    "full_camera_verified": false
+  },
+  "original_publication": {
+    "calculation_callback_count": 20,
+    "rational_batch_count": 21,
+    "scalar_triple_batch_count": 1,
+    "initialized_collector_count": 8,
+    "supplied_string_counts": {
+      "aperture:--": 12,
+      "ISO:51200": 9,
+      "shutter:30\"": 7
+    }
+  },
+  "LCD": {
+    "image": {
+      "path": "docs/assets/native-v0.0.2/exposure-lcd.png",
+      "bytes": 22977,
+      "sha256": "1b3cd5e482e7639bc17a3a96f1ad126dbc4476b1dad5a3d5059442379d893c08"
+    },
+    "dimensions": [
+      1024,
+      682
+    ],
+    "RGB_sha256": "9346028d32245d288248f5840701c14347f84ef1fdc379fa98fd7a4aeaa930b1",
+    "observed_text": "30\" / F-- / ISO AUTO 51200",
+    "continuous_visibility_verified": false,
+    "sensor_live_view_verified": false
+  },
+  "menu": {
+    "verified_responses": [
+      "up-row",
+      "confirmation",
+      "dialog-dismissal",
+      "tab-focus"
+    ],
+    "first_input_ns": 10000393960,
+    "first_menu_pixels_ns": 18846699448,
+    "first_menu_delay_ns": 8846305488,
+    "response_limit_ns": 3000000000,
+    "stable_MENU_verified": false,
+    "MENU_reentry_verified": false
+  },
+  "regression_checks": 16,
+  "source_artifacts": [
+    {
+      "path": "results/20261028-051606-native-display-observation-7a9393/run/native-unified-result.json",
+      "bytes": 8920604,
+      "sha256": "d53ded7771daa2b2ff8d49259240fb48daf24fca9d7fd841eaca7626069a85a7"
+    },
+    {
+      "path": "results/v44-exposure-wire-verified-7a9393/report.json",
+      "bytes": 384305,
+      "sha256": "f96893ef5a1b34dc2425142c7ba64b9acdb3abf8e733582a968605e8ff1cca85"
+    },
+    {
+      "path": "results/v44-menu-regression-7a9393-reviewed/report.json",
+      "bytes": 398118,
+      "sha256": "a64febd5c4b5f210b1754760d3b684883bdb824828f364fbd9a1de4729d52132"
+    },
+    {
+      "path": "results/v44-exposure-wire-regression-7a9393/report.json",
+      "bytes": 3075,
+      "sha256": "792b05ac0c93bca657818da5999314dbc9c057c4bda3a00d9b0daa15efb5927f"
+    }
+  ],
+  "publication_scope": "Sanitized summary and one observed LCD image. Raw run, debugger streams, firmware, Flash and RTC payloads remain local and are not redistributed. The summary is not a substitute for replaying the original run.",
+  "model_hypotheses": {
+    "isp_commit": "next-frame-ae-v4",
+    "image_status": "pending-v1",
+    "native_low_level_defaults_changed": false
+  },
+  "physical_camera_capture_or_writes_in_publication_work": 0,
+  "historical_v001_or_original_run_modified": false,
+  "publication_validation": {
+    "source_recipe_files_checked": 181,
+    "compiled_native_model_sources": 119,
+    "native_entry_boundary_tests": 12,
+    "retained_wire_damage_regression_checks": 16,
+    "image_input_and_submission_C_tests": 2,
+    "prepared_local_preflight_passed": true,
+    "source_only_export_from_other_cwd_passed": true,
+    "offline_ARM_source_export_build_passed": true,
+    "native_machine_present_in_export_build": true,
+    "host_binary_relocation_applied": true,
+    "new_firmware_execution_in_publication_work": false,
+    "reference_QEMU_selection_and_original_run_unchanged": true,
+    "initial_upstream_import_whitespace": "Release entry/new-file checks pass. Existing upstream and retained-source whitespace is preserved to keep source identities; the full initial import has historical whitespace diagnostics."
+  }
+}

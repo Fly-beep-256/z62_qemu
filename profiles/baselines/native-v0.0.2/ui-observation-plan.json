@@ -1,0 +1,2865 @@
+{
+  "schema": "z62.native-ui-observation-plan/4",
+  "purpose": "Source-bound exposure/MENU, actual callback latency and unit history; all T windows active.",
+  "ROM_sha256": {
+    "master": "bb83613121f843d65101da936d942acdc513d86dbd3abc26259d0d870d03f5d4",
+    "slave": "3fd8c2cbdf57fadb03f6d69b596b58a8703efdd61ae82572d5afeea0241a9ed5",
+    "MCU": "4314c17d9a6676a4254aa4d74d4aa35411e3a793ea7056c06f9c83f160da3cb1"
+  },
+  "windows": [
+    {
+      "label": "startup",
+      "start_virtual_ns": 0
+    },
+    {
+      "label": "PC5-close",
+      "start_virtual_ns": 2000000000
+    },
+    {
+      "label": "original-start",
+      "start_virtual_ns": 3600000000
+    },
+    {
+      "label": "first-input",
+      "start_virtual_ns": 4500000000
+    },
+    {
+      "label": "first-exposure",
+      "start_virtual_ns": 5000000000
+    },
+    {
+      "label": "first-exposure-followup",
+      "start_virtual_ns": 5200000000
+    },
+    {
+      "label": "AE-progression",
+      "start_virtual_ns": 5400000000
+    },
+    {
+      "label": "later",
+      "start_virtual_ns": 6800000000
+    },
+    {
+      "label": "final-initialization",
+      "start_virtual_ns": 8500000000
+    },
+    {
+      "label": "menu-enter",
+      "start_virtual_ns": 10000000000
+    },
+    {
+      "label": "left-to-tabs",
+      "start_virtual_ns": 12000000000
+    },
+    {
+      "label": "down-next-tab",
+      "start_virtual_ns": 13500000000
+    },
+    {
+      "label": "up-previous-tab",
+      "start_virtual_ns": 15000000000
+    },
+    {
+      "label": "right-to-list",
+      "start_virtual_ns": 16500000000
+    },
+    {
+      "label": "down-next-row",
+      "start_virtual_ns": 18000000000
+    },
+    {
+      "label": "up-previous-row",
+      "start_virtual_ns": 19500000000
+    },
+    {
+      "label": "confirm-empty-folder",
+      "start_virtual_ns": 21000000000
+    },
+    {
+      "label": "menu-dismiss-dialog",
+      "start_virtual_ns": 23000000000
+    },
+    {
+      "label": "menu-focus-tabs",
+      "start_virtual_ns": 24500000000
+    },
+    {
+      "label": "menu-exit",
+      "start_virtual_ns": 26000000000
+    },
+    {
+      "label": "menu-reenter",
+      "start_virtual_ns": 29000000000
+    },
+    {
+      "label": "final-menu-hold",
+      "start_virtual_ns": 33000000000
+    }
+  ],
+  "sites": [
+    {
+      "role": "master",
+      "address": "0x1038dc0c",
+      "label": "original key payload input",
+      "original_ROM_bytes": "34220146",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "incoming_payload",
+          "register": "r0",
+          "bytes": 52
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106319c6",
+      "label": "original MENU request",
+      "original_ROM_bytes": "10b5fef7",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "MENU_state",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10436600",
+      "label": "original raw key payload builder",
+      "original_ROM_bytes": "2de9f74f",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "raw_input",
+          "register": "r0",
+          "bytes": 128
+        },
+        {
+          "label": "builder_payload",
+          "address": "0xc25d6fc0",
+          "bytes": 52
+        },
+        {
+          "label": "phase_descriptor",
+          "address": "0xc18879f8",
+          "bytes": 8
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038db5e",
+      "label": "original normalized key downstream callback",
+      "original_ROM_bytes": "8847606d",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "address": "0xc1f7a5ac",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        },
+        {
+          "label": "MENU_state_array",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103fd308",
+      "label": "original selected object actual method branch",
+      "original_ROM_bytes": "1047826c",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        }
+      ]
+    },
+    {
+      "role": "MCU",
+      "address": "0x8038058",
+      "label": "original MCU input result and six bytes",
+      "original_ROM_bytes": "0cb50a68",
+      "max_hits_per_window": 8,
+      "samples": [
+        {
+          "label": "six_input_bytes",
+          "register": "r1",
+          "bytes": 6
+        },
+        {
+          "label": "MCU_input_mode",
+          "address": "0x200159a4",
+          "bytes": 24
+        },
+        {
+          "label": "MCU_input_status_primary",
+          "address": "0x20015b74",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_input_status_mode2",
+          "address": "0x20015d30",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10450bfa",
+      "label": "original menu actual method entry",
+      "original_ROM_bytes": "10b50446",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103e8472",
+      "label": "Original local request: r0=U, LR=actual sender",
+      "original_ROM_bytes": "2de9fe43",
+      "max_hits_per_window": 8,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10229430",
+      "label": "Original local request input word getter",
+      "original_ROM_bytes": "20481c38",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103e81b0",
+      "label": "Original conditional E6 action submission",
+      "original_ROM_bytes": "3cf747ff",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031fca4",
+      "label": "Original E6 action actual delivery",
+      "original_ROM_bytes": "38b54168",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031f668",
+      "label": "Original shooting state input E and actual sender",
+      "original_ROM_bytes": "2de9fe4f",
+      "max_hits_per_window": 8,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031ed5e",
+      "label": "Original AE mode transaction T and actual sender",
+      "original_ROM_bytes": "2de9f04f",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10232d58",
+      "label": "Original AE mode byte write from packet",
+      "original_ROM_bytes": "b8707da8",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023140c",
+      "label": "Original qualified AE gate write",
+      "original_ROM_bytes": "c5f858a0",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023594e",
+      "label": "Original actual calculation request",
+      "original_ROM_bytes": "70b50446",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106af95c",
+      "label": "Original SAISO positive ready input",
+      "original_ROM_bytes": "a06a0028",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106af49a",
+      "label": "Original SAISO class3 input registration",
+      "original_ROM_bytes": "2de9f047",
+      "max_hits_per_window": 4,
+      "active_windows": [
+        "startup",
+        "PC5-close",
+        "menu-enter",
+        "menu-exit",
+        "menu-reenter"
+      ],
+      "samples": [
+        {
+          "label": "shooting_control",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "local_request_control",
+          "address": "0xc23e2b7c",
+          "bytes": 32
+        },
+        {
+          "label": "request_input_word",
+          "address": "0xc1869700",
+          "bytes": 4
+        },
+        {
+          "label": "AE_mode_and_gate",
+          "address": "0xc1887cb0",
+          "bytes": 96
+        },
+        {
+          "label": "SAISO_activation_control",
+          "address": "0xc1886158",
+          "bytes": 80
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106aed58",
+      "label": "Original SAISO_scalar_batch",
+      "original_ROM_bytes": "71f772fc",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "71f772fc",
+        "byte_count": 4,
+        "raw_sha256": "281a8c38475afd019f064c800a8cf21f70b8ab12c018960e4a8ae1a2bc2f118d",
+        "actual_decode": "bl #0x10620640"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "actual_scalar_ID_array",
+          "register": "r0",
+          "bytes": 128
+        },
+        {
+          "label": "actual_scalar_value_array",
+          "register": "r1",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022f1e8",
+      "label": "AE4_set_tail",
+      "original_ROM_bytes": "2ef1c4b8",
+      "max_hits_per_window": 3,
+      "bounded_original_instruction": {
+        "raw_hex": "2ef1c4b8",
+        "byte_count": 4,
+        "raw_sha256": "a6b974e038a6a11cf580bd2df6a387264de2d8d977e0dc19166989d44c23d799",
+        "actual_decode": "b.w #0x1035d374"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ],
+      "registers_equal": {
+        "r0": "0xc1887cdc",
+        "r1": "0x4"
+      },
+      "max_attempts_per_window": 256
+    },
+    {
+      "role": "master",
+      "address": "0x1022f386",
+      "label": "adapter_selects_AE4",
+      "original_ROM_bytes": "042129e7",
+      "max_hits_per_window": 3,
+      "bounded_original_instruction": {
+        "raw_hex": "0421",
+        "byte_count": 2,
+        "raw_sha256": "45f8b567f2bbd39674df94d86903930133b15d5394ed64cfe921a38de7d5c513",
+        "actual_decode": "movs r1, #4"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10230270",
+      "label": "Original AE/EA str r0, [r4, #0x58]",
+      "original_ROM_bytes": "a06507b0",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "a065",
+        "byte_count": 2,
+        "raw_sha256": "1a76a182d46756794097754c25e18b539c83c30a56e9698e072abf1e3d89925d",
+        "actual_decode": "str r0, [r4, #0x58]"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10230272",
+      "label": "Original AE/EA add sp, #0x1c",
+      "original_ROM_bytes": "07b0f0bd",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "07b0",
+        "byte_count": 2,
+        "raw_sha256": "e1404aa6a0c42dffe3c51882d6c274e7b0eca1d40a81fac42847fc9f8203f98f",
+        "actual_decode": "add sp, #0x1c"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023382c",
+      "label": "Original AE/EA bl #0x1035d45a",
+      "original_ROM_bytes": "29f115fe",
+      "max_hits_per_window": 3,
+      "bounded_original_instruction": {
+        "raw_hex": "29f115fe",
+        "byte_count": 4,
+        "raw_sha256": "8aaa77f0670bfda4787d92cd5a35d0d9a1eb4a2f8cfd3ec2e9a896051b4ec2ae",
+        "actual_decode": "bl #0x1035d45a"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        },
+        {
+          "label": "saved_helper_status_spBC",
+          "register": "r13",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 188
+            }
+          ]
+        },
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10233830",
+      "label": "Original AE/EA ldr r0, [sp, #0xbc]",
+      "original_ROM_bytes": "2f9818b1",
+      "max_hits_per_window": 3,
+      "bounded_original_instruction": {
+        "raw_hex": "2f98",
+        "byte_count": 2,
+        "raw_sha256": "6c6a66e78185ed5facdfe2a8646a947c6df53f34e4fa74890c81bf03d4bf9eb2",
+        "actual_decode": "ldr r0, [sp, #0xbc]"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        },
+        {
+          "label": "saved_helper_status_spBC",
+          "register": "r13",
+          "bytes": 4,
+          "path": [
+            {
+              "offset": 188
+            }
+          ]
+        },
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10238804",
+      "label": "Original AE/EA bl #0x1035d43a",
+      "original_ROM_bytes": "24f119fe",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "24f119fe",
+        "byte_count": 4,
+        "raw_sha256": "ae482271177fab668230f666bdfd8187ed6857e19d7982775e07458dc29fcaac",
+        "actual_decode": "bl #0x1035d43a"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10238808",
+      "label": "Original AE/EA mov r6, r0",
+      "original_ROM_bytes": "064625b1",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "0646",
+        "byte_count": 2,
+        "raw_sha256": "ba7ebcb5685e5c0b3bf49e8fd984ea113bc648692332cad518d0ce4ca1abf758",
+        "actual_decode": "mov r6, r0"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022e47c",
+      "label": "Original Main8 qualification selection",
+      "original_ROM_bytes": "daf86800",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "daf86800",
+        "byte_count": 4,
+        "raw_sha256": "5c06734187baa3cb9aa086c2a8818a0ef9c547a77fb5adaccdd8910c1a5b6679",
+        "actual_decode": "ldr.w r0, [sl, #0x68]"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_common_IRQ_mirror",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1022e4a6",
+      "label": "Original Main event post tail",
+      "original_ROM_bytes": "2ef171ba",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2ef171ba",
+        "byte_count": 4,
+        "raw_sha256": "114af671f5445d00d0f969eda8d46f0c374d469d538f5c204a881a494626383b",
+        "actual_decode": "b.w #0x1035c98c"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_common_IRQ_mirror",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023c3c2",
+      "label": "Original Mode1 derived041A0003 callback",
+      "original_ROM_bytes": "10474878",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "1047",
+        "byte_count": 2,
+        "raw_sha256": "dd9261f0471768edc33bf979649f6297463be423da17c3f881684f5747e163a1",
+        "actual_decode": "bx r2"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_common_IRQ_mirror",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x102392b8",
+      "label": "Original bank3 callback masked record",
+      "original_ROM_bytes": "10b54d4a",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "10b5",
+        "byte_count": 2,
+        "raw_sha256": "45032905ccc19f93939ffc8a27669cc54ac144bd58ce513681f9320712ed9b2c",
+        "actual_decode": "push {r4, lr}"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_IRQ_mirrors",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "masked_ISP_banks2_3",
+          "register": "r1",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023930e",
+      "label": "Original bank3 bit7 worker80 post",
+      "original_ROM_bytes": "23f13dbb",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "23f13dbb",
+        "byte_count": 4,
+        "raw_sha256": "5e4f803d07dc981dd295d40da2ca49ec6703c29e617de6484b39f8215e52b03d",
+        "actual_decode": "b.w #0x1035c98c"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_IRQ_mirrors",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10238c12",
+      "label": "Original worker80 Mode1 handler call",
+      "original_ROM_bytes": "03f0bafb",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "03f0bafb",
+        "byte_count": 4,
+        "raw_sha256": "937b92fea188d926aa54ad4d1002f36fad860e47b92c0daae546bb7dc20783b5",
+        "actual_decode": "bl #0x1023c38a"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_IRQ_mirrors",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1023c3ea",
+      "label": "Original Mode1 software pending store",
+      "original_ROM_bytes": "686270bd",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "6862",
+        "byte_count": 2,
+        "raw_sha256": "6e533337bd970a97d7ac74f6f8f891e70a702b45ac5d03469006d2835844e4d6",
+        "actual_decode": "str r0, [r5, #0x24]"
+      },
+      "samples": [
+        {
+          "label": "ISP_control_root",
+          "address": "0xc1888080",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_adapter_control",
+          "address": "0xc269f9f4",
+          "bytes": 64
+        },
+        {
+          "label": "ISP_IRQ_mirrors",
+          "address": "0xc180681c",
+          "bytes": 32
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1021010a",
+      "label": "Original computation_callback",
+      "original_ROM_bytes": "90470df5",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "9047",
+        "byte_count": 2,
+        "raw_sha256": "70d60b715955f496c998e758d49e22df61315a93b528a2322d0455be7cdcf14d",
+        "actual_decode": "blx r2"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "actual_rational_callback_packet",
+          "register": "r1",
+          "bytes": 488
+        },
+        {
+          "label": "registered_rational_callback",
+          "address": "0xc185f4ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10357f8a",
+      "label": "Original seven_rational_publication",
+      "original_ROM_bytes": "a8f56bfb",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "a8f56bfb",
+        "byte_count": 4,
+        "raw_sha256": "e4236baa2285bea8a0dd0caf7cb919700f2ba945566bb112c54a0a35fa758617",
+        "actual_decode": "bl #0x10100664"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "actual_rational_ID_array",
+          "register": "r0",
+          "bytes": 28
+        },
+        {
+          "label": "actual_rational_pointer_array",
+          "register": "r1",
+          "bytes": 28
+        },
+        {
+          "label": "actual_rational_length_array",
+          "register": "r2",
+          "bytes": 28
+        },
+        {
+          "label": "rational_1608",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 0,
+              "dereference": true
+            }
+          ]
+        },
+        {
+          "label": "rational_1609",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 4,
+              "dereference": true
+            }
+          ]
+        },
+        {
+          "label": "rational_1603",
+          "register": "r1",
+          "bytes": 8,
+          "path": [
+            {
+              "offset": 8,
+              "dereference": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x107136aa",
+      "label": "Original shutter_workspace_store",
+      "original_ROM_bytes": "08600120",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "0860",
+        "byte_count": 2,
+        "raw_sha256": "e8f7d826fb40da643926254863f544b6b28d06e41bd46b74b876bd4e3419ed85",
+        "actual_decode": "str r0, [r1]"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "actual_workspace_value",
+          "register": "r1",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10713dc2",
+      "label": "Original ISO_workspace_store",
+      "original_ROM_bytes": "0860eee7",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "0860",
+        "byte_count": 2,
+        "raw_sha256": "e8f7d826fb40da643926254863f544b6b28d06e41bd46b74b876bd4e3419ed85",
+        "actual_decode": "str r0, [r1]"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "actual_workspace_value",
+          "register": "r1",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x105552a6",
+      "label": "Original UI_collector_batch_return",
+      "original_ROM_bytes": "dff82883",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "dff82883",
+        "byte_count": 4,
+        "raw_sha256": "92a35716b5d01b6e32c104059d576e2a3cd06174037e72ea6c188c9b3caf82d4",
+        "actual_decode": "ldr.w r8, [pc, #0x328]"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "UI_raw_and_working_exposure",
+          "address": "0xc202bf40",
+          "bytes": 384
+        },
+        {
+          "label": "UI_collector_prefix",
+          "address": "0xc202dea0",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1052bd50",
+      "label": "Original shutter_text_draw",
+      "original_ROM_bytes": "faf7c0fd",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "faf7c0fd",
+        "byte_count": 4,
+        "raw_sha256": "e43c169964bc72f647a108a7c07c5103aea8f58845532a747073e5efaea752f9",
+        "actual_decode": "bl #0x105268d4"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "UI_raw_and_working_exposure",
+          "address": "0xc202bf40",
+          "bytes": 384
+        },
+        {
+          "label": "UI_collector_prefix",
+          "address": "0xc202dea0",
+          "bytes": 16
+        },
+        {
+          "label": "actual_supplied_ASCII_string",
+          "register": "r3",
+          "bytes": 16
+        },
+        {
+          "label": "actual_draw_style",
+          "register": "r13",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10526ebc",
+      "label": "Original aperture_text_draw",
+      "original_ROM_bytes": "fff70afd",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "fff70afd",
+        "byte_count": 4,
+        "raw_sha256": "b5eb5e05762b375b85f4dde1bd5c041f335f8b64cb76b3946ff522879377702a",
+        "actual_decode": "bl #0x105268d4"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "UI_raw_and_working_exposure",
+          "address": "0xc202bf40",
+          "bytes": 384
+        },
+        {
+          "label": "UI_collector_prefix",
+          "address": "0xc202dea0",
+          "bytes": 16
+        },
+        {
+          "label": "actual_supplied_ASCII_string",
+          "register": "r3",
+          "bytes": 16
+        },
+        {
+          "label": "actual_draw_style",
+          "register": "r13",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1052bf40",
+      "label": "Original ISO_text_draw",
+      "original_ROM_bytes": "faf7c8fc",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "faf7c8fc",
+        "byte_count": 4,
+        "raw_sha256": "3b3afe96c009d0e29b6ed481b58dbb19301f09152a768be7030b9d7f89712096",
+        "actual_decode": "bl #0x105268d4"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_rational_inputs",
+          "address": "0xc253d85c",
+          "bytes": 44
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "UI_raw_and_working_exposure",
+          "address": "0xc202bf40",
+          "bytes": 384
+        },
+        {
+          "label": "UI_collector_prefix",
+          "address": "0xc202dea0",
+          "bytes": 16
+        },
+        {
+          "label": "actual_supplied_ASCII_string",
+          "register": "r3",
+          "bytes": 16
+        },
+        {
+          "label": "actual_draw_style",
+          "register": "r13",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c04f8",
+      "label": "Original program SRAM clear guard",
+      "original_ROM_bytes": "c90506d4",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "c905",
+        "byte_count": 2,
+        "raw_sha256": "f5c109291ca012c77b5e87961d3bba50d18ceeca739e6805dce089cfb7fbdbcb",
+        "actual_decode": "lsls r1, r1, #0x17"
+      },
+      "samples": [
+        {
+          "label": "program_clear_descriptor",
+          "register": "r5",
+          "bytes": 16
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c050a",
+      "label": "Original program SRAM after conditional clear",
+      "original_ROM_bytes": "6878e968",
+      "max_hits_per_window": 2,
+      "bounded_original_instruction": {
+        "raw_hex": "6878",
+        "byte_count": 2,
+        "raw_sha256": "50e29e6c39ab7a4f8f31930ae2db213071ec16112fd25c525caa821b2e6049c2",
+        "actual_decode": "ldrb r0, [r5, #1]"
+      },
+      "samples": [
+        {
+          "label": "program_clear_descriptor",
+          "register": "r5",
+          "bytes": 16
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c02ea",
+      "label": "Original unit query index49 entry",
+      "original_ROM_bytes": "30b587b0",
+      "max_hits_per_window": 4,
+      "registers_equal": {
+        "r0": "0x31"
+      },
+      "max_attempts_per_window": 256,
+      "bounded_original_instruction": {
+        "raw_hex": "30b5",
+        "byte_count": 2,
+        "raw_sha256": "0179fa50db01a670ea0d378b606928ed6b7a1f590c3fe52fcfe05a1936a84414",
+        "actual_decode": "push {r4, r5, lr}"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c0300",
+      "label": "Original unit20100940 before raw load",
+      "original_ROM_bytes": "00680090",
+      "max_hits_per_window": 4,
+      "registers_equal": {
+        "r0": "0x20100940"
+      },
+      "max_attempts_per_window": 256,
+      "bounded_original_instruction": {
+        "raw_hex": "0068",
+        "byte_count": 2,
+        "raw_sha256": "e593490a360ac8104e842141c4059603e0d90b79de99e5b6b6f05afe14945659",
+        "actual_decode": "ldr r0, [r0]"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c0302",
+      "label": "Original unit49 raw word after load",
+      "original_ROM_bytes": "0090c043",
+      "max_hits_per_window": 4,
+      "registers_equal": {
+        "r5": "0x31"
+      },
+      "max_attempts_per_window": 256,
+      "bounded_original_instruction": {
+        "raw_hex": "0090",
+        "byte_count": 2,
+        "raw_sha256": "c723228fbe3cf04cdf49e61f3e13fc0c407d2e1ff23d6eaa1b4299e7cbb418a1",
+        "actual_decode": "str r0, [sp]"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103c030e",
+      "label": "Original unit49 query return",
+      "original_ROM_bytes": "17e70528",
+      "max_hits_per_window": 4,
+      "registers_equal": {
+        "r5": "0x31"
+      },
+      "max_attempts_per_window": 256,
+      "bounded_original_instruction": {
+        "raw_hex": "17e7",
+        "byte_count": 2,
+        "raw_sha256": "0989c2c7b13dbbf892f2eb1590c149c962463a1f8c258fa4b702b577b23119f9",
+        "actual_decode": "b #0x103c0140"
+      },
+      "samples": [
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10321e20",
+      "original_ROM_bytes": "2de9f04f",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2de9f04f",
+        "byte_count": 4,
+        "raw_sha256": "cfa045938b57940b57930f97cd7cdf3e1a8c3b1ddb72c2609b95b97c1b1921ed",
+        "actual_decode": "push.w {r4, r5, r6, r7, r8, sb, sl, fp, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "classifier_frame_prefix",
+          "register": "r0",
+          "bytes": 32
+        },
+        {
+          "label": "classifier_frame_fields_4C0_4FF",
+          "register": "r0",
+          "bytes": 64,
+          "path": [
+            {
+              "offset": 1216,
+              "dereference": false
+            }
+          ]
+        },
+        {
+          "label": "classifier_frame_field_107",
+          "register": "r0",
+          "bytes": 1,
+          "path": [
+            {
+              "offset": 263,
+              "dereference": false
+            }
+          ]
+        }
+      ],
+      "label": "Original actual shooting classifier entry"
+    },
+    {
+      "role": "master",
+      "address": "0x103226b2",
+      "label": "Original shooting classifier return consumer",
+      "original_ROM_bytes": "80464046",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "8046",
+        "byte_count": 2,
+        "raw_sha256": "3696af43b4d4c1b46e77f232cc40e94210b15e03eebfdec93f1e4ebd8b6eaa92",
+        "actual_decode": "mov r8, r0"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        },
+        {
+          "label": "classifier_frame_prefix",
+          "register": "r7",
+          "bytes": 32
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103225c8",
+      "original_ROM_bytes": "73e02069",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "73e0",
+        "byte_count": 2,
+        "raw_sha256": "d67844be62fb2313ac094b6adf406362aa51df8fe744984b4044015bf9c4f0d0",
+        "actual_decode": "b #0x103226b2"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ],
+      "label": "Original periodic shooting caller branch"
+    },
+    {
+      "role": "master",
+      "address": "0x10323dc6",
+      "label": "Original shooting EA message call",
+      "original_ROM_bytes": "2de9f04f",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2de9f04f",
+        "byte_count": 4,
+        "raw_sha256": "cfa045938b57940b57930f97cd7cdf3e1a8c3b1ddb72c2609b95b97c1b1921ed",
+        "actual_decode": "push.w {r4, r5, r6, r7, r8, sb, sl, fp, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10322b1c",
+      "label": "Original shooting event dispatch",
+      "original_ROM_bytes": "fcf7a4bd",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "fcf7a4bd",
+        "byte_count": 4,
+        "raw_sha256": "007ae937c9046b43ca6a466019eb77886f7dc28976bf2cd7f4e9fb4825523d02",
+        "actual_decode": "b.w #0x1031f668"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031a1a8",
+      "label": "Original shooting bitmap notification entry",
+      "original_ROM_bytes": "38b5d34c",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "38b5",
+        "byte_count": 2,
+        "raw_sha256": "0ded4c5cddac5953ea4b0eab89b7c61089b1a945d0796e214a2e15ed46eda074",
+        "actual_decode": "push {r3, r4, r5, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 128
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "AE_four_queues",
+          "address": "0xc25dace4",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "AE_wait_event_handle",
+          "address": "0xc1887cdc",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_apply_event_handle",
+          "address": "0xc188808c",
+          "bytes": 4
+        },
+        {
+          "label": "ISP_worker_callback",
+          "address": "0xc18880ac",
+          "bytes": 4
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103bf7b0",
+      "label": "Original independent selected unit arm store",
+      "original_ROM_bytes": "02600020",
+      "max_hits_per_window": 16,
+      "bounded_original_instruction": {
+        "raw_hex": "0260",
+        "byte_count": 2,
+        "raw_sha256": "6c1b26d38383e98492adf014fe3a53713ae11e1ebd5959f73627dfdb1fe2a358",
+        "actual_decode": "str r2, [r0]"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103b7114",
+      "label": "Original list entry before selected unit arm",
+      "original_ROM_bytes": "08f048fb",
+      "max_hits_per_window": 16,
+      "bounded_original_instruction": {
+        "raw_hex": "08f048fb",
+        "byte_count": 4,
+        "raw_sha256": "66b453f2aba82241cf08da83116be3d91ca702793f528ad19be49f5dab7d82b0",
+        "actual_decode": "bl #0x103bf7a8"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "actual_unit_list_header",
+          "register": "r6",
+          "bytes": 8
+        },
+        {
+          "label": "actual_unit_list_bounded_prefix",
+          "register": "r6",
+          "bytes": 512,
+          "path": [
+            {
+              "offset": 0,
+              "dereference": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103b7198",
+      "label": "Original all selected units query entry",
+      "original_ROM_bytes": "2de9f041",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2de9f041",
+        "byte_count": 4,
+        "raw_sha256": "90d0f4dca8b9cfa14674e9ea1f57cd8990bc17f089a15557bb19199796fb4535",
+        "actual_decode": "push.w {r4, r5, r6, r7, r8, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "query_context_prefix_0",
+          "address": "0xc1d52600",
+          "bytes": 864
+        },
+        {
+          "label": "query_context_prefix_1",
+          "address": "0xc1d52960",
+          "bytes": 432
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10322026",
+      "label": "Original classifier shooting-state comparison input",
+      "original_ROM_bytes": "99f80100",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "99f80100",
+        "byte_count": 4,
+        "raw_sha256": "c3cc480ae1fb0586aab49845c1ad7c6458ad4db59ccdb43f8e3d2e006866da4e",
+        "actual_decode": "ldrb.w r0, [sb, #1]"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "classifier_frame_prefix",
+          "register": "r4",
+          "bytes": 32
+        },
+        {
+          "label": "classifier_frame_fields_4C0_4FF",
+          "register": "r4",
+          "bytes": 64,
+          "path": [
+            {
+              "offset": 1216,
+              "dereference": false
+            }
+          ]
+        },
+        {
+          "label": "classifier_frame_field_107",
+          "register": "r4",
+          "bytes": 1,
+          "path": [
+            {
+              "offset": 263,
+              "dereference": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10322030",
+      "label": "Original classifier actual frame-kind comparison",
+      "original_ROM_bytes": "032806d0",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "0328",
+        "byte_count": 2,
+        "raw_sha256": "8b9ceeb302350f8cf70aba5b5b7eadadc6eb753b0afe0693ad2503e0567575d6",
+        "actual_decode": "cmp r0, #3"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "classifier_frame_prefix",
+          "register": "r4",
+          "bytes": 32
+        },
+        {
+          "label": "classifier_frame_fields_4C0_4FF",
+          "register": "r4",
+          "bytes": 64,
+          "path": [
+            {
+              "offset": 1216,
+              "dereference": false
+            }
+          ]
+        },
+        {
+          "label": "classifier_frame_field_107",
+          "register": "r4",
+          "bytes": 1,
+          "path": [
+            {
+              "offset": 263,
+              "dereference": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x102c176c",
+      "label": "Original preview packet producer actual source",
+      "original_ROM_bytes": "2de9f047",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2de9f047",
+        "byte_count": 4,
+        "raw_sha256": "f1231a43486723ba9f8f321e7c7721e9cf5fab829d4319788572fe84e4bb067c",
+        "actual_decode": "push.w {r4, r5, r6, r7, r8, sb, sl, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "actual_preview_source_configuration",
+          "register": "r1",
+          "bytes": 904
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x102bfeba",
+      "label": "Original preview input builder actual first descriptor",
+      "original_ROM_bytes": "2de9f047",
+      "max_hits_per_window": 4,
+      "bounded_original_instruction": {
+        "raw_hex": "2de9f047",
+        "byte_count": 4,
+        "raw_sha256": "f1231a43486723ba9f8f321e7c7721e9cf5fab829d4319788572fe84e4bb067c",
+        "actual_decode": "push.w {r4, r5, r6, r7, r8, sb, sl, lr}"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        },
+        {
+          "label": "actual_preview_descriptor_source",
+          "register": "r0",
+          "bytes": 28
+        },
+        {
+          "label": "actual_preview_first_descriptor",
+          "register": "r0",
+          "bytes": 56,
+          "path": [
+            {
+              "offset": 8,
+              "dereference": true
+            }
+          ]
+        },
+        {
+          "label": "actual_preview_primary",
+          "register": "r1",
+          "bytes": 68,
+          "path": [
+            {
+              "offset": 0,
+              "dereference": true
+            }
+          ]
+        },
+        {
+          "label": "input_block_before_original_builder",
+          "register": "r1",
+          "bytes": 78,
+          "path": [
+            {
+              "offset": 12,
+              "dereference": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1031f684",
+      "label": "Original shooting matrix after actual state store",
+      "original_ROM_bytes": "122804f1",
+      "max_hits_per_window": 16,
+      "bounded_original_instruction": {
+        "raw_hex": "1228",
+        "byte_count": 2,
+        "raw_sha256": "faa9536b8910c38e137b4d941b2d8174e1c8dad459d8a57488f912113dd43494",
+        "actual_decode": "cmp r0, #0x12"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10315624",
+      "label": "Original CAPSVC before actual callback BLX",
+      "original_ROM_bytes": "8847f8e7",
+      "max_hits_per_window": 16,
+      "bounded_original_instruction": {
+        "raw_hex": "8847",
+        "byte_count": 2,
+        "raw_sha256": "7d64033737da12ce8664c30245492465d7e7119dd982ab04cb57e60f9481995c",
+        "actual_decode": "blx r1"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "CAPSVC_FIFO",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10315626",
+      "label": "Original CAPSVC after actual callback return",
+      "original_ROM_bytes": "f8e7a007",
+      "max_hits_per_window": 16,
+      "bounded_original_instruction": {
+        "raw_hex": "f8e7",
+        "byte_count": 2,
+        "raw_sha256": "fdfc24bdf4e29e06f01c712514c30716212640fe17b1bcab429f5ef3ffcfb1f9",
+        "actual_decode": "b #0x1031561a"
+      },
+      "samples": [
+        {
+          "label": "R",
+          "address": "0xc1868a70",
+          "bytes": 224
+        },
+        {
+          "label": "AE",
+          "address": "0xc1887cb0",
+          "bytes": 128
+        },
+        {
+          "label": "CAPSVC_FIFO",
+          "address": "0xc23d9f14",
+          "bytes": 36
+        },
+        {
+          "label": "exposure_properties",
+          "address": "0xc253dc28",
+          "bytes": 12
+        }
+      ]
+    }
+  ],
+  "guest_state_injection": false,
+  "physical_pin_names_verified": false,
+  "RAM_write_watchpoints": false,
+  "debugger_MMIO_reads": false,
+  "callback_returns_synthesized": false,
+  "program_SRAM_scope": "Private 4096-byte storage; no program execution, pending retirement or completion generated.",
+  "program_SRAM_contents_directly_sampled": false,
+  "unit_model": "reset word only with no unresolved controller submission; physical status encoding and processing remain unverified",
+  "image_status_model": "pending-v1 keeps original low2bits==3 wait pending; no job is completed",
+  "removed_frequent_setter_sites": [
+    "0x10101a8c",
+    "0x10101a8e",
+    "0x10101a90"
+  ],
+  "previous_original_direct_property_store_proof_retained": true,
+  "T_window_correction": "Original T startup can occur after4.5s; observe all windows rather than claiming absent calls from the earlier active-window list.",
+  "previous_workspace_and_clear_proofs_retained": true,
+  "input_payload_sampling": "QEMU RAM-only passive192-byte samples at actual device-bus addresses; no guessed CPU alias, data/frame/IRQ production or packing assumption",
+  "publication_provenance": {
+    "source_plan_sha256": "70ade14c75729e88e5b459733b657fa601985be89160a4049e88d27644e7369f",
+    "source_checkpoint": "V44",
+    "release": "0.0.2",
+    "executable_schema_ROM_windows_sites_unchanged": true,
+    "local_research_paths_omitted": true
+  }
+}

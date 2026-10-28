@@ -1,0 +1,215 @@
+{
+  "schema": "z62.native-ui-observation-plan/2",
+  "purpose": "Bound external pad delivery to original MCU input, original normalized state, actual OSD/menu/dialog method dispatch, menu method execution and retained LCD",
+  "ROM_sha256": {
+    "master": "bb83613121f843d65101da936d942acdc513d86dbd3abc26259d0d870d03f5d4",
+    "slave": "3fd8c2cbdf57fadb03f6d69b596b58a8703efdd61ae82572d5afeea0241a9ed5",
+    "MCU": "4314c17d9a6676a4254aa4d74d4aa35411e3a793ea7056c06f9c83f160da3cb1"
+  },
+  "windows": [
+    {
+      "label": "startup",
+      "start_virtual_ns": 0
+    },
+    {
+      "label": "PC5-close",
+      "start_virtual_ns": 2000000000
+    },
+    {
+      "label": "menu-enter",
+      "start_virtual_ns": 10000000000
+    },
+    {
+      "label": "left-to-tabs",
+      "start_virtual_ns": 12000000000
+    },
+    {
+      "label": "down-next-tab",
+      "start_virtual_ns": 13500000000
+    },
+    {
+      "label": "up-previous-tab",
+      "start_virtual_ns": 15000000000
+    },
+    {
+      "label": "right-to-list",
+      "start_virtual_ns": 16500000000
+    },
+    {
+      "label": "down-next-row",
+      "start_virtual_ns": 18000000000
+    },
+    {
+      "label": "up-previous-row",
+      "start_virtual_ns": 19500000000
+    },
+    {
+      "label": "confirm-empty-folder",
+      "start_virtual_ns": 21000000000
+    },
+    {
+      "label": "menu-dismiss-dialog",
+      "start_virtual_ns": 23000000000
+    },
+    {
+      "label": "menu-focus-tabs",
+      "start_virtual_ns": 24500000000
+    },
+    {
+      "label": "menu-exit",
+      "start_virtual_ns": 26000000000
+    },
+    {
+      "label": "menu-reenter",
+      "start_virtual_ns": 29000000000
+    }
+  ],
+  "sites": [
+    {
+      "role": "master",
+      "address": "0x1038dc0c",
+      "label": "original key payload input",
+      "original_ROM_bytes": "34220146",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "incoming_payload",
+          "register": "r0",
+          "bytes": 52
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x106319c6",
+      "label": "original MENU request",
+      "original_ROM_bytes": "10b5fef7",
+      "max_hits_per_window": 2,
+      "samples": [
+        {
+          "label": "MENU_state",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10436600",
+      "label": "original raw key payload builder",
+      "original_ROM_bytes": "2de9f74f",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "raw_input",
+          "register": "r0",
+          "bytes": 128
+        },
+        {
+          "label": "builder_payload",
+          "address": "0xc25d6fc0",
+          "bytes": 52
+        },
+        {
+          "label": "phase_descriptor",
+          "address": "0xc18879f8",
+          "bytes": 8
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x1038db5e",
+      "label": "original normalized key downstream callback",
+      "original_ROM_bytes": "8847606d",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "address": "0xc1f7a5ac",
+          "bytes": 160
+        },
+        {
+          "label": "input_control",
+          "address": "0xc1811bb0",
+          "bytes": 88
+        },
+        {
+          "label": "MENU_state_array",
+          "address": "0xc181c9d0",
+          "bytes": 64
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x103fd308",
+      "label": "original selected object actual method branch",
+      "original_ROM_bytes": "1047826c",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        }
+      ]
+    },
+    {
+      "role": "MCU",
+      "address": "0x8038058",
+      "label": "original MCU input result and six bytes",
+      "original_ROM_bytes": "0cb50a68",
+      "max_hits_per_window": 8,
+      "samples": [
+        {
+          "label": "six_input_bytes",
+          "register": "r1",
+          "bytes": 6
+        },
+        {
+          "label": "MCU_input_mode",
+          "address": "0x200159a4",
+          "bytes": 24
+        },
+        {
+          "label": "MCU_input_status_primary",
+          "address": "0x20015b74",
+          "bytes": 44
+        },
+        {
+          "label": "MCU_input_status_mode2",
+          "address": "0x20015d30",
+          "bytes": 16
+        }
+      ]
+    },
+    {
+      "role": "master",
+      "address": "0x10450bfa",
+      "label": "original menu actual method entry",
+      "original_ROM_bytes": "10b50446",
+      "max_hits_per_window": 4,
+      "samples": [
+        {
+          "label": "normalized_key_state",
+          "register": "r0",
+          "bytes": 160
+        }
+      ]
+    }
+  ],
+  "guest_state_injection": false,
+  "physical_pin_names_verified": false,
+  "contract_reports": [
+    "results/native-ui-investigation-20261025/key-navigation-rom-followup-20261026.md",
+    "results/native-ui-investigation-20261025/menu-input-route-20261026.md",
+    "results/native-ui-investigation-20261025/ae-old-job-producer-20261026.md",
+    "results/ui-acceptance/20261026-052711-46565a/report.json"
+  ]
+}

@@ -1,0 +1,4181 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* Generated from WonderLantern/z6-qemu. Z6II interface hypothesis;
+ * inherited Z6 addresses in comments do not establish Z6II behavior. */
+
+#include "target/arm/tcg/z6ii-boot-observer.h"
+#include "nikon-z6ii-engine.h"
+#include "mcu_wire_posix.h"
+#include "system/reset.h"
+#include "nikon-gpu.h"
+#include "nikon-isp-pixels.h"
+#include "nikon-z6ii-bayer-source.h"
+#include "nikon-z6-profile.h"
+#include "nikon-z6ii-post68-core.h"
+#include "nikon-z6ii-isp-frame-core.h"
+#include "nikon-z6ii-image-submission-core.h"
+#include "nikon-z6ii-image-register-map.h"
+#include "nikon-z6ii-image-input-core.h"
+typedef struct Z6IISerialSink {
+    struct Z6IIFunctionalDevices *owner;
+    unsigned channel;
+    QEMUTimer *timer;
+    bool active;
+    uint16_t fifo[256];
+    uint32_t rx_fifo[256];
+    unsigned count, rx_count, rx_head;
+    bool wire_waiting;
+    uint32_t pending;
+} Z6IISerialSink;
+
+typedef struct Z6IIBayerConfig {
+    uint32_t global_stop, input, gates[3], mode, width, height, stride, bank;
+    uint32_t capture[4];
+    uint32_t raw_enable, raw_geometry, raw_stride, engine, command[2], sequence;
+    uint32_t source[4], output[4][3], transfer[3][13];
+} Z6IIBayerConfig;
+typedef struct Z6IIBayerPipeline {
+    bool enabled, raw_pending, isp_job_pending, stop_latched;
+    QEMUTimer *timer;
+    Notifier exit_notifier;
+    uint64_t generation, armed_generation, next_frame_id;
+    uint64_t raw_batches, completed_batches, backpressure, rejected;
+    uint64_t total_raw_frames, total_isp_frames, total_raw_batches, total_isp_batches;
+    uint64_t capture_config_writes, capture_address_writes, capture_nonzero_address_writes;
+    uint64_t reset_count;
+    uint32_t source[4];
+    uint64_t frame_id[4];
+    char sha[4][65];
+    Z6IIBayerConfig config, last_blocked_config;
+    bool blocked_config_valid;
+    unsigned blocked_reason, blocked_reports;
+    NikonISPImages *pixels;
+} Z6IIBayerPipeline;
+
+typedef struct Z6IIFunctionalDevices {
+    Z6IIEngineContext *engine;
+    Z6IIBayerPipeline bayer;
+    const NikonZ6Profile *model;
+    MemoryRegion main_rom;
+    MemoryRegion z6_ram[22], z6_ram_alias[22];
+    MemoryRegion unknown;
+    MemoryRegion boot_sram;
+    MemoryRegion processing_ram;
+    MemoryRegion image_curve_ram;
+    MemoryRegion image_program_sram;
+    MemoryRegion controller_sram;
+    bool boot_profile;
+    bool platform_profile;
+    uint32_t platform_regs[0x7000 / 4];
+    bool platform_written[0x7000 / 4];
+    uint32_t platform_saved[512];
+    QEMUTimer *platform_timer;
+    uint32_t event_regs[6];
+    unsigned driver_fifo_depth;
+    bool serial_capacity_measured_master;
+    uint32_t supplied_persistent_source_start, supplied_persistent_source_end;
+    uint32_t serial_disabled[11];
+    bool serial_initialized[11];
+    uint32_t serial_config[11][0x68 / 4];
+    uint32_t driver_control[3];
+    bool recovery_profile;
+    bool graphics_profile;
+    NikonGPU *gpu;
+    uint32_t display_regs[0xc000 / 4];
+    uint32_t display_global_control[2];
+    uint32_t display_lut[2][0x6200 / 4];
+    QEMUTimer *lcd_timer;
+    bool lcd_scanout_test;
+    unsigned lcd_frames;
+    bool display_clock_enabled;
+    uint64_t display_frame_period_ns, display_clock_frames[3];
+    uint64_t last_lcd_config;
+    uint32_t last_lcd_submission[28];
+    bool last_lcd_submission_valid;
+    Z6IISerialSink serial_sink[11];
+    unsigned exmcu_packet_sequence;
+    void *exmcu_protocol_opaque;
+    void (*exmcu_protocol_tx)(void *, const uint8_t *);
+    void (*exmcu_protocol_queued)(void *);
+    void (*exmcu_protocol_consumed)(void *);
+    bool exmcu_rx_ready;
+    bool exmcu_test_device;
+    MCUWireMapping mcu_wire;
+    QEMUTimer *mcu_wire_timer;
+    uint64_t mcu_wire_poll_ns;
+    uint64_t mcu_wire_known_wait_ms;
+    uint32_t mcu_wire_events[2];
+    bool capseq_actuator_enabled, capseq_fault_timeout;
+    bool capseq_request, capseq_done, capseq_armed, capseq_irq_level;
+    QEMUTimer *capseq_timer;
+    int64_t capseq_delay_ns, capseq_due_ns;
+    uint64_t capseq_generation, capseq_armed_generation;
+    uint64_t capseq_trace_attempts, capseq_trace_limit;
+    uint32_t sdes_4000_regs[0x120 / 4];
+    uint32_t sdes_5000_regs[2][0x160 / 4];
+    bool exmcu_no_lens;
+    bool exmcu_no_lens_reported;
+    bool exmcu_capture_sync_test, exmcu_capture_sync_level;
+    QEMUTimer *exmcu_capture_sync_timer;
+    uint8_t exmcu_tx[256], exmcu_rx[8][256];
+    unsigned exmcu_tx_count, exmcu_rx_head, exmcu_rx_count, exmcu_rx_offset;
+    uint32_t exmcu_gpio_pending, exmcu_gpio_mask, exmcu_gpio_polarity, exmcu_gpio_mode;
+    bool exmcu_tx_ready, exmcu_tx_ack;
+    uint32_t graphics_regs[0x1600 / 4];
+    uint32_t graphics_cmd_regs[2][512];
+    uint8_t graphics_tables[2][0x10000];
+    unsigned graphics_table_lengths[2];
+    unsigned graphics_upload_sequence;
+    bool graphics_upload_pending[2];
+    QEMUTimer *graphics_timer;
+    uint32_t channel_control[3];
+    uint32_t channel_preset_latch, channel_preset[12];
+    uint32_t channel_config[12][2][0x44 / 4];
+    QEMUTimer *channel_timer;
+    uint32_t channel_enable, channel_irq_mask, channel_pending[12];
+    uint32_t channel_counter[12], channel_repetitions[12];
+    int64_t channel_epoch[12], channel_deadline[12];
+    bool channel_clocked[12];
+    void *ba2_payload_opaque;
+    uint64_t (*ba2_payload_pre)(void *, unsigned, uint32_t, uint32_t, uint32_t);
+    void (*ba2_payload_post)(void *, uint64_t, unsigned, uint32_t, uint32_t,
+                             const uint8_t *, uint32_t);
+    uint32_t copy_regs[4][9];
+    QEMUTimer *copy_timer;
+    bool copy_pending[4];
+    int64_t copy_deadline[4];
+    uint32_t i2c_regs[4][11];
+    uint8_t i2c_tx[4][16];
+    unsigned i2c_tx_count[4];
+    bool i2c_pending[4];
+    int64_t i2c_deadline[4];
+    uint64_t i2c_generation[4];
+    QEMUTimer *i2c_timer;
+    Z6IIPost68Core post68;
+    bool post68_enabled;
+    uint64_t post68_timer_generation, post68_trace_count, post68_trace_limit;
+    uint32_t peripheral_dma_regs[2][8][4];
+    unsigned serial_drain_reads;
+    uint32_t sequence_regs[11][15];
+    uint32_t sequence_active[11][15];
+    uint32_t sequence_start_mask, sequence_stop_mask, sequence_running;
+    uint32_t sequence_stop_pending;
+    QEMUTimer *sequence_stop_timer;
+    uint32_t capture_timing[6][10];
+    uint32_t capture_control[5];
+    uint32_t capture_irq_enable[3], capture_irq_status[3];
+    uint32_t sdes_mode_regs[2], sdes_mode_pending;
+    uint32_t sdes_input_config[2];
+    QEMUTimer *sdes_mode_timer;
+    uint32_t sdes_sequence_status, sdes_sequence_enable;
+    QEMUTimer *sdes_sequence_timer;
+    QEMUTimer *capture_test_timer;
+    QEMUTimer *capture_tg_timer;
+    bool capture_tg_enabled, capture_tg_running, capture_tg_draining;
+    bool capture_tg_sequence_enabled;
+    bool capture_tg_frame_edges, capture_tg_start_phase;
+    int64_t capture_tg_period_ns, capture_tg_frame_deadline_ns;
+    uint64_t capture_tg_count, capture_tg_ack_count;
+    uint64_t capture_tg_start_count, capture_tg_start_ack_count;
+    uint64_t capture_tg_sequence_count, capture_tg_sequence_ack_count;
+    bool capture_test_pulse, capture_test_running, capture_input_draining;
+    QEMUTimer *capture_periodic_test_timer;
+    bool capture_periodic_test;
+    bool capture_periodic_paired_test;
+    unsigned capture_periodic_test_count;
+    char *capture_ingress_data;
+    size_t capture_ingress_length;
+    char *capture_native0_data;
+    size_t capture_native0_length;
+    unsigned capture_native0_frames, capture_statistics_frames;
+    bool capture_ingress_done;
+    bool capture_drain_pending;
+    uint32_t capture_isp_gate[3];
+    uint32_t capture_isp_irq_enable[8], capture_isp_irq_status[8];
+    uint32_t capture_isp_stop_pending;
+    QEMUTimer *capture_isp_stop_timer;
+    bool capture_isp_boundary_test;
+    unsigned capture_isp_boundary_stage;
+    /* Opt-in Z6II_ISP_COMMIT_COMPLETION=next-frame-v1 research hypothesis. */
+    bool isp_commit_completion;
+    bool isp_mask1_input_completion;
+    Z6IIMask1InputCycle isp_mask1_cycle;
+    uint64_t isp_mask1_command_writes;
+    bool isp_group8_input_token;
+    Z6IIMask1InputCycle isp_group8_cycle;
+    bool isp_mode1_config_ack;
+    uint32_t isp_commit_pending;
+    uint64_t isp_commit_writes, isp_commit_frames, isp_commit_completed;
+    uint32_t capture_sync[0x500 / 4];
+    uint32_t capture_processing[0x2000 / 4];
+    uint16_t capture_curve[129];
+    uint32_t capture_image_channel[10][0x84 / 4];
+    uint32_t capture_analysis_config[0x380 / 4];
+    uint16_t capture_measure_config[2][10];
+    uint32_t capture_filter_config[0x584 / 4];
+    uint32_t capture_filter2_config[0x100 / 4];
+    uint32_t image_worker_config[0x1a4 / 4];
+    uint32_t image_route_config[0xa8 / 4];
+    uint32_t image_sequence_config[0x94 / 4];
+    uint32_t image_command_config[2][0xa8 / 4];
+    uint32_t image_transfer_config[16][13];
+    uint32_t image_transfer_selected;
+    uint32_t image_ordering_word;
+    uint64_t image_ordering_reads, image_ordering_other_reads, image_control_writes;
+    uint64_t image_irq_register_accesses;
+    Z6IIImageSubmissionState image_submissions;
+    uint32_t image_input_fields_written[2];
+    uint64_t image_submission_snapshots;
+    unsigned image_buffer_snapshot_reports[2];
+    bool image_pending_status_model;
+    uint32_t image_unit_config[0x6a0 / 4];
+    uint16_t image_unit_lut[0x6000 / 4];
+    uint32_t image_output_config[8][2];
+    uint32_t image_command_lists[2][64];
+    uint32_t image_processor_config[2][0x10000 / 4];
+    bool image_process_test;
+    unsigned image_process_batches, image_process_last_input;
+    NikonISPImages *image_pixels;
+    int64_t image_process_host_us;
+    unsigned capture_period_ns;
+    QEMUTimer *image_process_timer;
+    QEMUTimer *image_drain_timer;
+    unsigned image_drain_requests;
+    uint32_t recovery_config[256];
+    QEMUTimer *clock_timer;
+    uint32_t clock_transaction;
+    uint32_t engine_regs[9];
+    QEMUTimer *engine_timer;
+    uint32_t early_control[9];
+    int64_t counter_epoch;
+    uint32_t setup_regs[0x8000 / 4];
+    bool setup_written[0x8000 / 4];
+    uint32_t ddr_regs[0x40000 / 4];
+    bool ddr_written[0x40000 / 4];
+    uint32_t fill_regs[0x34 / 4];
+    uint8_t uart_regs[16];
+    CharFrontend uart;
+    A15MPPrivState *priv;
+    bool faulted;
+    bool debug_rejected;
+    bool z6_profile;
+    unsigned z6_unknown_count;
+    unsigned z6_raw_config_count;
+} Z6IIFunctionalDevices;
+
+static bool z6ii_fd_copy_ram_range(Z6IIFunctionalDevices *s, uint32_t addr, uint64_t len);
+static void z6ii_fd_image_process_schedule(Z6IIFunctionalDevices *s);
+static bool z6ii_fd_image_process_ready(Z6IIFunctionalDevices *s);
+static void z6ii_fd_image_raw_irq(Z6IIFunctionalDevices *s);
+static void z6ii_fd_image_raw_bank_irq(Z6IIFunctionalDevices *s, unsigned bank);
+static bool z6ii_lcd_read_ram(Z6IIFunctionalDevices *s, uint32_t address, void *destination, uint64_t length);
+static void z6ii_bayer_capture_tick(Z6IIFunctionalDevices *s);
+static void z6ii_bayer_after_access(Z6IIFunctionalDevices *s, hwaddr addr);
+
+
+/* Z6II C1.70 live RAM, C1808E28 + channel*104 + 80, two equal
+ * acquisitions; source SHA256 36dde931e51e5385e16d8ef6e5aabce0b48ab157eb87b9b6dade3f1521ca80d1.
+ * Original1037274a stores original10242fb6's low nine bits of MMIO+48.
+ * Unbound channels7/10 did not yield a capacity; keep their reads unknown. */
+static unsigned z6ii_fd_serial_fifo_capacity(bool measured_master, unsigned channel)
+{
+    static const uint16_t capacities[11] = {256,256,16,16,16,16,16,0,24,16,0};
+    if (channel >= ARRAY_SIZE(capacities)) { return 0; }
+    /* No slave RAM was acquired. Preserve its earlier16-word hypothesis. */
+    return measured_master ? capacities[channel] : 16;
+}
+static void z6ii_fd_unknown_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                 bool write, uint64_t value)
+{
+    s->faulted = true;
+    fprintf(stderr, "Z6II_DEVICE_REJECT %c addr=%08" HWADDR_PRIx
+            " size=%u value=%08" PRIx64 " pc=%08x\n", write ? 'W' : 'R',
+            addr, size, value, current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0);
+}
+static void z6ii_fd_mmio_trace(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size, bool write, uint64_t value)
+{
+    /* Passive, bounded TG/SIF evidence. This option supplies no edge,
+     * completion, parameter or guest state. */
+    if (z6ii_engine_getenv(s->engine, "Z6II_SENSOR_MMIO_TRACE") && addr >= 0x20060000 && addr < 0x20066000) {
+        fprintf(stderr, "Z6II_SENSOR_MMIO %c addr=%08" HWADDR_PRIx
+                " size=%u value=%08" PRIx64 " pc=%08x virtual_ns=%" PRId64 "\n",
+                write ? 'W' : 'R', addr, size, value,
+                current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    }
+    if (z6ii_engine_getenv(s->engine, "Z6II_DEVICE_TRACE")) {
+        fprintf(stderr, "Z6II_DEVICE_MMIO %c addr=%08" HWADDR_PRIx
+                " size=%u value=%08" PRIx64 " pc=%08x\n", write ? 'W' : 'R',
+                addr, size, value, current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0);
+    }
+}
+static bool z6ii_fd_event_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                            bool write, uint64_t *value)
+{
+    unsigned off = addr - 0x2b000000;
+    if (!s->platform_profile || size != 4) { return false; }
+    if (s->recovery_profile && addr == 0x2b000010 && !write) {
+        /* 1031ffae samples five input pairs. Explicit disconnected-low
+         * recovery input hypothesis, consistent with no external events. */
+        *value = 0;
+        z6ii_fd_mmio_trace(s, addr, size, false, *value);
+        return true;
+    }
+    if (write && addr == 0x28000000 && *value == 0xf) {
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true; /* Exact initialization store at 1031fe3e, effect unknown. */
+    }
+    if (addr < 0x2b000000 || (off != 0 && off != 4 && off != 8 && off != 12 && off != 20)) {
+        return false;
+    }
+    if (write) {
+        if (off == 8) { s->event_regs[off / 4] &= ~*value; }
+        else { s->event_regs[off / 4] = *value; }
+    } else { *value = s->event_regs[off / 4]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* Narrow init transactions from 1017f9e6, 10068cb0, 10109a56, 100cbae0.
+ * Two control words and one disabled-channel word have synthetic zero reset.
+ * Write-only commands are NOT exposed as readable RAM or completed transfers. */
+static bool z6ii_fd_driver_init_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                 bool write, uint64_t *value)
+{
+    int index = -1;
+    if (!s->driver_fifo_depth || size != 4) { return false; }
+    if (addr == 0x0428002c && !write) {
+        /* 101f2514 extracts low five bits, stored by 10091d94. Hardware
+         * meaning/reset value is unavailable; explicit synthetic input zero. */
+        *value = 0;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    switch (addr) {
+    case 0x2c020000: index = 0; break;
+    case 0x2c030000: index = 1; break;
+    case 0x2c080000: index = 2; break;
+    default: break;
+    }
+    if (index >= 0) {
+        uint32_t mask = index == 2 ? 3 : 0x90000000;
+        if (write) {
+            if (*value & ~mask) { return false; }
+            s->driver_control[index] = *value;
+        } else { *value = s->driver_control[index]; }
+    } else if (!write) {
+        return false;
+    } else if ((addr == 0x0426f004 && *value == 0) ||
+               ((addr == 0x0426f000 || addr == 0x0426f010) && *value == 0xff)) {
+        /* Only the three initialization stores; GPIO signals remain unknown. */
+    } else if ((addr == 0x2c018028 || addr == 0x2c019028 ||
+                addr == 0x2c01a028 || addr == 0x2c01b028) && *value == 0x2ff) {
+        /* Initialization acknowledges all pending causes in these channels.
+         * No pending sources or channel IRQs are produced by this profile. */
+    } else if (addr >= 0x04281238 && addr <= 0x0428124c && !(addr & 3)) {
+        /* Clock enable commands from the pointer table at a1806e94. */
+    } else { return false; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* Optional EX MCU protocol test peer. Packet layout/checksum follows
+ * 1005c1ca/1aa and 1005bab6. It does not run the EX MCU firmware, drive a
+ * shutter, supply calibration, or produce sensor samples. Only the two
+ * CAPCOM control replies accepted by 10235d58/dc8 are implemented by default.
+ * A separate opt-in models an absent lens and an idle lens controller. */
+static void z6ii_capseq_actuator_irq_observe(Z6IIFunctionalDevices *s, bool level);
+
+static void z6ii_fd_exmcu_irq(Z6IIFunctionalDevices *s)
+{
+    if (s->exmcu_capture_sync_test || s->capseq_actuator_enabled) {
+        bool level = (s->exmcu_gpio_pending & ~s->exmcu_gpio_mask & 1) != 0;
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 65 - 32), level);
+        if (s->capseq_actuator_enabled) {
+            z6ii_capseq_actuator_irq_observe(s, level);
+        }
+    }
+    for (unsigned bit = 2; bit <= 3; bit++) {
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 65 + bit - 32),
+                    (s->exmcu_gpio_pending & ~s->exmcu_gpio_mask & (1U << bit)) != 0);
+    }
+}
+
+#include "nikon-z6ii-capseq-actuator.h"
+#include "nikon-z6ii-wire.h"
+
+/* CAPCOM has a separate request/completion wire pair, not a packet ACK.
+ * Native 1017cd70/98 assert GPIO0x65 (04282018 bit8); GPIO0x54 is input bit7
+ * at04282014, interrupt index0/IRQ65. Its 1017cdc0 callback delivers
+ * 03030024/25 -> 1010416e -> 10104094 -> CAPSEQ03030004/05.
+ * The explicit test peer supplies a completion edge 100us after a request.
+ * This is a functional timing hypothesis, not shutter/mechanical emulation. */
+static void z6ii_fd_exmcu_capture_sync_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    s->exmcu_capture_sync_level = true;
+    s->exmcu_gpio_pending |= 1;
+    z6ii_fd_exmcu_irq(s);
+    fprintf(stderr, "Z6II_EXMCU_CAPTURE_SYNC_TEST irq=65 cause=1 latency_ns=100000 diagnostic_only=1\n");
+}
+
+static void z6ii_fd_exmcu_packet(Z6IIFunctionalDevices *s)
+{
+    const uint8_t *tx = s->exmcu_tx;
+    uint8_t sum = 0;
+    for (unsigned i = 0; i < 256; i++) { sum += tx[i]; }
+    unsigned length = lduw_le_p(tx + 2);
+    bool valid = sum == 0xff && length <= 240 && tx[1] >= 1 && tx[1] <= 3 &&
+                 tx[252] == 1 && tx[253] == 1;
+    
+    const char *packet_dir = z6ii_engine_getenv(s->engine, "Z6II_EXMCU_PACKET_DUMP");
+    if (packet_dir && s->exmcu_packet_sequence < 256) {
+        g_autofree char *path = g_strdup_printf("%s/%06u-service%02x-command%02x.bin",
+                packet_dir, s->exmcu_packet_sequence++, tx[0], tx[8]);
+        GError *error = NULL;
+        if (!g_file_set_contents(path, (const char *)tx, 256, &error)) {
+            error_report("EX MCU passive packet capture failed: %s", error->message);
+            g_error_free(error);
+            s->faulted = true;
+        }
+    }
+    s->exmcu_tx_ack = valid;
+    if (valid && s->exmcu_protocol_tx) {
+        s->exmcu_protocol_tx(s->exmcu_protocol_opaque, tx);
+    }
+    s->exmcu_tx_ready = true;
+    s->exmcu_gpio_pending |= 4;
+    fprintf(stderr, "Z6II_EXMCU_TEST_TX channel=%u length=%u command=%u checksum=%02x valid=%u data=",
+            tx[0], length, tx[8], sum, valid);
+    for (unsigned i = 0; i < MIN(length, 32); i++) { fprintf(stderr, "%02x", tx[8+i]); }
+    fprintf(stderr, "\n");
+    uint8_t response = valid && tx[0] == 9 && tx[8] == 2 && length == 6 ? 3 :
+                       valid && tx[0] == 9 && tx[8] == 4 && length == 5 ? 5 : 0;
+    /* Channel table 11521c14 -> 102351de. The original serializers
+     * 10235244/286 produce 16-byte requests; 1023539a/3ce decode 0x81/82.
+     * This hypothesis is deliberately limited to the observed idle operation
+     * (10136842/4a), including their fixed argument bytes. Byte +4
+     * is the operation sequence;
+     * +5 is a result (zero = no error). Never ACK arbitrary lens movement.
+     * The 0x91 report (102354a6) supplies byte +12 = 0 (lens absent), handled
+     * by 10065fc6. This is an emulated controller, not measured EX MCU behavior.
+     */
+    bool lens_reply = valid && s->exmcu_no_lens && tx[0] == 13 &&
+                      length == 16 && (ldl_le_p(tx + 8) == 1 || ldl_le_p(tx + 8) == 2) &&
+                      tx[13] == 0 && tx[14] == 0 && tx[15] == 0 &&
+                      ldl_le_p(tx + 16) == 0x100 && ldl_le_p(tx + 20) == 0;
+    if (lens_reply) { response = 0x80 | tx[8]; }
+    unsigned replies = response ? 1 : 0;
+    if (lens_reply && !s->exmcu_no_lens_reported) { replies++; }
+    if (s->exmcu_rx_count + replies > ARRAY_SIZE(s->exmcu_rx)) {
+        s->exmcu_tx_ack = false;
+        fprintf(stderr, "Z6II_EXMCU_TEST_REJECT reason=reply_queue_full\n");
+        replies = 0;
+    }
+    for (unsigned reply = 0; reply < replies; reply++) {
+        unsigned index = (s->exmcu_rx_head + s->exmcu_rx_count) % ARRAY_SIZE(s->exmcu_rx);
+        uint8_t *rx = s->exmcu_rx[index];
+        memset(rx, 0, 256);
+        /* 10058f70 maps logical routes 0..2 to wire values 1..3.
+         * 10058eac rejects zero before calling the protocol decoder. */
+        rx[0] = tx[0]; rx[1] = tx[1]; rx[2] = lens_reply ? 16 : 4;
+        rx[8] = response;
+        if (lens_reply) {
+            rx[12] = tx[12];
+            if (!s->exmcu_no_lens_reported) {
+                rx[8] = 0x91;
+                s->exmcu_no_lens_reported = true;
+            }
+        }
+        rx[252] = rx[253] = 1;
+        sum = 0;
+        for (unsigned i = 0; i < 255; i++) { sum += rx[i]; }
+        rx[255] = 0xff - sum;
+        s->exmcu_rx_count++;
+        if (s->exmcu_protocol_queued) {
+            s->exmcu_protocol_queued(s->exmcu_protocol_opaque);
+        } else { s->exmcu_gpio_pending |= 8; }
+        fprintf(stderr, "Z6II_EXMCU_TEST_REPLY command=%u queued=%u diagnostic_only=1 channel=%u sequence=%u\n",
+                rx[8], s->exmcu_rx_count, rx[0], rx[12]);
+    }
+    z6ii_fd_exmcu_irq(s);
+}
+
+static uint16_t z6ii_fd_exmcu_shift(Z6IIFunctionalDevices *s, unsigned channel, uint16_t tx)
+{
+    if (channel == 0) {
+        if (s->exmcu_tx_count == 0) {
+            s->exmcu_tx_ready = s->exmcu_tx_ack = false;
+        }
+        stw_le_p(s->exmcu_tx + s->exmcu_tx_count, tx);
+        s->exmcu_tx_count += 2;
+        if (s->exmcu_tx_count == 256) {
+            z6ii_fd_exmcu_packet(s);
+            s->exmcu_tx_count = 0;
+        }
+        return 0xffff;
+    }
+    if (!s->exmcu_rx_count) { return 0xffff; }
+    uint16_t value = lduw_le_p(s->exmcu_rx[s->exmcu_rx_head] + s->exmcu_rx_offset);
+    s->exmcu_rx_offset += 2;
+    if (s->exmcu_rx_offset == 256) {
+        s->exmcu_rx_offset = 0;
+        s->exmcu_rx_head = (s->exmcu_rx_head + 1) % ARRAY_SIZE(s->exmcu_rx);
+        s->exmcu_rx_count--;
+        if (s->exmcu_protocol_consumed) {
+            s->exmcu_protocol_consumed(s->exmcu_protocol_opaque);
+        }
+    }
+    return value;
+}
+
+static bool z6ii_fd_exmcu_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                            bool write, uint64_t *value)
+{
+    if (s->mcu_wire.bus) { return z6ii_wire_access(s, addr, size, write, value); }
+    if (!s->exmcu_test_device || size != 4) { return false; }
+    if (write && addr == 0x04282018 && s->exmcu_capture_sync_test) {
+        uint32_t *port = &s->setup_regs[0x2018 / 4];
+        uint32_t old = *port, mask = *value >> 16;
+        *port = (old & ~mask) | (*value & mask);
+        if (mask & 0x100) {
+            if ((*port & 0x100) && !(old & 0x100)) {
+                s->exmcu_capture_sync_level = false;
+                timer_mod(s->exmcu_capture_sync_timer,
+                          qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->model->timing.exmcu_sync_ns);
+            }
+        }
+    } else if (!write && (addr == 0x04282014 || addr == 0x04282018)) {
+        *value = s->setup_regs[(addr - 0x04280000) / 4];
+        if (addr == 0x04282014) {
+            *value = (*value & ~0x600ULL) | (s->exmcu_tx_ready ? 0x200 : 0) |
+                     ((s->exmcu_protocol_opaque ? s->exmcu_rx_ready : s->exmcu_rx_count) ? 0x400 : 0);
+            if (s->exmcu_capture_sync_test) {
+                *value = (*value & ~0x80ULL) | (s->exmcu_capture_sync_level ? 0x80 : 0);
+            }
+        } else { *value = (*value & ~0x8000ULL) | (s->exmcu_tx_ack ? 0x8000 : 0); }
+    } else if (addr == 0x0426f000) {
+        if (write) { s->exmcu_gpio_mask = *value; }
+        else { *value = s->exmcu_gpio_mask; }
+    } else if (addr == 0x0426f008 && !write) { *value = s->exmcu_gpio_pending; }
+    else if (addr == 0x0426f010) {
+        if (write) { s->exmcu_gpio_pending &= ~*value; }
+        else { *value = s->exmcu_gpio_pending; }
+    } else if (addr == 0x0426f014) {
+        if (write) { s->exmcu_gpio_polarity = *value; }
+        else { *value = s->exmcu_gpio_polarity; }
+    } else if (addr == 0x0426f018) {
+        if (write) { s->exmcu_gpio_mode = *value; }
+        else { *value = s->exmcu_gpio_mode; }
+    } else { return false; }
+    z6ii_fd_exmcu_irq(s);
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* Disconnected SPI sinks: channel 9 LCD and channels 6/8 configuration traffic.
+ * 1006851a: +14 bit4 TX full; 100685f0: bit2 TX idle; 100684ca: bit5 RX empty.
+ * a1802268/a1802328/a1802388: IRQ pairs 205/204, 209/208 and 211/210. SPI clocks also fill RX when the caller
+ * discards it. The disconnected sink samples MISO high, not a panel ID/ACK. */
+static void z6ii_fd_panel_irq(Z6IISerialSink *p)
+{
+    Z6IIFunctionalDevices *s = p->owner;
+    unsigned tx_irq = 193 + p->channel * 2;
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), tx_irq - 32),
+                 (p->pending & s->serial_config[p->channel][0x20 / 4] & 3) != 0);
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), tx_irq - 1 - 32),
+                 (p->pending & s->serial_config[p->channel][0x20 / 4] & 4) != 0);
+}
+
+static void z6ii_fd_panel_complete(void *opaque)
+{
+    Z6IISerialSink *p = opaque;
+    if (!p->active) { return; }
+    if (p->owner->mcu_wire.bus && p->channel <= 1) {
+        unsigned shifted = 0;
+        while (shifted < p->count) {
+            uint16_t rx;
+            if (!z6ii_wire_shift(p->owner, p->channel, p->fifo[shifted], &rx)) {
+                break;
+            }
+            unsigned index = (p->rx_head + p->rx_count) % ARRAY_SIZE(p->rx_fifo);
+            p->rx_fifo[index] = rx;
+            p->rx_count++;
+            shifted++;
+        }
+        if (shifted) {
+            fprintf(stderr, "Z6II_SPI%u_TX words=%u data=", p->channel, shifted);
+            for (unsigned i = 0; i < shifted; i++) {
+                fprintf(stderr, "%04x%s", p->fifo[i], i + 1 == shifted ? "\n" : ",");
+            }
+            if (p->wire_waiting) {
+                fprintf(stderr, "Z6II_MCU_WIRE_SPI_ASYNC_RESUME channel=%u words=%u "
+                        "virtual_ns=%" PRId64 " source=actual_native_DMA_word_shift\n",
+                        p->channel, shifted, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+            p->wire_waiting = false;
+            p->count -= shifted;
+            memmove(p->fifo, p->fifo + shifted, p->count * sizeof(p->fifo[0]));
+            p->pending |= 1; /* TX space: only words that actually left the FIFO */
+        }
+        if (p->count) {
+            if (!p->wire_waiting) {
+                fprintf(stderr, "Z6II_MCU_WIRE_SPI_ASYNC_WAIT channel=%u queued=%u "
+                        "virtual_ns=%" PRId64 " CPU_continues=1 completion_supplied=0\n",
+                        p->channel, p->count, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+            p->wire_waiting = true;
+            p->pending &= ~2U;
+            timer_mod(p->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000);
+        } else {
+            p->wire_waiting = false;
+            p->pending |= 2; /* idle: no pending words */
+        }
+        if (p->rx_count) { p->pending |= 4; }
+        z6ii_fd_panel_irq(p);
+        return;
+    }
+    if (p->count) {
+        if (p->channel == 9) { fprintf(stderr, "Z6II_PANEL_TX words=%u data=", p->count); }
+        else { fprintf(stderr, "Z6II_SPI%u_TX words=%u data=", p->channel, p->count); }
+        for (unsigned i = 0; i < p->count; i++) {
+            fprintf(stderr, "%04x%s", p->fifo[i], i + 1 == p->count ? "\n" : ",");
+        }
+    }
+    for (unsigned i = 0; i < p->count; i++) {
+        unsigned index = (p->rx_head + p->rx_count + i) % ARRAY_SIZE(p->rx_fifo);
+        p->rx_fifo[index] = p->owner->exmcu_test_device && p->channel <= 1 ?
+            z6ii_fd_exmcu_shift(p->owner, p->channel, p->fifo[i]) :
+            (UINT64_C(1) << (((p->owner->serial_config[p->channel][0x10 / 4] >> 8) & 31) + 1)) - 1;
+    }
+    p->rx_count += p->count;
+    p->count = 0;
+    p->pending |= 3; /* TX space and idle causes, 100688ac */
+    if (p->rx_count) { p->pending |= 4; }
+    z6ii_fd_panel_irq(p);
+}
+
+static bool z6ii_fd_panel_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                           bool write, uint64_t *value)
+{
+    if (!s->graphics_profile || addr < 0x2c0a0000 || addr >= 0x2c0a0b00 ||
+        size != 4 || (addr & 3)) { return false; }
+    unsigned ch = (addr - 0x2c0a0000) / 0x100, off = addr & 0xff;
+    if ((ch > 1 && ch != 6 && ch != 8 && ch != 9) || !s->serial_initialized[ch]) { return false; }
+    Z6IISerialSink *p = &s->serial_sink[ch];
+    switch (off) {
+    case 0:
+        if (!write || *value > 0xffff || !p->active ||
+            p->count + p->rx_count >= z6ii_fd_serial_fifo_capacity(s->serial_capacity_measured_master, p->channel)) { goto rejected; }
+        p->fifo[p->count++] = *value;
+        p->pending &= ~3U;
+        timer_mod(p->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000);
+        break;
+    case 4:
+        if (write || !p->rx_count) { goto rejected; }
+        *value = p->rx_fifo[p->rx_head];
+        p->rx_head = (p->rx_head + 1) % ARRAY_SIZE(p->rx_fifo);
+        p->rx_count--;
+        if (!p->rx_count) { p->pending &= ~4U; }
+        break;
+    case 0x14:
+        if (write) { goto rejected; }
+        *value = (!p->rx_count ? 0x20 : 0) |
+                 (p->count + p->rx_count >= z6ii_fd_serial_fifo_capacity(s->serial_capacity_measured_master, p->channel) ? 0x10 : 0) |
+                 (!p->count ? 4 : 0);
+        break;
+    case 0x3c:
+        if (write) {
+            if (*value & ~0xfULL) { goto rejected; }
+            s->serial_config[p->channel][off / 4] = *value;
+            p->active = *value & 1;
+            if (!p->active) {
+                timer_del(p->timer);
+                p->count = p->rx_count = p->rx_head = p->pending = 0;
+                p->wire_waiting = false;
+                if (s->exmcu_test_device && ch == 0) {
+                    s->exmcu_tx_count = 0;
+                    s->exmcu_tx_ready = true;
+                }
+                if (s->exmcu_test_device && ch == 1) { s->exmcu_rx_offset = 0; }
+            }
+        } else { *value = s->serial_config[p->channel][off / 4]; }
+        break;
+    case 0x24:
+        if (write) { goto rejected; }
+        *value = p->pending;
+        break;
+    case 0x28:
+        if (!write || (*value & ~0x1ffULL)) { goto rejected; }
+        p->pending &= ~*value;
+        break;
+    case 0x20:
+        if (write) {
+            if (*value & ~0xffULL) { goto rejected; }
+            s->serial_config[p->channel][off / 4] = *value;
+        } else { *value = s->serial_config[p->channel][off / 4]; }
+        break;
+    case 0x64:
+        if (!write || *value > 1) { goto rejected; }
+        p->active = *value;
+        s->serial_config[p->channel][off / 4] = *value;
+        if (*value) {
+            timer_mod(p->timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000);
+        } else {
+            timer_del(p->timer);
+            p->pending = 0;
+        }
+        break;
+    default: return false;
+    }
+    z6ii_fd_panel_irq(p);
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+rejected:
+    z6ii_fd_unknown_access(s, addr, size, write, *value);
+    return true;
+}
+
+static bool z6ii_fd_serial_config_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                    bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || addr < 0x2c0a0000 ||
+        addr >= 0x2c0a0b00 || (addr & 3)) { return false; }
+    unsigned ch = (addr - 0x2c0a0000) / 0x100, off = addr & 0xff;
+    uint32_t mask;
+    if (!s->serial_initialized[ch]) { return false; }
+    switch (off) {
+    case 0x08: case 0x18: case 0x1c: case 0x38: mask = 0xff; break;
+    case 0x0c: mask = 0xc3f; break; /* 100687de additionally selects DMA */
+    case 0x10: mask = 0x1fbf; break;
+    case 0x34: mask = UINT32_MAX; break;
+    case 0x3c: mask = 0xf; break;
+    case 0x4c: mask = 0xffff; break;
+    case 0x20: mask = 0xff; break; /* 10068788 and original IRQ handler */
+    case 0x64: mask = 0; break; /* 10068824 stops; active master start remains unknown */
+    default: return false;
+    }
+    if (write) {
+        if (*value & ~(uint64_t)mask) { return false; }
+        s->serial_config[ch][off / 4] = *value;
+    } else { *value = s->serial_config[ch][off / 4]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* Z6II 102ea7f4 multiplies time by 50, divides through the ROM u16
+ * table1190a090 [1,50,250], then writes divisor-1. This implies a 50MHz
+ * source: selector0/31/f9 => 20/1000/5000ns. It preserves the existing
+ * elapsed-time mode0x31. Source frequency is inferred from ROM arithmetic,
+ * not measured on a camera. Unknown selectors remain unclocked. */
+static uint32_t z6ii_fd_channel_tick_ns(Z6IIFunctionalDevices *s, unsigned ch)
+{
+    switch (s->channel_config[ch][1][1]) {
+    case 0: return 20;
+    case 0x31: return 1000;
+    case 0xf9: return 5000;
+    default: return 0;
+    }
+}
+
+static void z6ii_fd_channel_irq(Z6IIFunctionalDevices *s, unsigned ch)
+{
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 172 + ch - 32),
+                 !(s->channel_irq_mask & (1U << ch)) &&
+                 (s->channel_pending[ch] & s->channel_config[ch][0][0]));
+}
+
+/* Reset reuses this model's initial zero state, cancels every timer,
+ * and releases peripheral IRQ inputs. This is a QEMU lifecycle contract. */
+static void z6ii_fd_channel_reset(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    timer_del(s->channel_timer);
+    memset(s->channel_control, 0, sizeof(s->channel_control));
+    memset(s->channel_config, 0, sizeof(s->channel_config));
+    memset(s->channel_preset, 0, sizeof(s->channel_preset));
+    memset(s->channel_pending, 0, sizeof(s->channel_pending));
+    memset(s->channel_counter, 0, sizeof(s->channel_counter));
+    memset(s->channel_repetitions, 0, sizeof(s->channel_repetitions));
+    memset(s->channel_epoch, 0, sizeof(s->channel_epoch));
+    memset(s->channel_deadline, 0, sizeof(s->channel_deadline));
+    memset(s->channel_clocked, 0, sizeof(s->channel_clocked));
+    s->channel_preset_latch = s->channel_enable = s->channel_irq_mask = 0;
+    for (unsigned ch = 0; ch < 12; ch++) { z6ii_fd_channel_irq(s, ch); }
+    fprintf(stderr, "Z6II_COUNTER_RESET channels=12 pending=0 enabled=0\n");
+}
+
+static void z6ii_fd_channel_schedule(Z6IIFunctionalDevices *s)
+{
+    int64_t next = INT64_MAX;
+    for (unsigned ch = 0; ch < 12; ch++) {
+        if (s->channel_clocked[ch]) { next = MIN(next, s->channel_deadline[ch]); }
+    }
+    if (next == INT64_MAX) { timer_del(s->channel_timer); }
+    else { timer_mod(s->channel_timer, next); }
+}
+
+static uint32_t z6ii_fd_channel_count(Z6IIFunctionalDevices *s, unsigned ch, int64_t now)
+{
+    uint32_t tick = z6ii_fd_channel_tick_ns(s, ch);
+    return s->channel_counter[ch] + (s->channel_clocked[ch] && tick ?
+            (now - s->channel_epoch[ch]) / tick : 0);
+}
+
+static void z6ii_fd_channel_expire(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    for (unsigned ch = 0; ch < 12; ch++) {
+        if (!s->channel_clocked[ch] || s->channel_deadline[ch] > now) { continue; }
+        s->channel_counter[ch] = 0;
+        s->channel_epoch[ch] = s->channel_deadline[ch];
+        s->channel_deadline[ch] += ((uint64_t)s->channel_config[ch][1][2] + 1) *
+                                   z6ii_fd_channel_tick_ns(s, ch);
+        s->channel_pending[ch] |= 1;
+        /* 1010e8f6 selects a finite run, 1010eb62/1005b578 program
+         * +38 enable and +3c repetition limit. In particular the native
+         * 101de518(0, callback) delay is one terminal, NOT a 1MHz ticker.
+         * The driver's +58 pointer reads repetitions and its IRQ mask
+         * includes bit3 for the finite-run end. Clock rate is still inferred. */
+        if (ch <= 4 && s->channel_config[ch][1][0x38 / 4]) {
+            s->channel_repetitions[ch]++;
+            uint32_t limit = s->channel_config[ch][1][0x3c / 4];
+            if (limit && s->channel_repetitions[ch] >= limit) {
+                s->channel_clocked[ch] = false;
+                s->channel_enable &= ~(1U << ch);
+                s->channel_pending[ch] |= 8;
+                fprintf(stderr, "Z6II_COUNTER_FINITE_END channel=%u repetitions=%u\n",
+                        ch, s->channel_repetitions[ch]);
+            }
+        }
+        z6ii_fd_channel_irq(s, ch);
+        fprintf(stderr, "Z6II_COUNTER_TERMINAL channel=%u pending=0x%x irq=%u\n",
+                ch, s->channel_pending[ch], 172 + ch);
+    }
+    z6ii_fd_channel_schedule(s);
+}
+
+/* Original pointer table a1805f40: 12 channels, 23 pointers each. */
+static bool z6ii_fd_channel_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                              bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || (addr & 3)) { return false; }
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    if (addr == 0x2c011000 || addr == 0x2c01100c) {
+        uint32_t *reg = addr == 0x2c011000 ? &s->channel_enable : &s->channel_irq_mask;
+        if (write) {
+            if (*value & ~0xfffULL) { return false; }
+            if (addr == 0x2c011000) {
+                unsigned changed = *reg ^ *value;
+                /* Reject the entire transaction before changing any channel. */
+                for (unsigned ch = 0; ch < 12; ch++) {
+                    if ((changed & *value & (1U << ch)) &&
+                        z6ii_fd_channel_tick_ns(s, ch) &&
+                        z6ii_fd_channel_count(s, ch, now) > s->channel_config[ch][1][2]) {
+                        return false;
+                    }
+                }
+                for (unsigned ch = 0; ch < 12; ch++) {
+                    if (!(changed & (1U << ch))) { continue; }
+                    s->channel_counter[ch] = z6ii_fd_channel_count(s, ch, now);
+                    s->channel_clocked[ch] = false;
+                    if ((*value & (1U << ch)) && z6ii_fd_channel_tick_ns(s, ch)) {
+                        uint32_t terminal = s->channel_config[ch][1][2];
+                        s->channel_epoch[ch] = now;
+                        uint32_t tick = z6ii_fd_channel_tick_ns(s, ch);
+                        s->channel_deadline[ch] = now +
+                            ((uint64_t)terminal - s->channel_counter[ch] + 1) * tick;
+                        s->channel_clocked[ch] = true;
+                        fprintf(stderr, "Z6II_COUNTER_START channel=%u initial=0x%x terminal=0x%x selector=0x%x tick_ns=%u hypothesis=1\n",
+                                ch, s->channel_counter[ch], terminal,
+                                s->channel_config[ch][1][1], tick);
+                    } else if (!(*value & (1U << ch))) {
+                        fprintf(stderr, "Z6II_COUNTER_STOP channel=%u final=0x%x pending=0x%x\n",
+                                ch, s->channel_counter[ch], s->channel_pending[ch]);
+                    }
+                }
+                z6ii_fd_channel_schedule(s);
+            }
+            *reg = *value;
+            for (unsigned ch = 0; ch < 12; ch++) { z6ii_fd_channel_irq(s, ch); }
+        } else { *value = *reg; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 1005b3f4..3fe submits a shared 32-bit initial value followed by the
+     * selected channel bit. Known prescalers count from this preset. */
+    if (addr == 0x2c011004 || addr == 0x2c011008) {
+        if (!write) { return false; }
+        if (addr == 0x2c011004) {
+            s->channel_preset_latch = *value;
+        } else {
+            if (!*value || (*value & ~0xfffULL) || (*value & (*value - 1))) { return false; }
+            unsigned selected = ctz32(*value);
+            if (s->channel_enable & (1U << selected)) { return false; }
+            s->channel_preset[selected] = s->channel_preset_latch;
+            s->channel_counter[selected] = s->channel_preset_latch;
+            fprintf(stderr, "Z6II_CHANNEL_PRESET channel=%u value=0x%x\n",
+                    selected, s->channel_preset_latch);
+        }
+        z6ii_fd_mmio_trace(s, addr, size, true, *value);
+        return true;
+    }
+    unsigned bank, ch, off;
+    if (addr >= 0x2c010100 && addr < 0x2c010d00) { bank = 0; }
+    else if (addr >= 0x2c011100 && addr < 0x2c011d00) { bank = 1; }
+    else { return false; }
+    ch = ((addr & 0xfff) >> 8) - 1;
+    off = addr & 0xff;
+    if (!bank && off == 0x10) {
+        if (write) {
+            uint32_t cleared = s->channel_pending[ch] & *value;
+            s->channel_pending[ch] &= ~*value;
+            z6ii_fd_channel_irq(s, ch);
+            if (cleared) {
+                fprintf(stderr, "Z6II_COUNTER_ACK channel=%u cleared=0x%x pending=0x%x\n",
+                        ch, cleared, s->channel_pending[ch]);
+            }
+        }
+        else { *value = s->channel_pending[ch]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (bank && off == 0x0c && !write) {
+        *value = z6ii_fd_channel_count(s, ch, now);
+        z6ii_fd_mmio_trace(s, addr, size, false, *value);
+        return true;
+    }
+    if (bank && off == 0x40 && ch <= 4 && !write) {
+        *value = s->channel_repetitions[ch];
+        z6ii_fd_mmio_trace(s, addr, size, false, *value);
+        return true;
+    }
+    uint32_t mask;
+    if (!bank) {
+        switch (off) {
+        case 0: mask = 0x3f; break;
+        case 4: case 8: mask = 0x3f; break;
+        default: return false;
+        }
+    } else {
+        switch (off) {
+        case 0: mask = 1; break; /* reset pulse */
+        case 4: mask = 0xff; break; /* byte config */
+        case 8: mask = UINT32_MAX; break; /* reload word */
+        case 0x10: if (ch != 5 && ch != 6) { return false; } mask = 1; break;
+        case 0x1c: if (ch > 6) { return false; } mask = 1; break;
+        case 0x24: case 0x38:
+            if (ch > 4) { return false; } mask = 1; break;
+        case 0x28: if (ch > 4) { return false; } mask = 1; break; /* 1005b480 */
+        case 0x2c: case 0x3c:
+            if (ch > 4) { return false; } mask = UINT32_MAX; break; /* 1005b476/592 */
+        case 0x20: if (ch > 6) { return false; } mask = 0xf; break; /* 1005b548 */
+        default: return false;
+        }
+    }
+    if (write) {
+        if (*value & ~(uint64_t)mask) { return false; }
+        s->channel_config[ch][bank][off / 4] = *value;
+        if (bank && off == 0 && *value) {
+            s->channel_clocked[ch] = false;
+            s->channel_counter[ch] = s->channel_pending[ch] = 0;
+            s->channel_repetitions[ch] = 0;
+            z6ii_fd_channel_schedule(s);
+        }
+        z6ii_fd_channel_irq(s, ch);
+    } else { *value = s->channel_config[ch][bank][off / 4]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+static void z6ii_fd_capture_irq(Z6IIFunctionalDevices *s, unsigned group)
+{
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 86 + group - 32),
+                (s->capture_irq_status[group] & s->capture_irq_enable[group]) != 0);
+}
+
+/* Z6 100cdc54 selects a receive-channel mode through 20065504 bits14..15.
+ * The native IRQ87 callback10178de8 acknowledges mode2 with40000 and mode0
+ * with400. This models command completion only, never a new sensor frame. */
+static void z6_sdes_mode_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    uint32_t cause = s->sdes_mode_pending;
+    s->sdes_mode_pending = 0;
+    s->capture_irq_status[1] |= cause;
+    z6ii_fd_capture_irq(s, 1);
+    fprintf(stderr, "Z6II_SDES_MODE_COMPLETE irq87_status=%x new_frames=0\n", cause);
+}
+
+static void z6_sdes_sequence_irq(Z6IIFunctionalDevices *s)
+{
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 92 - 32),
+                (s->sdes_sequence_status & s->sdes_sequence_enable) != 0);
+}
+
+/* Functional input sequence end, after all submitted RAW slots were written.
+ * ROM100cd50e W1C status20065508; callback10178d3e maps bit1 to event800.
+ * The association with our first RAW batch is an explicit timing hypothesis,
+ * not a claim about the physical sensor's sequence/line-count registers. */
+static void z6_sdes_sequence_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    if (!s->capture_ingress_done || !s->capture_control[2]) { return; }
+    s->sdes_sequence_status |= 2;
+    z6_sdes_sequence_irq(s);
+    fprintf(stderr, "Z6II_SDES_SEQUENCE_END status=2 raw_batch_written=1 physical_timing_verified=0\n");
+}
+
+/* Native 1010bb4e..1010bb76 registers IRQs 94..98. The eight status
+ * words are 20068210+20*n; each ISR writes back the observed causes. */
+static void z6ii_fd_isp_irq(Z6IIFunctionalDevices *s)
+{
+    static const unsigned groups[8] = {0, 0, 1, 2, 2, 3, 3, 4};
+    uint32_t pending[5] = {0};
+    for (unsigned bank = 0; bank < 8; bank++) {
+        pending[groups[bank]] |= s->capture_isp_irq_enable[bank] & s->capture_isp_irq_status[bank];
+    }
+    for (unsigned group = 0; group < 5; group++) {
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 94 + group - 32), pending[group] != 0);
+    }
+}
+
+/* Research hypothesis next-frame-v1, opt-in by Z6II_ISP_COMMIT_COMPLETION.
+ * Master 1023AE42 programs parameter groups, then 1020BFAA -> 1020AB28
+ * writes the group mask to 20068100. AE apply 102387B6 waits (TWF_ANDW,
+ * 200 ticks) on flag C188808C for groups armed earlier; the original
+ * 410728xx callbacks 10238FF2/102390CA/102391C4/1023926E/102392B8 set those
+ * flag bits only for these status causes (ROM-derived mapping):
+ *   commit 004 -> bank0 bit4    commit 200 -> bank4 bit16
+ *   commit 008 -> bank3 bit5    commit 010 -> bank3 bit0
+ *   commit 100 -> bank3 bit30   commit 080 -> bank4 bit7
+ * Commit bit1 (002) has no awaited cause. The next TG input deadline
+ * (cause10) latches the causes once. Parameter bit0 is awaited (flag 100000,
+ * bank0 bit3 via 10238FF2) but never programmed or committed, so this
+ * hypothesis treats it as a per-input-frame cause latched every deadline.
+ * Physical latch timing and cause meaning remain unmeasured; IRQ delivery
+ * still follows the native enable words. No pixels, statistics or exposure
+ * values are produced. */
+static void z6ii_fd_isp_commit_frame(Z6IIFunctionalDevices *s)
+{
+    if (!s->isp_commit_completion) { return; }
+    uint32_t m = s->isp_commit_pending;
+    s->isp_commit_pending = 0;
+    ++s->isp_commit_frames;
+    s->capture_isp_irq_status[0] |= 1u << 3;
+    if (m & 0x004) { s->capture_isp_irq_status[0] |= 1u << 4; }
+    if (m & 0x008) { s->capture_isp_irq_status[3] |= 1u << 5; }
+    if (s->isp_mode1_config_ack && (m & 0x008)) {
+        /* Original1023C3C4..3EA programs the Mode1 buffer configuration,
+         * clears its control bit0 through1020C8F0, commits8, and writes a
+         * software pending flag. Native102392B8 consumes bank3 bit7 and
+         * posts worker80. This variant tests a next-input configuration
+         * acknowledgement for that commit. It does not start a DMA,
+         * fill statistics/pixels or write the software pending flag. The
+         * operation-to-bit timing remains an explicit hypothesis. */
+        s->capture_isp_irq_status[3] |= 1u << 7;
+        if (s->isp_commit_completed < 48) {
+            fprintf(stderr, "Z6II_ISP_MODE1_CONFIG_ACK frame=%" PRIu64
+                " commit=%x status3=%x enable3=%x virtual_ns=%" PRId64
+                " model=next-frame-ae-v4 DMA_completion=0 statistics_generated=0"
+                " hardware_config_ack_mapping_verified=0\n", s->isp_commit_frames,
+                m, s->capture_isp_irq_status[3], s->capture_isp_irq_enable[3],
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+    }
+    if (m & 0x010) { s->capture_isp_irq_status[3] |= 1u << 0; }
+    if (m & 0x100) { s->capture_isp_irq_status[3] |= 1u << 30; }
+    if (m & 0x080) { s->capture_isp_irq_status[4] |= 1u << 7; }
+    if (m & 0x200) { s->capture_isp_irq_status[4] |= 1u << 16; }
+    z6ii_fd_isp_irq(s);
+    bool first_commits = m && ++s->isp_commit_completed <= 48;
+    if (s->isp_commit_frames <= 16 || first_commits || !(s->isp_commit_frames & 255)) {
+        fprintf(stderr, "Z6II_ISP_COMMIT_COMPLETE frame=%" PRIu64 " commit=0x%x bank0=%x bank3=%x bank4=%x"
+                " en0=%x en3=%x en4=%x virtual_ns=%" PRId64 " model=next-frame-v1 physical_timing_verified=0\n",
+                s->isp_commit_frames, m, s->capture_isp_irq_status[0], s->capture_isp_irq_status[3],
+                s->capture_isp_irq_status[4], s->capture_isp_irq_enable[0], s->capture_isp_irq_enable[3],
+                s->capture_isp_irq_enable[4], qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    }
+}
+
+/* End-of-sequence must survive either ordering of TG stop and DMA drain.
+ * Only an actual engine1 stop arms it; clear the latch on delivery. */
+static void z6ii_fd_capture_maybe_drained(Z6IIFunctionalDevices *s)
+{
+    if (s->capture_drain_pending && s->capture_native0_frames &&
+        !(s->capture_isp_gate[1] & 0xeff) &&
+        (!s->capture_control[2] || (s->capture_control[0] & 3))) {
+        s->capture_drain_pending = false;
+        s->capture_isp_irq_status[0] |= 0x80;
+        z6ii_fd_isp_irq(s);
+        fprintf(stderr, "Z6II_CAPTURE_DRAINED raw_batches=%u common_cause=0x80 new_frame=0\n",
+                s->capture_native0_frames);
+    }
+}
+
+static void z6ii_fd_isp_stopped(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    uint32_t engines = s->capture_isp_stop_pending;
+    s->capture_isp_stop_pending = 0;
+    /* Asynchronous pipeline drain notifications, distinct from the low-level
+     * stop causes below. Native PREPRO registers these in 100bd070 and clears
+     * its outstanding bitmap a261d6f0 in 100bd04c/bccf2/bcdd4/bceec.
+     * A +0c request has already stopped our synchronous DMA worker. Report
+     * the idle/drained channels on the deferred timer, without a frame IRQ.
+     * The 4/8 pair has one shared cause and must both be stopped first.
+     * Timing is a functional hypothesis; these bit mappings are from ROM. */
+    if (engines & 1) { s->capture_isp_irq_status[0] |= 0x200; }
+    if ((engines & 0xc) && !(s->capture_isp_gate[1] & 0xc)) {
+        s->capture_isp_irq_status[0] |= 0x8000;
+    }
+    if (engines & 0x10) { s->capture_isp_irq_status[0] |= 0x80000000; }
+    if (engines & 0x20) { s->capture_isp_irq_status[0] |= 0x08000000; }
+    if (engines & 0x40) { s->capture_isp_irq_status[0] |= 0x20000; }
+    if (engines & 0x80) { s->capture_isp_irq_status[0] |= 0x80000; }
+    if (engines & 0x400) { s->capture_isp_irq_status[1] |= 8; }
+    if (engines & 0x200) { s->capture_isp_irq_status[1] |= 0x80; }
+    if (engines & 0x800) { s->capture_isp_irq_status[1] |= 0x800; }
+    /* Engine2's drain callback is in bank7: 100bcfe8 -> PREPRO flag0x20
+     * -> 100bc900 -> 04190006 -> master flag0x20 -> 100730ae.
+     * Low-level bits4/5 alone never deliver this native stop handshake. */
+    if (engines & 2) { s->capture_isp_irq_status[7] |= 8; }
+    /* Full capture shutdown also has a common end-of-sequence event.
+     * 100bc532 enables bank0 bit7; 100bcc98 -> PREPRO0x10 -> 100bfc0e
+     * -> 04190004 clears the master's non-0x80 channels (100742ec).
+     * Bank7 bit3 above clears its remaining 0x80 channel (100777d4).
+     * No new pixels/frame are generated: synchronous input writes have
+     * finished and both the TG and all submitted channels are stopped. */
+    if (engines & 1) { s->capture_drain_pending = true; }
+    z6ii_fd_capture_maybe_drained(s);
+    /* Exact stop-cause decoder 1010b836; the common ISR disables each
+     * stopped engine and calls the callback registered by 1010be54.
+     * These acknowledge an idle stop request, never a captured frame. */
+    if (engines & 0x20) { s->capture_isp_irq_status[0] |= 0x10000000; }
+    if (engines & 0x10) { s->capture_isp_irq_status[1] |= 1; }
+    if (engines & 0x400) { s->capture_isp_irq_status[1] |= 0x10; }
+    if (engines & 0x200) { s->capture_isp_irq_status[1] |= 0x100; }
+    if (engines & 0x800) { s->capture_isp_irq_status[1] |= 0x1000; }
+    if (engines & 2) { s->capture_isp_irq_status[7] |= 0x30; }
+    z6ii_fd_isp_irq(s);
+    fprintf(stderr, "Z6II_ISP_STOP engines=0x%x frame_completed=0\n", engines);
+}
+
+/* Explicit diagnostic signal, not a sensor frame or an automatic success
+ * response. Tests exercise the hardware IRQ -> original ISR -> event path.
+ * The signal's physical meaning and timing have not been established. */
+
+/* Original Z6II 102DC848 clears flag8, calls102FB6E6 to clear the
+ * SDES input gate20060014, and only then waits for flag8. A pending TG
+ * edge must not be cancelled merely because input has stopped. This is
+ * restricted to the existing opt-in diagnostic ticks: retain already
+ * armed work once, with no RAW/ISP input and no timer rearm while draining.
+ * Cause meanings and physical clock/latency remain unknown. */
+
+/* Z6II 102DF294(mask30000,value1) clears the global stop aliases;
+ * 102DF2C8(mask800,value0) sets SDES input20060010. The original ISR
+ * 102DF04C reads/W1Cs20060044. Callback102D7ED4 independently maps
+ * cause80 to02010001/flag4 and cause10 to02010002/flag8.
+ * v1/v2 retain the single cause10 model. v3 has two input-cycle edges,
+ * cause80 halfway through an armed cycle and cause10 at its deadline.
+ * The period, phase and physical meaning are explicit assumptions, not
+ * measured sensor timing. IRQ masking controls delivery, not latching.
+ * This timer supplies no RAW bytes and never writes RTOS or AE state. */
+static void z6ii_fd_capture_tg_tick(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    if (!s->capture_tg_running) { return; }
+    if (s->capture_tg_frame_edges && s->capture_tg_start_phase) {
+        if (s->isp_group8_input_token) {
+            z6ii_mask1_input_begin(&s->isp_group8_cycle,
+                z6ii_isp_input_engine_active(s->capture_isp_gate[0],
+                    s->capture_isp_gate[1], s->capture_isp_gate[2],
+                    s->capture_control[0], 8), (s->capture_control[2] & 1) != 0);
+        }
+        if (s->isp_mask1_input_completion) {
+            uint64_t admitted_before = s->isp_mask1_cycle.admitted;
+            z6ii_mask1_input_begin(&s->isp_mask1_cycle,
+                z6ii_mask1_engine_active(s->capture_isp_gate[0],
+                    s->capture_isp_gate[1], s->capture_isp_gate[2],
+                    s->capture_control[0]), (s->capture_control[2] & 1) != 0);
+            if (s->capture_tg_start_count < 16 ||
+                (s->isp_mask1_cycle.admitted != admitted_before &&
+                 s->isp_mask1_cycle.admitted <= 16) ||
+                !(s->capture_tg_start_count & 255)) {
+                fprintf(stderr, "Z6II_ISP_MASK1_INPUT_BEGIN frame=%" PRIu64
+                    " admitted=%u gates=%x,%x,%x global_stop=%x input_enable=%x"
+                    " cycles=%" PRIu64 ",%" PRIu64 ",%" PRIu64
+                    " virtual_ns=%" PRId64 " model=next-frame-ae-v2\n",
+                    s->capture_tg_start_count + 1, s->isp_mask1_cycle.pending,
+                    s->capture_isp_gate[0], s->capture_isp_gate[1],
+                    s->capture_isp_gate[2], s->capture_control[0],
+                    s->capture_control[2], s->isp_mask1_cycle.admitted,
+                    s->isp_mask1_cycle.completed, s->isp_mask1_cycle.canceled,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+        }
+        s->capture_irq_status[1] |= 0x80;
+        z6ii_fd_capture_irq(s, 1);
+        ++s->capture_tg_start_count;
+        s->capture_tg_start_phase = false;
+        fprintf(stderr, "Z6II_TG_FRAME_EDGE phase=first count=%" PRIu64
+                " cause=80 irq=87 enabled=%x draining=%u virtual_ns=%" PRId64
+                " deadline_ns=%" PRId64 " raw_frames=%" PRIu64
+                " model=sdes-input-v3 physical_phase_verified=0\n",
+                s->capture_tg_start_count, s->capture_irq_enable[1],
+                s->capture_tg_draining, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+                s->capture_tg_frame_deadline_ns, s->bayer.next_frame_id);
+        timer_mod(s->capture_tg_timer, s->capture_tg_frame_deadline_ns);
+        return;
+    }
+    z6ii_bayer_capture_tick(s);
+    s->capture_irq_status[1] |= 0x10;
+    z6ii_fd_capture_irq(s, 1);
+    ++s->capture_tg_count;
+    z6ii_fd_isp_commit_frame(s);
+    if (s->isp_group8_input_token &&
+        z6ii_mask1_input_end(&s->isp_group8_cycle,
+            z6ii_isp_input_engine_active(s->capture_isp_gate[0],
+                s->capture_isp_gate[1], s->capture_isp_gate[2], s->capture_control[0], 8))) {
+        /* Group8 is selected by original1023ABEE/1023A9DE and programs the
+         * input processing path. The original Mode2 class enables bit6;
+         * 10239040 -> worker4 -> 10238B84 can deliver041A0003. A group8
+         * input cycle producing that token is an opt-in hypothesis, not
+         * established silicon timing or a DMA/statistics completion. The
+         * original enable/classification/worker gates decide delivery.
+         * No firmware RAM field, callback result or pixel data is filled. */
+        s->capture_isp_irq_status[0] |= 0x40;
+        z6ii_fd_isp_irq(s);
+        if (s->isp_group8_cycle.completed <= 16 ||
+            !(s->isp_group8_cycle.completed & 255)) {
+            fprintf(stderr, "Z6II_ISP_GROUP8_INPUT_TOKEN6 cycle=%" PRIu64
+                " status0=%x enable0=%x gates=%x,%x,%x virtual_ns=%" PRId64
+                " model=next-frame-ae-v3 DMA_completion=0 statistics_generated=0"
+                " hardware_token_mapping_verified=0\n",
+                s->isp_group8_cycle.completed, s->capture_isp_irq_status[0],
+                s->capture_isp_irq_enable[0], s->capture_isp_gate[0],
+                s->capture_isp_gate[1], s->capture_isp_gate[2],
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+    }
+    if (s->isp_mask1_input_completion &&
+        z6ii_mask1_input_end(&s->isp_mask1_cycle,
+            z6ii_mask1_engine_active(s->capture_isp_gate[0],
+                s->capture_isp_gate[1], s->capture_isp_gate[2], s->capture_control[0]))) {
+        /* Original bank0 bit0 -> 10238FF2 -> owner C269F9C8 mask1 ->
+         * 10238B8A -> 041A000F -> 1022F17A -> C1887CDC mask4. The active
+         * mask1 engine admits a declared input cycle; this is not a RAW/ISP
+         * DMA completion and contains no synthesized exposure values. */
+        s->capture_isp_irq_status[0] |= 1;
+        z6ii_fd_isp_irq(s);
+        if (s->isp_mask1_cycle.completed <= 16 ||
+            !(s->isp_mask1_cycle.completed & 255)) {
+            fprintf(stderr, "Z6II_ISP_MASK1_INPUT_COMPLETE cycle=%" PRIu64
+                " status0=%x enable0=%x gates=%x,%x,%x virtual_ns=%" PRId64
+                " model=next-frame-ae-v2 admitted_input=1 DMA_completion=0"
+                " physical_completion_semantics_verified=0\n",
+                s->isp_mask1_cycle.completed, s->capture_isp_irq_status[0],
+                s->capture_isp_irq_enable[0], s->capture_isp_gate[0],
+                s->capture_isp_gate[1], s->capture_isp_gate[2],
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+    }
+    /* Z6II IRQ92 ISR1029693F W1Cs20065508. Original callback102D7E26
+     * maps bit1 to the CAPTG sequence flag800. v2 treats one armed virtual
+     * input period as a sequence boundary. This is an explicit input timing
+     * assumption, not a measured sensor/line-count contract, and supplies
+     * no RAW bytes. Masking affects the IRQ line, not cause latching.
+     * Input stop keeps only the already armed final period; global stop
+     * cancels it through the same input lifetime as the IRQ87 tick. */
+    if (s->capture_tg_sequence_enabled) {
+        s->sdes_sequence_status |= 2;
+        ++s->capture_tg_sequence_count;
+        z6_sdes_sequence_irq(s);
+        if (s->capture_tg_sequence_count <= 8 ||
+            !(s->capture_tg_sequence_count & 255)) {
+            fprintf(stderr, "Z6II_SDES_SEQUENCE_INPUT_END count=%" PRIu64
+                    " status=%x enable=%x irq=92 draining=%u virtual_ns=%" PRId64
+                    " raw_frames=%" PRIu64 " physical_timing_verified=0\n",
+                    s->capture_tg_sequence_count, s->sdes_sequence_status,
+                    s->sdes_sequence_enable, s->capture_tg_draining,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), s->bayer.next_frame_id);
+        }
+    }
+    if (s->capture_tg_frame_edges || s->capture_tg_count <= 8 ||
+        !(s->capture_tg_count & 255)) {
+        fprintf(stderr, "Z6II_TG_COMPLETE count=%" PRIu64
+                " status=10 irq=87 enabled=%x draining=%u virtual_ns=%" PRId64
+                " raw_frames=%" PRIu64 " model=%s\n",
+                s->capture_tg_count, s->capture_irq_enable[1],
+                s->capture_tg_draining, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+                s->bayer.next_frame_id, s->capture_tg_frame_edges ? "sdes-input-v3" :
+                (s->capture_tg_sequence_enabled ? "sdes-input-v2" : "sdes-input-v1"));
+    }
+    if (s->capture_tg_draining) {
+        s->capture_tg_running = false;
+        s->capture_tg_draining = false;
+        return;
+    }
+    if (s->capture_tg_frame_edges) {
+        s->capture_tg_start_phase = true;
+        s->capture_tg_frame_deadline_ns += s->capture_tg_period_ns;
+        timer_mod(s->capture_tg_timer, s->capture_tg_frame_deadline_ns -
+                  s->capture_tg_period_ns + s->capture_tg_period_ns / 2);
+    } else {
+        timer_mod(s->capture_tg_timer,
+                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->capture_tg_period_ns);
+    }
+}
+
+static void z6ii_fd_capture_tg_update(Z6IIFunctionalDevices *s)
+{
+    if (!s->capture_tg_enabled) { return; }
+    bool global_stop = (s->capture_control[0] & 3) != 0;
+    bool input_enabled = s->capture_control[2] && !global_stop;
+    bool was_running = s->capture_tg_running;
+    bool was_draining = s->capture_tg_draining;
+    if (global_stop) {
+        timer_del(s->capture_tg_timer);
+        s->capture_tg_running = false;
+        s->capture_tg_draining = false;
+    } else if (input_enabled) {
+        if (!s->capture_tg_running) {
+            int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+            s->capture_tg_frame_deadline_ns = now + s->capture_tg_period_ns;
+            s->capture_tg_start_phase = s->capture_tg_frame_edges;
+            timer_mod(s->capture_tg_timer, now + (s->capture_tg_frame_edges ?
+                      s->capture_tg_period_ns / 2 : s->capture_tg_period_ns));
+        }
+        s->capture_tg_running = true;
+        s->capture_tg_draining = false;
+    } else if (s->capture_tg_running) {
+        /* v3 drains an input cycle only after its first edge has latched.
+         * A pending new cycle cannot begin after input stop. v1/v2 keep
+         * their previously armed single completion. Global stop cancels
+         * either phase above, without clearing unacknowledged causes. */
+        if (s->capture_tg_frame_edges && s->capture_tg_start_phase) {
+            timer_del(s->capture_tg_timer);
+            s->capture_tg_running = false;
+            s->capture_tg_draining = false;
+        } else {
+            s->capture_tg_draining = true;
+        }
+    }
+    if (was_running != s->capture_tg_running || was_draining != s->capture_tg_draining) {
+        fprintf(stderr, "Z6II_TG_GATE input=%u global_stop=%u running=%u draining=%u"
+                " period_ns=%" PRId64 " virtual_ns=%" PRId64 "\n",
+                input_enabled, global_stop, s->capture_tg_running,
+                s->capture_tg_draining, s->capture_tg_period_ns,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    }
+}
+
+static void z6ii_fd_capture_pending_tick_finished(Z6IIFunctionalDevices *s)
+{
+    if (s->capture_input_draining &&
+        !timer_pending(s->capture_test_timer) &&
+        !timer_pending(s->capture_periodic_test_timer)) {
+        s->capture_test_running = false;
+        s->capture_input_draining = false;
+    }
+}
+
+static void z6ii_fd_capture_test_pulse(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    if (!s->capture_test_running) { return; }
+    s->capture_irq_status[1] |= 0x10;
+    z6ii_fd_capture_irq(s, 1);
+    fprintf(stderr, "Z6II_TG_TEST_PULSE irq=87 status=0x10 raw_frames=0 diagnostic_only=1\n");
+    z6ii_fd_capture_pending_tick_finished(s);
+}
+
+/* Isolated timing experiment. IRQ 87 bit 7 reaches 1017889e -> 100f52fe
+ * (02010001) -> 101de3de (041f0141). This establishes the event route,
+ * not the physical sensor clock rate or a completed pixel transfer. */
+/* Functional stationary-scene statistics input. The native configuration
+ * uses three u16 planes (60x40, row128) in six slots separated by0x36000.
+ * Regional CFA averages model scene measurements only; Nikon's statistic
+ * calibration, AF and accumulation units are not bit-accurate here. */
+static void z6ii_fd_capture_rgb_statistics(Z6IIFunctionalDevices *s)
+{
+    if (!s->image_process_test || !s->capture_native0_data) { return; }
+    for (unsigned ch = 0; ch < 3; ch++) {
+        uint32_t *r = s->capture_image_channel[ch + 2];
+        if (r[0x14/4] != 3 || r[0x18/4] != 1 || r[0x40/4] != 1 ||
+            r[0x48/4] != 5 || r[0x80/4] != 0x36000) { return; }
+        for (unsigned a = 0x50/4; a <= 0x6c/4; a++) {
+            if (!z6ii_fd_copy_ram_range(s, r[a], 6 * 0x36000)) { return; }
+        }
+    }
+    uint8_t planes[3][128 * 40] = {{0}};
+    const uint8_t *raw = (uint8_t *)s->capture_native0_data;
+    for (unsigned y = 0; y < 40; y++) {
+        for (unsigned x = 0; x < 60; x++) {
+            uint64_t sum[3] = {0}; unsigned n = 0;
+            for (unsigned sy = y * (s->model->raw.height/2) / 40; sy < (y + 1) * (s->model->raw.height/2) / 40; sy++) {
+                for (unsigned sx = x * (s->model->raw.width/2) / 60; sx < (x + 1) * (s->model->raw.width/2) / 60; sx++) {
+                    const uint8_t *p = raw + sy * 2 * s->model->raw.stride + sx * 4;
+                    sum[0] += lduw_le_p(p) & 4095;
+                    sum[1] += ((lduw_le_p(p + 2) & 4095) + (lduw_le_p(p + s->model->raw.stride) & 4095) + 1) / 2;
+                    sum[2] += lduw_le_p(p + s->model->raw.stride + 2) & 4095;
+                    n++;
+                }
+            }
+            for (unsigned ch = 0; ch < 3; ch++) {
+                stw_le_p(planes[ch] + y * 128 + x * 2, (sum[ch] + n / 2) / n);
+            }
+        }
+    }
+    /* All history slots see the same stationary photo. Each write is bounded
+     * by the original pool20 descriptor11524990, not an application-state edit. */
+    for (unsigned slot = 0; slot < 6; slot++) {
+        for (unsigned ch = 0; ch < 3; ch++) {
+            uint32_t base = s->capture_image_channel[ch + 2][0x50 / 4];
+            z6ii_engine_write(s->engine, base + slot * 0x36000, planes[ch], sizeof(planes[ch]));
+        }
+    }
+    if (!s->capture_statistics_frames++) {
+        fprintf(stderr, "Z6II_CMOS_RGB_STATISTICS width=60 height=40 stride=128 planes=3 ring_slots=6 source=photo_RGGB12 bit_accurate=0\n");
+    }
+}
+
+static void z6ii_fd_capture_ingress_test(Z6IIFunctionalDevices *s)
+{
+    if (s->z6_profile && s->capture_native0_data && !(s->z6_raw_config_count++ % 100)) {
+        unsigned bank = s->capture_processing[0x183c / 4] & 1;
+        uint32_t wait_mask = 0; z6ii_engine_read(s->engine, 0xc25ed3b8, &wait_mask, 4);
+        fprintf(stderr, "Z6II_WAIT_CONFIG input=%x enables=%x/%x/%x statistics=%u\n", wait_mask, s->capture_isp_irq_enable[0], s->capture_isp_irq_enable[3], s->capture_isp_irq_enable[4], s->capture_statistics_frames);
+        fprintf(stderr, "Z6II_RAW_CONFIG gate=%x/%x/%x mode=%x width=%x height=%x stride=%u destination=%x isp_stride=%u isp_geometry=%x ready=%x/%x/%x raw_batches=%u last_input=%u\n",
+            s->capture_isp_gate[0], s->capture_isp_gate[1], s->capture_isp_gate[2],
+            s->capture_processing[0x1500 / 4], s->capture_processing[0x1504 / 4],
+            s->capture_processing[0x1508 / 4], s->capture_processing[0x1808 / 4],
+            s->capture_processing[(0x1850 + bank * 0x10) / 4],
+            s->image_processor_config[0][0x30c / 4], s->image_processor_config[0][0x48 / 4],
+            s->image_processor_config[0][8/4], s->image_command_config[1][0],
+            s->image_sequence_config[8/4], s->capture_native0_frames, s->image_process_last_input);
+    }
+    if (s->capture_native0_data &&
+        (!s->capture_ingress_done || s->capture_isp_boundary_stage % 3 == 1) &&
+        !(s->capture_isp_gate[0] & 0x400) && (s->capture_isp_gate[1] & 0x400) &&
+        (s->capture_isp_gate[2] & 0x400) && s->capture_processing[0x1500 / 4] == 0 &&
+        s->capture_processing[0x1504 / 4] == 0x07f20000 &&
+        s->capture_processing[0x1508 / 4] == 0x059a0000 &&
+        s->capture_processing[0x1808 / 4] == s->model->raw.stride) {
+        bool sequence_first_raw = !s->capture_ingress_done;
+        /* Native 1010a19e geometry and 1010a0b6 engine 400. The separate
+         * 2034x1434 LE-u16 CFA layout is an explicit input-format hypothesis.
+         * Fill every submitted ring slot with the same user-selected photo. */
+        unsigned bank = s->capture_processing[0x183c / 4] & 1;
+        for (unsigned slot = 0; slot < 4; slot++) {
+            uint32_t dst = s->capture_processing[(0x1850 + bank * 0x10 + slot * 4) / 4];
+            if (!z6ii_fd_copy_ram_range(s, dst, s->capture_native0_length)) { return; }
+        }
+        g_autofree char *hash = !s->capture_native0_frames ?
+            g_compute_checksum_for_data(G_CHECKSUM_SHA256,
+                (uint8_t *)s->capture_native0_data, s->capture_native0_length) : NULL;
+        g_autofree uint8_t *readback = sequence_first_raw ? g_malloc(s->capture_native0_length) : NULL;
+        for (unsigned slot = 0; slot < 4; slot++) {
+            uint32_t dst = s->capture_processing[(0x1850 + bank * 0x10 + slot * 4) / 4];
+            z6ii_engine_write(s->engine, dst, s->capture_native0_data, s->capture_native0_length);
+            if (readback) {
+                z6ii_engine_read(s->engine, dst, readback, s->capture_native0_length);
+                if (memcmp(readback, s->capture_native0_data, s->capture_native0_length)) {
+                    error_report("Z6 RAW ring readback mismatch at %08x", dst);
+                    exit(2);
+                }
+            }
+            if (!s->capture_native0_frames) {
+                fprintf(stderr, "Z6II_RAW_NATIVE0_TEST slot=%u destination=0x%08x bytes=%zu sha256=%s consumed=0 packing_verified=0\n",
+                        slot, dst, s->capture_native0_length, hash);
+            }
+        }
+        fprintf(stderr, "Z6II_RAW_NATIVE0_STREAM seq=%u bank=%u slots=4 bytes_per_slot=%zu packing_verified=0\n",
+                ++s->capture_native0_frames, bank, s->capture_native0_length);
+        z6ii_fd_image_process_schedule(s);
+        z6ii_fd_capture_rgb_statistics(s);
+        s->capture_ingress_done = true;
+        if (s->z6_profile && sequence_first_raw) {
+            timer_mod(s->sdes_sequence_timer,
+                      qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->model->timing.sdes_sequence_ns);
+        }
+    }
+    if (!s->capture_ingress_data || s->capture_ingress_done ||
+        (s->capture_isp_gate[0] & 0x200) ||
+        !(s->capture_isp_gate[1] & 0x200) ||
+        !(s->capture_isp_gate[2] & 0x200) ||
+        s->capture_processing[0x1514 / 4] != 6 ||
+        s->capture_processing[0x1518 / 4] != 0x05640000 ||
+        s->capture_processing[0x151c / 4] != 0x03960000 ||
+        s->capture_processing[0x1a08 / 4] != 2080) { return; }
+    uint32_t destination = s->capture_processing[0x1a50 / 4];
+    /* Native pool 44c00000..4fbd2400. Follow the original submitted slot.
+     * 1010a0b6/1010a0e2 select ISP engine 0x200 for this processing path;
+     * 1010bc16 submits, 1010b634 enables. Channel +3c is a descriptor
+     * option (1010a3f2), not sufficient evidence of an engine start bit.
+     * Gate interpretation and pixel packing remain diagnostic hypotheses. */
+    if (destination < 0x44c00000 || (uint64_t)destination + s->capture_ingress_length > 0x4fbd2400) { return; }
+    g_autofree uint8_t *check = g_malloc(s->capture_ingress_length);
+    z6ii_engine_write(s->engine, destination, s->capture_ingress_data, s->capture_ingress_length);
+    z6ii_engine_read(s->engine, destination, check, s->capture_ingress_length);
+    if (memcmp(check, s->capture_ingress_data, s->capture_ingress_length)) {
+        error_report("Z6II_RAW_INGRESS_TEST readback mismatch");
+        exit(2);
+    }
+    s->capture_ingress_done = true;
+    g_autofree char *hash = g_compute_checksum_for_data(G_CHECKSUM_SHA256, check, s->capture_ingress_length);
+    fprintf(stderr, "Z6II_RAW_INGRESS_TEST destination=0x%08x bytes=%zu sha256=%s transferred=1 consumed=0 completion_irq=0 packing_verified=0\n",
+            destination, s->capture_ingress_length, hash);
+}
+
+static void z6ii_fd_capture_periodic_test(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    unsigned limit = s->capture_periodic_paired_test ? 180 : 90;
+    if (!s->capture_test_running || (!s->capture_native0_data && s->capture_periodic_test_count >= limit)) { return; }
+    unsigned frame_phase = s->capture_isp_boundary_stage % 3;
+    if (s->z6_profile && !s->capture_ingress_done) {
+        /* Parameter edges must run before the first RAW transaction as well.
+         * Otherwise the initial DMA geometry can never be updated. */
+        frame_phase = s->capture_periodic_test_count % 3;
+    }
+    bool ingress_before = s->capture_ingress_done;
+    unsigned native0_before = s->capture_native0_frames;
+    if (!s->capture_input_draining) { z6ii_fd_capture_ingress_test(s); }
+    bool native0_written = s->capture_native0_frames != native0_before;
+    if (s->z6_profile && !ingress_before && native0_written) {
+        frame_phase = s->capture_isp_boundary_stage % 3;
+    }
+    if (!s->capture_input_draining && s->capture_isp_boundary_test && s->capture_ingress_done) {
+        /* Isolated event-route experiment, NOT a modeled ISP completion.
+         * 100bcc40 maps these to input worker flags 1 and 4. Statistics,
+         * actual boundary meaning and processing latency remain unknown. */
+        unsigned stage = s->capture_isp_boundary_stage++ % 3;
+        uint32_t boundary = stage == 0 ? 1 : stage == 1 ? 0x40 : 0x18;
+        s->capture_isp_irq_status[0] |= boundary;
+        uint32_t bank3 = 0, bank4 = 0;
+        if (native0_written) {
+            /* Mode 0 / engine 400 enables bank3 bits30/31. Native
+             * 100bcdd4 maps bit31 to PREPRO 2000 -> 100bc07e(100),
+             * which advances the original FRNTELB1 ring. Signal only
+             * after DMA above actually wrote the submitted addresses. */
+            bank3 |= 0x80000000;
+        } else if (!s->capture_native0_frames && s->capture_isp_boundary_stage == 2) {
+            /* Mode 1 / engine 200 uses 100bcd76, bank4 bit8. */
+            bank4 |= 0x100;
+        }
+        if (stage == 2) {
+            /* Native 100bc4ce waits on 0x05b00000 in this configuration.
+             * The driver callbacks map these additional channel causes to
+             * that mask. Route experiment only; no processed data claimed. */
+            bank3 |= s->capture_isp_irq_enable[3] & 0xa1;
+            if (s->z6_profile && s->capture_statistics_frames &&
+                (s->capture_isp_irq_enable[4] & 0x80)) { bank4 |= 0x80; }
+            if (s->capture_native0_frames && (s->capture_isp_gate[2] & 0x400)) {
+                bank3 |= 0x40000000;
+            } else {
+                bank4 |= s->capture_isp_irq_enable[4] & 0x80;
+            }
+        }
+        s->capture_isp_irq_status[3] |= bank3;
+        s->capture_isp_irq_status[4] |= bank4;
+        z6ii_fd_isp_irq(s);
+        fprintf(stderr, "Z6II_ISP_BOUNDARY_TEST stage=%u bank0=0x%x bank3=0x%x bank4=0x%x processed_frames=0 diagnostic_only=1\n",
+                stage, boundary, bank3, bank4);
+    }
+    /* Complementary edge experiment: 02010002 wakes the native parameter
+     * apply worker (100f49e0 -> 1017b6c6) and exits sensor state 8.
+     * The paired-edge physical timing is still a diagnostic assumption. */
+    unsigned cause = s->capture_periodic_paired_test && (s->capture_periodic_test_count & 1) ? 0x10 : 0x80;
+    if (s->capture_native0_data && s->capture_isp_boundary_test &&
+        s->capture_periodic_paired_test) {
+        /* One parameter/frame edge pair for each RAW transaction. Previously
+         * TG had a two-tick cycle while PREPRO/RAW had a three-tick cycle:
+         * it produced 30 parameter events/s for 20 frames/s and overflowed
+         * the native 60-entry CAPSVC queue (lv264). Keep edge ordering and
+         * all native event consumers; no guest queue/state is patched. */
+        cause = frame_phase == 0 ? 0x80 : frame_phase == 1 ? 0x10 : 0;
+    }
+    if (cause) {
+        s->capture_irq_status[1] |= cause;
+        z6ii_fd_capture_irq(s, 1);
+    }
+    fprintf(stderr, "Z6II_TG_PERIODIC_TEST seq=%u irq=87 status=0x%x diagnostic_only=1\n",
+            ++s->capture_periodic_test_count, cause);
+    if (s->capture_input_draining) {
+        z6ii_fd_capture_pending_tick_finished(s);
+        return;
+    }
+    timer_mod(s->capture_periodic_test_timer,
+              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->capture_period_ns);
+}
+
+static void z6ii_fd_capture_test_update(Z6IIFunctionalDevices *s)
+{
+    if (!s->capture_test_pulse && !s->capture_periodic_test) { return; }
+    bool global_stop = (s->capture_control[0] & 3) != 0;
+    bool input_enabled = s->capture_control[2] && !global_stop;
+    if (input_enabled) {
+        if (!s->capture_test_running || s->capture_input_draining) {
+            /* A new input lifetime needs a fresh RAW/ISP boundary latch. */
+            s->capture_ingress_done = false;
+            s->capture_isp_boundary_stage = 0;
+            if (s->capture_test_pulse) {
+                timer_mod(s->capture_test_timer,
+                          qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+            }
+            if (s->capture_periodic_test) {
+                timer_mod(s->capture_periodic_test_timer,
+                          qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->model->timing.tg_frame_ns);
+            }
+        }
+        s->capture_input_draining = false;
+        s->capture_test_running = true;
+    } else if (global_stop || !s->capture_test_running) {
+        timer_del(s->capture_test_timer);
+        timer_del(s->capture_periodic_test_timer);
+        if (s->z6_profile) { timer_del(s->sdes_sequence_timer); }
+        s->capture_input_draining = false;
+        s->capture_test_running = false;
+    } else {
+        /* Input stop never arms a tick or changes its already chosen phase.
+         * A pending opt-in tick can complete once without adding input data.
+         * This is a diagnostic lifetime fix, not a physical TG clock model. */
+        s->capture_input_draining = true;
+        if (s->z6_profile) { timer_del(s->sdes_sequence_timer); }
+        z6ii_fd_capture_pending_tick_finished(s);
+    }
+}
+
+/* The original three ISRs 1010c39a/370/35c acknowledge by writing exactly
+ * the observed cause bits. 1010c9b4 enables registered callbacks at +34;
+ * 1010c67e/69e update the two callback domains sharing +40. */
+static bool z6ii_fd_capture_irq_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                  bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || addr < 0x20060034 || addr > 0x20060050) { return false; }
+    unsigned off = addr - 0x20060034, group = off / 12, reg = off % 12;
+    if (reg > 4) { return false; }
+    uint32_t mask = group == 1 ? 0x3fffff : UINT32_MAX;
+    if (size != 4 || (off & 3) || (write && (*value & ~(uint64_t)mask))) {
+        z6ii_fd_unknown_access(s, addr, size, write, *value);
+        return true;
+    }
+    if (write) {
+        if (reg == 4) {
+            uint32_t acknowledged = s->capture_irq_status[group] & (uint32_t)*value;
+            s->capture_irq_status[group] &= ~(uint32_t)*value;
+            if (s->capture_tg_frame_edges && group == 1 && (acknowledged & 0x80)) {
+                ++s->capture_tg_start_ack_count;
+                fprintf(stderr, "Z6II_TG_FRAME_EDGE_ACK count=%" PRIu64
+                        " value=%x remaining=%x pc=%08x virtual_ns=%" PRId64 "\n",
+                        s->capture_tg_start_ack_count, (uint32_t)*value,
+                        s->capture_irq_status[1],
+                        current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+            if (s->capture_tg_enabled && group == 1 && (acknowledged & 0x10)) {
+                ++s->capture_tg_ack_count;
+                if (s->capture_tg_frame_edges || s->capture_tg_ack_count <= 8 ||
+                    !(s->capture_tg_ack_count & 255)) {
+                    fprintf(stderr, "Z6II_TG_ACK count=%" PRIu64 " value=%x remaining=%x"
+                            " pc=%08x virtual_ns=%" PRId64 "\n",
+                            s->capture_tg_ack_count, (uint32_t)*value,
+                            s->capture_irq_status[1],
+                            current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+                }
+            }
+        }
+        else { s->capture_irq_enable[group] = *value; }
+        z6ii_fd_capture_irq(s, group);
+    } else {
+        *value = reg == 4 ? s->capture_irq_status[group] : s->capture_irq_enable[group];
+    }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* 1010c5ae/5de select the set or clear alias for each mask; 1010c60e
+ * reads the resulting state through the set address. A zero mask must not
+ * undo another channel's request. Reset state zero remains a hypothesis. */
+static bool z6ii_fd_capture_control_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                      bool write, uint64_t *value)
+{
+    static const uint32_t masks[] = { 0x3f, 0x7fff, 1, 1, 0x7ff };
+    if (!s->recovery_profile || addr < 0x20060000 || addr > 0x20060024) {
+        return false;
+    }
+    unsigned off = addr - 0x20060000, bank = off / 8;
+    if (size != 4 || (off & 3) || (write && (*value & ~(uint64_t)masks[bank]))) {
+        z6ii_fd_unknown_access(s, addr, size, write, *value);
+        return true;
+    }
+    if (write) {
+        if (off & 4) { s->capture_control[bank] &= ~(uint32_t)*value; }
+        else { s->capture_control[bank] |= *value; }
+        if (s->isp_mask1_input_completion && (s->capture_control[0] & 3)) {
+            z6ii_mask1_input_cancel(&s->isp_mask1_cycle);
+        }
+        if (s->isp_group8_input_token && (s->capture_control[0] & 3)) {
+            z6ii_mask1_input_cancel(&s->isp_group8_cycle);
+        }
+        if (s->z6_profile && bank == 2) {
+            fprintf(stderr, "Z6II_SDES_GATE command=%x value=%x running=%x\n",
+                    off, (uint32_t)*value, s->capture_control[bank]);
+        }
+        z6ii_fd_capture_tg_update(s);
+        z6ii_fd_capture_test_update(s);
+        z6ii_fd_capture_maybe_drained(s);
+    } else {
+        /* Clear-alias readback is not exercised by the original driver. */
+        if (off & 4) {
+            z6ii_fd_unknown_access(s, addr, size, false, 0);
+            return true;
+        }
+        *value = s->capture_control[bank];
+    }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* SDES configuration; frame status is not inferred from these writes. */
+static bool z6ii_fd_capture_sync_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                   bool write, uint64_t *value)
+{
+    /* Z6 100cdc2e..100cdc52 performs RMW on input configuration bits4/20.
+     * Preserve readback only; this does not assert a completion event. */
+    if (s->graphics_profile && size == 4 && (addr == 0x20065000 || addr == 0x20065400)) {
+        uint32_t *reg = &s->sdes_input_config[addr == 0x20065400];
+        if (write) { *reg = *value; }
+        else { *value = *reg; }
+        return true;
+    }
+    if (s->graphics_profile && size == 4 && (addr == 0x20065508 || addr == 0x2006550c)) {
+        uint32_t *reg = addr == 0x20065508 ? &s->sdes_sequence_status : &s->sdes_sequence_enable;
+        if (!write) { *value = *reg; }
+        else {
+            if (addr == 0x20065508) {
+                bool ack_sequence = s->capture_tg_sequence_enabled &&
+                                    (*reg & *value & 2) != 0;
+                *reg &= ~(uint32_t)*value;
+                if (ack_sequence) {
+                    ++s->capture_tg_sequence_ack_count;
+                    if (s->capture_tg_sequence_ack_count <= 8 ||
+                        !(s->capture_tg_sequence_ack_count & 255)) {
+                        fprintf(stderr, "Z6II_SDES_SEQUENCE_INPUT_ACK count=%" PRIu64
+                                " value=%x remaining=%x pc=%08x virtual_ns=%" PRId64
+                                " raw_frames=0\n", s->capture_tg_sequence_ack_count,
+                                (uint32_t)*value, *reg,
+                                current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+                    }
+                }
+            }
+            else { *reg = *value; }
+            z6_sdes_sequence_irq(s);
+        }
+        return true;
+    }
+    if (s->graphics_profile && size == 4 && (addr == 0x20065104 || addr == 0x20065504)) {
+        unsigned bank = addr == 0x20065504;
+        if (!write) { *value = s->sdes_mode_regs[bank]; }
+        else {
+            s->sdes_mode_regs[bank] = *value;
+            unsigned mode = (*value >> 14) & 3;
+            if (bank && (s->capture_periodic_test || s->capture_tg_enabled) &&
+                (mode == 0 || mode == 2)) {
+                s->sdes_mode_pending |= mode == 2 ? 0x40000 : 0x400;
+                timer_mod(s->sdes_mode_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->model->timing.sdes_mode_ns);
+            }
+            fprintf(stderr, "Z6II_SDES_MODE_REQUEST bank=%u mode=%u value=%x\n", bank, mode, (uint32_t)*value);
+        }
+        return true;
+    }
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        addr >= 0x20064000 && addr <= 0x2006411c) {
+        /* Z6II 102969ac..102969ea and 10297434..1029750e SDES bank 20064000. */
+        unsigned off = addr - 0x20064000;
+        bool valid = off == 0x00 || off == 0x04 || off == 0x08 || off == 0x10 ||
+                     off == 0x14 || off == 0x18 || off == 0x1c || off == 0x24 ||
+                     off == 0x28 || off == 0x30 || off == 0x100 || off == 0x104 ||
+                     (off >= 0x110 && off <= 0x11c);
+        if (!valid) { return false; }
+        if (write) { s->sdes_4000_regs[off / 4] = *value; }
+        else { *value = s->sdes_4000_regs[off / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        addr >= 0x20065000 && addr <= 0x20065550) {
+        /* Z6II 10296954..10296a0e and 1029705e..10297432 SDES dual banks
+         * at 20065000 + bank * 0x400. */
+        unsigned bank = (addr - 0x20065000) / 0x400;
+        unsigned off = (addr - 0x20065000) % 0x400;
+        bool valid = bank < 2 &&
+                     ((off <= 0x28 && off != 0x10) ||
+                      (off >= 0x104 && off <= 0x150 && off != 0x14c));
+        if (!valid) { return false; }
+        if (write) { s->sdes_5000_regs[bank][off / 4] = *value; }
+        else { *value = s->sdes_5000_regs[bank][off / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (!s->graphics_profile || size != 4 || (addr & 3) ||
+        addr < 0x20061000 || addr >= 0x20061500) { return false; }
+    unsigned off = addr - 0x20061000;
+    bool rw = off == 0 || off == 0xe8 || off == 0xf4;
+    /* Original SDES configuration setters 100cd422/558/55e/5ae/62c/
+     * 634/656/65e/666/790/7da/7e2/80c/818/8a0. Status starts at +300
+     * and is deliberately absent: config writes do not synthesize input. */
+    bool config = rw || off == 4 || off == 0x10 ||
+        (off >= 0x14 && off <= 0x48) || (off >= 0x5c && off <= 0x94) ||
+        (off >= 0xa0 && off <= 0xac) || off == 0xb4 ||
+        (off >= 0xb8 && off <= 0xd4) || off == 0xe0 || off == 0xe4 || off == 0xec ||
+        off == 0xf8 || off == 0xfc || (off >= 0x100 && off <= 0x120) ||
+        off == 0x12c || off == 0x130 || off == 0x134 || off == 0x138 || off == 0x13c ||
+        (off >= 0x200 && off <= 0x28c) ||
+        /* 106168ac + 100cd96e: five sets of five byte configuration fields. */
+        (off >= 0x400 && off <= 0x4b0 && (off & 0x1f) <= 0x10 &&
+         (off < 0x480 || off >= 0x4a0));
+    if (!config || (!write && !rw)) { return false; }
+    uint32_t mask = off == 0 ? 0xf0ffff : off == 0xe8 || off == 0xf4 ? 3 : off >= 0x400 ? 0xff : UINT32_MAX;
+    if (write) {
+        if (*value & ~(uint64_t)mask) { return false; }
+        s->capture_sync[off / 4] = *value;
+    } else { *value = s->capture_sync[off / 4]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* Pointer table a18069fc: ten image channels, stride 0x100. Original
+ * 1010c256/27e/2ac set controls; 1010c2ee submits address sets. No DMA
+ * completion or received-data status is synthesized by configuration. */
+static bool z6ii_fd_capture_image_channel_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                           bool write, uint64_t *value)
+{
+    /* 1010bfbc/bfec, 1010c028/c0c8/c16a/c1a8 and table 1061687c:
+     * geometry, crop and analysis configuration only. +3e0 status is absent. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3) &&
+        addr >= 0x2006a200 && addr <= 0x2006a370) {
+        unsigned off = addr - 0x2006a000;
+        s->capture_analysis_config[off / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (!s->graphics_profile || size != 4 || (addr & 3) ||
+        addr < 0x2006a400 || addr >= 0x2006ae00) { return false; }
+    unsigned ch = (addr - 0x2006a400) / 0x100, off = addr & 0xff;
+    bool planes = ch == 2 || ch == 3 || ch == 4 || ch == 9;
+    bool control = off == 0x14 || off == 0x18 || off == 0x24 ||
+        off == 0x3c || off == 0x40 || off == 0x44 || off == 0x48 || off == 0x4c || off == 0x80;
+    bool address = off == 0x50 || off == 0x60 ||
+        (planes && ((off >= 0x54 && off <= 0x5c) || (off >= 0x64 && off <= 0x6c)));
+    if (!(control || address || off == 0x74) || (!write && off != 0x3c)) { return false; }
+    if (write) {
+        s->capture_image_channel[ch][off / 4] = *value;
+        if (address) {
+            fprintf(stderr, "Z6II_CAPTURE_ADDRESS channel=%u offset=0x%x value=0x%08" PRIx64 " dma_completed=0\n",
+                    ch, off, *value);
+        }
+    } else { *value = s->capture_image_channel[ch][off / 4]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+static bool z6ii_fd_capture_processing_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                        bool write, uint64_t *value)
+{
+    /* Original1036c38e/1036c396 selects the2038/203c controller from
+     * object.byte4 and writes its interrupt mask at+20. The existing
+     * raw-IRQ register at+24 retains W1C status independently. Each bank's
+     * IRQ line follows its own owned status and mask. Register access does
+     * not generate a status cause or complete an operation. */
+    if (s->graphics_profile && size == 4 &&
+        (addr == 0x20380020 || addr == 0x20380024 ||
+         addr == 0x203c0020 || addr == 0x203c0024)) {
+        unsigned bank = addr >= 0x203c0000;
+        unsigned off = addr & 0xffff;
+        uint32_t *reg = &s->image_processor_config[bank][off / 4];
+        if (write) {
+            if (off == 0x24) { *reg &= ~(uint32_t)*value; }
+            else { *reg = *value; }
+        } else { *value = *reg; }
+        z6ii_fd_image_raw_bank_irq(s, bank);
+        if (++s->image_irq_register_accesses <= 24) {
+            fprintf(stderr, "Z6II_IMAGE_IRQ_REGISTER bank=%u op=%c offset=%x value=%x"
+                " enable=%x status=%x pc=%08x cpu=%d virtual_ns=%" PRId64
+                " completion_generated_by_register_access=0\n",
+                bank, write ? 'W' : 'R', off, (uint32_t)*value,
+                s->image_processor_config[bank][0x20 / 4],
+                s->image_processor_config[bank][0x24 / 4],
+                current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                current_cpu ? current_cpu->cpu_index : -1,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* Original 1036c14e/340..388 initializes controller words; 1036c33e
+     * is literal data. 1036c3a4 submits+40. Preserve control/config
+     * submissions. Reads, processor execution and results remain separate. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3) &&
+        ((addr >= 0x20380000 && addr < 0x20380044) ||
+         (addr >= 0x203c0000 && addr < 0x203c0044))) {
+        unsigned bank = addr >= 0x203c0000, off = addr & 0xffff;
+        if (off == 0 || off == 4 || off == 8 || off == 0x10 || off == 0x40) {
+            s->image_processor_config[bank][off / 4] = *value;
+            if (!bank && off == 8 && (*value & 1)) { z6ii_fd_image_process_schedule(s); }
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            return true;
+        }
+    }
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        ((addr >= 0x20380000 && addr < 0x20390000) ||
+         (addr >= 0x203c0000 && addr < 0x203d0000))) {
+        unsigned bank = addr >= 0x203c0000, off = addr & 0xffff;
+        if (off == 0x24) {
+            uint32_t *pending = &s->image_processor_config[bank][off / 4];
+            if (write) { *pending &= ~(uint32_t)*value; }
+            else { *value = *pending; }
+            z6ii_fd_image_raw_bank_irq(s, bank);
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+        if ((write && (z6ii_image_configuration_word(bank, off) ||
+                       z6ii_image_control_value(bank, off, *value))) ||
+            (!write && off == 0x3c4)) {
+            uint32_t *reg = &s->image_processor_config[bank][off / 4];
+            if (write) { *reg = *value; } else { *value = *reg; }
+            if (off == 0x20) { z6ii_fd_image_raw_bank_irq(s, bank); }
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    /* next-frame-v1 only observes the 1020AB28 group commit. Returning
+     * false keeps the existing 20068100 recovery-table latch unchanged. */
+    if (s->isp_commit_completion && write && size == 4 && addr == 0x20068100) {
+        s->isp_commit_pending |= *value;
+        if (++s->isp_commit_writes <= 48 || !(s->isp_commit_writes & 255)) {
+            fprintf(stderr, "Z6II_ISP_COMMIT_WRITE n=%" PRIu64 " value=0x%" PRIx64 " pending=0x%x pc=%08x lr=%08x cpu=%d"
+                    " virtual_ns=%" PRId64 " model=next-frame-v1\n", s->isp_commit_writes, *value,
+                    s->isp_commit_pending, current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                    current_cpu ? ARM_CPU(current_cpu)->env.regs[14] : 0,
+                    current_cpu ? current_cpu->cpu_index : -1,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+        return false;
+    }
+    /* Explicit discovery-only config recorder. This does not execute the
+     * 2038/203c processor or generate completion. Readback is restricted
+     * to the RMW config field proven by native10106340. */
+    if (s->graphics_profile && s->capture_isp_boundary_test && z6ii_engine_getenv(s->engine, "Z6II_IMAGE_CONFIG_RECORD") &&
+        size == 4 && !(addr & 3) &&
+        ((addr >= 0x20380008 && addr < 0x20390000) ||
+         (addr >= 0x203c0008 && addr < 0x203d0000))) {
+        unsigned bank = addr >= 0x203c0000, off = addr & 0xffff;
+        if (s->image_process_test && !bank && off == 0x24) {
+            if (write) { s->image_processor_config[0][off / 4] &= ~*value; z6ii_fd_image_raw_irq(s); }
+            else { *value = s->image_processor_config[0][off / 4]; }
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+        if (write) {
+            s->image_processor_config[bank][off / 4] = *value;
+            if (s->image_process_test && !bank) {
+                if (off == 0x20) { z6ii_fd_image_raw_irq(s); }
+                if (off == 0xf0 && *value == 0xfc400) {
+                    s->image_drain_requests = 0;
+                }
+                if (s->image_processor_config[0][0xf0 / 4] == 0xfc400 &&
+                    *value == 1 && (off == 0x54 || off == 0x60 || off == 0x6c || off == 0x78)) {
+                    s->image_drain_requests |= 1u << ((off - 0x54) / 12);
+                    if (s->image_drain_requests == 15) {
+                        timer_del(s->image_process_timer);
+                        timer_mod(s->image_drain_timer,
+                                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+                    }
+                }
+            }
+            if (!bank && off == 8 && (*value & 1)) { z6ii_fd_image_process_schedule(s); }
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            fprintf(stderr, "Z6II_IMAGE_CONFIG_UNDECODED address=0x%08" HWADDR_PRIx " value=0x%08" PRIx64 " executed=0\n", addr, *value);
+            return true;
+        }
+        if (off == 0x3c4) {
+            *value = s->image_processor_config[bank][off / 4];
+            z6ii_fd_mmio_trace(s, addr, size, false, *value);
+            return true;
+        }
+    }
+    /* Two typed configuration lists, four rows of sixteen words. Retain
+     * ordinary uploads without enabling processor execution. */
+    if (s->graphics_profile && write && size == 4 &&
+        !(addr & 3) && addr >= 0x20102200 && addr < 0x20102400) {
+        s->image_command_lists[(addr - 0x20102200) / 0x100][(addr & 0xff) / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, true, *value);
+        return true;
+    }
+    /* 1017e48a and table10615d68: eight two-word output configs. */
+    if (s->graphics_profile && write && size == 4 &&
+        !(addr & 3) && addr >= 0x20104000 && addr < 0x20104080 && (addr & 0xf) <= 4) {
+        s->image_output_config[(addr - 0x20104000) / 0x10][(addr & 0xf) / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, true, *value);
+        return true;
+    }
+    /* 1017e566, ROM106166d8: six coefficient banks, uint16 entries
+     * uploaded in word accesses. Preserve native LUTs verbatim. */
+    if (s->graphics_profile && write && size == 4 &&
+        !(addr & 3) && addr >= 0x24000000 && addr < 0x24006000 && *value <= 0xffff) {
+        s->image_unit_lut[(addr - 0x24000000) / 4] = *value;
+        return true;
+    }
+    /* C1.70 table 1078ed60 contains these 42 unit addresses. 103c0608
+     * resets the descriptor cursor (+14), then submits parameters (+10).
+     * At row49, 103c0400/404 write +08/+0c configuration, not a start.
+     * 103c0300 reads low2 status bits; 3 keeps its original wait pending.
+     * Model reset0 only while admission history contains no unresolved
+     * request. Configuration never completes work or clears that history. */
+    if (s->graphics_profile && size == 4 && !(addr & 3)) {
+        const uint32_t *bases = z6ii_image_unit_bases;
+        for (unsigned i = 0; i < Z6II_IMAGE_UNIT_COUNT; i++) {
+            if (write && addr == bases[i] && *value == 1) {
+                s->image_unit_config[(addr - 0x20100800) / 4] = *value;
+                z6ii_fd_mmio_trace(s, addr, size, true, *value);
+                return true;
+            }
+            /* 1017e436 tests low two bits for busy(3), via table10616308.
+             * The functional pipeline executes atomically in its timer callback;
+             * a queued transaction is busy, otherwise no unit remains in flight.
+             * Do not expose idle success in the config-only experiment. */
+            if (!write && addr == bases[i] && s->image_process_test) {
+                *value = timer_pending(s->image_process_timer) && z6ii_fd_image_process_ready(s) ? 3 : 0;
+                z6ii_fd_mmio_trace(s, addr, size, false, *value);
+                return true;
+            }
+            if (!write && addr == bases[i] && !s->image_process_test) {
+                uint32_t status;
+                bool reset = z6ii_image_submission_empty(&s->image_submissions);
+                bool supplied;
+                if (s->image_pending_status_model) {
+                    status = z6ii_image_pending_word(&s->image_submissions);
+                    supplied = true;
+                } else {
+                    supplied = z6ii_image_reset_word(&s->image_submissions, &status);
+                }
+                fprintf(stderr, "Z6II_IMAGE_UNIT_STATE unit=%x reset_read=%u"
+                        " pending_policy=%u status=%x supplied=%u"
+                        " unresolved=%x unresolved_units=%" PRIx64
+                        " controls=%" PRIu64 " starts=%" PRIu64
+                        " generation=%" PRIu64 " pc=%08x cpu=%d virtual_ns=%" PRId64
+                        " physical_status_verified=0 completion_generated=0\n",
+                        (uint32_t)addr, reset, s->image_pending_status_model,
+                        supplied ? status : 0, supplied, s->image_submissions.unresolved,
+                        s->image_submissions.unresolved_units,
+                        s->image_submissions.control_writes,
+                        s->image_submissions.uncertain_requests,
+                        s->image_submissions.generation,
+                        current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                        current_cpu ? current_cpu->cpu_index : -1,
+                        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+                if (!supplied) { return false; }
+                *value = status;
+                z6ii_fd_mmio_trace(s, addr, size, false, *value);
+                return true;
+            }
+            bool extra = (bases[i] >= 0x20100940 && bases[i] <= 0x201009e0) ||
+                         bases[i] == 0x20100ba0 || bases[i] == 0x20100bc0;
+            if (write && (addr == bases[i] + 0x10 || addr == bases[i] + 0x14 ||
+                (extra && (addr == bases[i] + 8 || addr == bases[i] + 0xc)))) {
+                s->image_unit_config[(addr - 0x20100800) / 4] = *value;
+                z6ii_fd_mmio_trace(s, addr, size, true, *value);
+                return true;
+            }
+        }
+    }
+    /* Native103c014a/103c0228 packs13 words per channel; current ROM
+     * table1078e780 lists sixteen0x40-spaced banks. Native103c02ce
+     * writes the uploaded channel index to2010002c. These ordinary
+     * configuration submissions do not require the diagnostic IRQ mode.
+     * Pixel transfer execution and completion remain separate contracts. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3)) {
+        if (addr >= 0x20100400 && addr < 0x20100800 && (addr & 0x3f) <= 0x30) {
+            s->image_transfer_config[(addr - 0x20100400) / 0x40][(addr & 0x3f) / 4] = *value;
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            return true;
+        }
+        if (addr == 0x2010002c && *value < 16) {
+            s->image_transfer_selected = *value;
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            return true;
+        }
+    }
+    /* 1017da58/db00/db2a: paired sequence controls at 20102600/40.
+     * Retain only the explicit native config/command offsets. Execution
+     * and completion of these sequences are not yet modeled. */
+    if (s->graphics_profile && write && size == 4 &&
+        !(addr & 3) && addr >= 0x20102600 && addr <= 0x20102690) {
+        unsigned off = addr - 0x20102600, pair_off = off & 0x3f;
+        if ((off < 0x80 && (pair_off == 0 || pair_off == 4 || pair_off == 8 ||
+             pair_off == 0xc || pair_off == 0x10 || pair_off == 0x18 || pair_off == 0x20)) ||
+            off == 0x80 || off == 0x84 || off == 0x90) {
+            s->image_sequence_config[off / 4] = *value;
+            if (++s->image_control_writes <= 128) {
+                fprintf(stderr, "Z6II_IMAGE_SEQUENCE_CONTROL offset=%x value=%x"
+                    " pc=%08x lr=%08x cpu=%d virtual_ns=%" PRId64 "\n",
+                    off, (uint32_t)*value,
+                    current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                    current_cpu ? ARM_CPU(current_cpu)->env.regs[14] : 0,
+                    current_cpu ? current_cpu->cpu_index : -1,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+            if (off == 8 || off == 0x48) { z6ii_fd_image_process_schedule(s); }
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            return true;
+        }
+    }
+    /* 1017d92e..d9fe: two command-list configuration banks. */
+    if (s->graphics_profile && (write || s->capture_isp_boundary_test) && size == 4 &&
+        !(addr & 3) && addr >= 0x20102000 && addr <= 0x201021a4) {
+        unsigned bank = (addr - 0x20102000) / 0x100, off = addr & 0xff;
+        if (bank < 2 && (off == 0 || off == 4 || off == 8 || off == 0x10 ||
+            off == 0x14 || off == 0x18 || off == 0xa4)) {
+            if (write) {
+                s->image_command_config[bank][off / 4] = *value;
+                if (++s->image_control_writes <= 128) {
+                    fprintf(stderr, "Z6II_IMAGE_COMMAND_CONTROL bank=%u offset=%x value=%x"
+                        " pc=%08x lr=%08x cpu=%d virtual_ns=%" PRId64 "\n",
+                        bank, off, (uint32_t)*value,
+                        current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                        current_cpu ? ARM_CPU(current_cpu)->env.regs[14] : 0,
+                        current_cpu ? current_cpu->cpu_index : -1,
+                        qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+                }
+                if (!off) { z6ii_fd_image_process_schedule(s); }
+            }
+            else { *value = s->image_command_config[bank][off / 4]; }
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    /* Native103bfb66..103bfb9a stores three routing words through the
+     * indexed register table; 103bfb2a..103bfb44 packs geometry. The original
+     * table at1078efc0 has identical write/read addresses for both sets;
+     * getters103bfb46 and103bfb9c read these same configuration latches.
+     * Ordinary submissions/readback must not require the discovery-only
+     * IRQ experiment. No processed output or completion IRQ is generated. */
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        ((addr >= 0x20102880 && addr <= 0x201028f4) ||
+         (addr >= 0x20102900 && addr <= 0x20102924))) {
+        unsigned off = addr - 0x20102880;
+        if (write) { s->image_route_config[off / 4] = *value; }
+        else { *value = s->image_route_config[off / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* Original103c041a..103c04a6 reads20100148 while uploading six
+     * parameter entries. Every valid TBB arm overwrites the read value
+     * before its next use: this path has no status-dependent ready branch.
+     * Configuration stores are synchronous in this model; preserve an
+     * opaque ordering/reset word with no assigned physical busy bits.
+     * The separate103c04f4 reader consumes bit8 to inhibit program-bank
+     * clearing; in-flight program use is not implemented by this reset
+     * word. Such processing/clear operations retain separate boundaries.
+     * This read never completes a processor job or produces image data. */
+    if (s->graphics_profile && !write && size == 4 && addr == 0x20100148) {
+        uint32_t reset;
+        if (!z6ii_image_reset_word(&s->image_submissions, &reset)) {
+            fprintf(stderr, "Z6II_IMAGE_ORDERING_REJECT unresolved=%x"
+                    " unresolved_units=%" PRIx64
+                    " controls=%" PRIu64 " starts=%" PRIu64
+                    " physical_bit8_assignment=unknown completion_generated=0\n",
+                    s->image_submissions.unresolved,
+                    s->image_submissions.unresolved_units,
+                    s->image_submissions.control_writes,
+                    s->image_submissions.uncertain_requests);
+            return false;
+        }
+        *value = s->image_ordering_word;
+        uint32_t pc = current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0;
+        ++s->image_ordering_reads;
+        bool other = pc != 0x103c043a;
+        if (other) { ++s->image_ordering_other_reads; }
+        if (s->image_ordering_reads <= 8 || (other && s->image_ordering_other_reads <= 16)) {
+            fprintf(stderr, "Z6II_IMAGE_ORDERING_READ word=%x"
+                " command0=%x,%x,%x command1=%x,%x,%x sequence0=%x,%x,%x sequence1=%x,%x,%x"
+                " processor_timer_pending=%u pc=%08x cpu=%d virtual_ns=%" PRId64
+                " physical_status_semantics_verified=0 completion_generated=0\n",
+                s->image_ordering_word,
+                s->image_command_config[0][0], s->image_command_config[0][1], s->image_command_config[0][2],
+                s->image_command_config[1][0], s->image_command_config[1][1], s->image_command_config[1][2],
+                s->image_sequence_config[0], s->image_sequence_config[1], s->image_sequence_config[2],
+                s->image_sequence_config[0x40 / 4], s->image_sequence_config[0x44 / 4], s->image_sequence_config[0x48 / 4],
+                s->image_process_timer && timer_pending(s->image_process_timer),
+                pc,
+                current_cpu ? current_cpu->cpu_index : -1,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        }
+        z6ii_fd_mmio_trace(s, addr, size, false, *value);
+        return true;
+    }
+    /* 1017da4e / resource allocator 1010f56a: per-channel busy words.
+     * No 20102000 command engine has started in this model. Report the
+     * reset-idle state only; unsupported submissions still fail closed. */
+    if (s->graphics_profile && s->capture_isp_boundary_test && !write && size == 4 &&
+        (addr >= 0x20102040 && addr <= 0x2010207c && !(addr & 3))) {
+        *value = 0;
+        return true;
+    }
+    /* Original1010861a..10108854 and native10295706..1029597e:
+     * explicit20201000 worker configuration. Native10295718 pulses+0
+     * with1 then0 before programming the descriptor. These ordinary
+     * config latches must not require the discovery-only IRQ experiment.
+     * Operation/start remains uncompleted; no success IRQ or data is
+     * generated by merely retaining these original submissions. */
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        addr >= 0x20201000 && addr <= 0x202011a0) {
+        unsigned off = addr - 0x20201000;
+        bool config = off == 0 || off == 4 || off == 0x14 || off == 0x20 ||
+            off == 0x44 || off == 0x48 || off == 0x4c || off == 0x50 || off == 0x54 ||
+            off == 0x5c || off == 0x60 || (off >= 0xa0 && off <= 0xcc) ||
+            (off >= 0x100 && off <= 0x150) || (off >= 0x160 && off <= 0x194);
+        if (write && config) {
+            s->image_worker_config[off / 4] = *value;
+            fprintf(stderr, "Z6II_IMAGE_WORKER_CONFIG offset=0x%x value=0x%08" PRIx64 " completed=0\n", off, *value);
+            z6ii_fd_mmio_trace(s, addr, size, true, *value);
+            return true;
+        }
+    }
+    /* Boundary-route diagnostic only: no statistics engine has completed.
+     * 1010b066 exposes four signed-24 / unsigned-29 / unsigned-17 triplets.
+     * Empty history has zero samples; these are NOT measurements of RAW.
+     * Keep this reset hypothesis out of the ordinary machine profile. */
+    if (s->graphics_profile && s->capture_isp_boundary_test && !write && size == 4 && !(addr & 3) &&
+        ((addr >= 0x2006a100 && addr <= 0x2006a12c) ||
+         (addr >= 0x2006bf00 && addr <= 0x2006bf2c) ||
+         /* 1010c01c, table 1061688c: four measurement result words. */
+         (addr >= 0x2006a3e0 && addr <= 0x2006a3ec))) {
+        *value = 0;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 1010b2c6..1010b556 explicit configuration packers. 1010b4d2
+     * reads back the configured +3c0 mode before issuing a command. */
+    if (s->graphics_profile && size == 4 && !(addr & 3) &&
+        addr >= 0x2006b310 && addr <= 0x2006b3fc &&
+        (write || addr == 0x2006b3c0)) {
+        unsigned off = addr - 0x2006b310;
+        if (write) { s->capture_filter2_config[off / 4] = *value; }
+        else { *value = s->capture_filter2_config[off / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 10109f4e reads buffer selectors/current addresses. Reset/idle-zero
+     * hypothesis only: this engine has not accepted or completed a frame. */
+    if (s->graphics_profile && !write && size == 4 && !(addr & 3) &&
+        ((addr >= 0x2006bb70 && addr <= 0x2006bb7c) ||
+         addr == 0x2006bc78 || addr == 0x2006bc7c ||
+         addr == 0x2006bd78 || addr == 0x2006bd7c)) {
+        *value = 0;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 10109fdA input geometry; table 10616804 has 24 byte fields;
+     * 10109efa uploads 65 uint16 curve entries; 10109e38 and 10109f*
+     * configure processing and address sets. Status at +188/+370 is absent. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3) &&
+        addr >= 0x2006b800 && addr <= 0x2006bd80) {
+        unsigned off = addr - 0x2006b800;
+        bool config = off <= 0x184 || (off >= 0x200 && off <= 0x28c) ||
+            (off >= 0x28c && off <= 0x2b8) || off == 0x318 || off == 0x324 ||
+            off == 0x33c || off == 0x344 || off == 0x348 || off == 0x34c ||
+            off == 0x350 || off == 0x360 || off == 0x380 ||
+            off == 0x450 || off == 0x460 || off == 0x480 ||
+            off == 0x550 || off == 0x560 || off == 0x580;
+        if (config) {
+            s->capture_filter_config[off / 4] = *value;
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    /* 1010b012 packs eight uint16 and two uint8 configuration fields;
+     * result reads at +100 remain unmodeled until measurements exist. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3) &&
+        ((addr >= 0x2006a000 && addr <= 0x2006a024) ||
+         (addr >= 0x2006be00 && addr <= 0x2006be24))) {
+        unsigned bank = addr >= 0x2006be00, off = addr - (bank ? 0x2006be00 : 0x2006a000);
+        if (bank < 2 && off <= 0x24 && *value <= (off < 0x20 ? 0xffff : 0xff)) {
+            s->capture_measure_config[bank][off / 4] = *value;
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    /* 1010c244 uploads exactly 129 uint16 coefficients as word writes. */
+    if (s->graphics_profile && write && size == 4 && !(addr & 3) &&
+        addr >= 0x2006b000 && addr <= 0x2006b200 && *value <= 0xffff) {
+        s->capture_curve[(addr - 0x2006b000) / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (!s->graphics_profile || size != 4 || (addr & 3) ||
+        addr < 0x20068000 || addr >= 0x2006a000) { return false; }
+    unsigned off = addr - 0x20068000;
+    if (off >= 0x200 && off <= 0x2f0 && ((off & 0x1f) == 0 || (off & 0x1f) == 0x10)) {
+        unsigned bank = (off - 0x200) / 0x20;
+        bool status = off & 0x10;
+        uint32_t *reg = status ? &s->capture_isp_irq_status[bank] : &s->capture_isp_irq_enable[bank];
+        if (write) {
+            if (status) { *reg &= ~(uint32_t)*value; }
+            else { *reg = *value; }
+            z6ii_fd_isp_irq(s);
+        } else { *value = *reg; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* Original 1010b628 pulses +0/+4 around engine initialization;
+     * 1010bc16 submits +8 and 1010b634 enables/disables +10/+14.
+     * Retain set/clear state instead of just the last command mask. */
+    if (off <= 0x14) {
+        unsigned bank = off / 8;
+        if (write) {
+            if (bank && (*value & ~0xfffULL)) { return false; }
+            if (off & 4) { s->capture_isp_gate[bank] &= ~(uint32_t)*value; }
+            else { s->capture_isp_gate[bank] |= *value; }
+            if (s->isp_mask1_input_completion &&
+                !z6ii_mask1_engine_active(s->capture_isp_gate[0],
+                    s->capture_isp_gate[1], s->capture_isp_gate[2], s->capture_control[0])) {
+                z6ii_mask1_input_cancel(&s->isp_mask1_cycle);
+            }
+            if (s->isp_group8_input_token &&
+                !z6ii_isp_input_engine_active(s->capture_isp_gate[0],
+                    s->capture_isp_gate[1], s->capture_isp_gate[2], s->capture_control[0], 8)) {
+                z6ii_mask1_input_cancel(&s->isp_group8_cycle);
+            }
+            if (s->isp_mask1_input_completion &&
+                (++s->isp_mask1_command_writes <= 128 ||
+                 !(s->isp_mask1_command_writes & 255))) {
+                fprintf(stderr, "Z6II_ISP_MASK1_COMMAND n=%" PRIu64
+                    " offset=%x value=%x gates=%x,%x,%x pending=%u canceled=%" PRIu64
+                    " pc=%08x lr=%08x cpu=%d virtual_ns=%" PRId64 "\n",
+                    s->isp_mask1_command_writes, off, (uint32_t)*value,
+                    s->capture_isp_gate[0], s->capture_isp_gate[1],
+                    s->capture_isp_gate[2], s->isp_mask1_cycle.pending,
+                    s->isp_mask1_cycle.canceled,
+                    current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                    current_cpu ? ARM_CPU(current_cpu)->env.regs[14] : 0,
+                    current_cpu ? current_cpu->cpu_index : -1,
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+            }
+            if (off == 0 || off == 8) {
+                s->capture_isp_stop_pending &= ~(uint32_t)*value;
+                if (!s->capture_isp_stop_pending) { timer_del(s->capture_isp_stop_timer); }
+            }
+            if (off == 0xc && (*value & 0xeff)) {
+                s->capture_isp_stop_pending |= *value & 0xeff;
+                timer_mod(s->capture_isp_stop_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+            }
+        } else { *value = s->capture_isp_gate[bank]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* Four processing address channels, original 1010a2e4..1010a412.
+     * Odd channels provide only address sets and line configuration. */
+    if (off >= 0x1800 && off < 0x1c00) {
+        unsigned ch = (off - 0x1800) / 0x100, reg = off & 0xff;
+        bool control = (!(ch & 1) && (reg == 0x14 || reg == 0x18 || reg == 0x3c ||
+                        reg == 0x40 || reg == 0x44 || reg == 0x48 || reg == 0x4c)) ||
+                       (ch == 2 && reg == 0x24) || reg == 8 || ((ch == 2 || ch == 3) && reg == 0x80);
+        bool address = reg >= 0x50 && reg <= 0x6c;
+        if ((control || address) && (write || (ch == 2 && reg == 0x3c))) {
+            if (write) {
+                s->capture_processing[off / 4] = *value;
+                if (address) {
+                    fprintf(stderr, "Z6II_PROCESSING_ADDRESS channel=%u offset=0x%x value=0x%08" PRIx64 " dma_completed=0\n",
+                            ch, reg, *value);
+                }
+            } else { *value = s->capture_processing[off / 4]; }
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    /* 1010a884/1010a898 read-modify-write control bits 0 and 4. */
+    if (off == 0x1f00 || off == 0x152c) {
+        uint64_t mask = off == 0x1f00 ? 0x11 : 3;
+        if (write) {
+            if (*value & ~mask) { return false; }
+            s->capture_processing[off / 4] = *value;
+        } else { *value = s->capture_processing[off / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (!write) { return false; }
+    /* 1010a916..ae2e pack these configuration structures. The six groups
+     * 10616864 fill +71c..7c0; +900 readback is intentionally not modeled.
+     * 1010ae50/ae9e/aec8/af2c write LUTs with exact loop bounds below. */
+    bool config = off == 0x500 || (off >= 0x508 && off <= 0x81c) ||
+        (off >= 0xa00 && off <= 0xafc) || (off >= 0xc00 && off <= 0xe3c) ||
+        (off >= 0xf00 && off <= 0x100c) || (off >= 0x1100 && off <= 0x117c) ||
+        /* 1010a5c6 geometry/control packing, 1010a508 paired coefficient
+         * sets, and 1010a694 processing fields. These writes only retain
+         * configuration; they do not execute an ISP or transfer pixels. */
+        (off >= 0x1d00 && off <= 0x1efc) ||
+        /* 1010a19e/a1e4 geometry, a274 thresholds and a286 LUT. */
+        (off >= 0x1500 && off <= 0x1530) || (off >= 0x1600 && off <= 0x17fc);
+    if (!config || (off == 0x500 && *value > 0x3fff)) { return false; }
+    s->capture_processing[off / 4] = *value;
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+/* 10616994 supplies eleven register groups for 100ce030..154. These are
+ * sequence configuration words; the commit command is deliberately separate. */
+/* Native 1017c81c requests stop mask101 through100cdf58, then waits
+ * for IRQ87 bit18 (101788d4 -> event10). The alternate1017c876 stop
+ * also waits for bit10 (101788e0 -> event20). These identify the
+ * channel8 and channel0 stop routes. Other channel causes are unknown.
+ * Only the opt-in TG experiment executes these sequence commands.
+ * Delay is a functional timing assumption, not a measured sensor time. */
+static void z6ii_fd_sequence_stopped(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    uint32_t stopped = s->sequence_stop_pending;
+    s->sequence_stop_pending = 0;
+    s->sequence_running &= ~stopped;
+    uint32_t cause = ((stopped & 0x100) ? 0x40000 : 0) |
+                     ((stopped & 1) ? 0x400 : 0);
+    s->capture_irq_status[1] |= cause;
+    z6ii_fd_capture_irq(s, 1);
+    fprintf(stderr, "Z6II_SEQUENCE_STOP channels=0x%x irq87_cause=0x%x new_frame=0 timing_verified=0\n",
+            stopped, cause);
+}
+
+static bool z6ii_fd_sequence_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                bool write, uint64_t *value)
+{
+    if (s->recovery_profile && size == 4 &&
+        (addr == 0x200632d0 || addr == 0x200632d4 ||
+         addr == 0x200632e0 || addr == 0x200632e4)) {
+        bool stop = addr >= 0x200632e0;
+        bool strobe = addr & 4;
+        uint32_t *mask = stop ? &s->sequence_stop_mask : &s->sequence_start_mask;
+        if (!write) {
+            if (strobe) { return false; }
+            *value = *mask;
+        } else if (!strobe) {
+            if (*value & ~UINT64_C(0x7ff)) { return false; }
+            *mask = *value;
+        } else {
+            if (*value != 1) { return false; }
+            if (s->capture_periodic_test) {
+                if (stop) {
+                    s->sequence_stop_pending |= *mask & s->sequence_running;
+                    if (s->sequence_stop_pending) {
+                        timer_mod(s->sequence_stop_timer,
+                                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000000);
+                    }
+                } else {
+                    s->sequence_running |= *mask;
+                    s->sequence_stop_pending &= ~*mask;
+                }
+            }
+            /* Commands consume their mask; a later RMW is a new request. */
+            *mask = 0;
+        }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 106168c0/10616920 pointer groups used by 1010c6c4..7ce. Six
+     * channels with timing fields; no timing edges inferred. */
+    if (s->recovery_profile && write && size == 4 &&
+        addr >= 0x200600c8 && addr <= 0x200602cc) {
+        unsigned relative = addr - 0x200600c8, ch = relative / 0x60;
+        unsigned off = relative % 0x60;
+        if (ch < 6 && !(off & 3) && (off <= 20 || off == 32 || off == 36)) {
+            if (off == 32 && *value > 0xff) { return false; }
+            s->capture_timing[ch][off / 4] = *value;
+            z6ii_fd_mmio_trace(s, addr, size, write, *value);
+            return true;
+        }
+    }
+    static const unsigned base[] = {0, 0x40, 0x80, 0xd0, 0x110, 0x150,
+                                    0x190, 0x1d0, 0x210, 0x250, 0x290};
+    if (!s->recovery_profile || size != 4 || !write || (addr & 3) || addr < 0x20063000) { return false; }
+    unsigned off = addr - 0x20063000;
+    for (unsigned ch = 0; ch < ARRAY_SIZE(base); ch++) {
+        unsigned reg = off - base[ch], end = ch == 2 ? 0x38 : 0x24;
+        if (reg > end) { continue; }
+        if (reg == end - 4) {
+            if (*value != 1) { return false; }
+            /* 100ce0a6 writes config then this one-shot update strobe.
+             * Preserve a submitted config snapshot; no sequence completion
+             * or external output/IRQ is inferred from submission alone. */
+            memcpy(s->sequence_active[ch], s->sequence_regs[ch], sizeof(s->sequence_regs[ch]));
+            fprintf(stderr, "Z6II_SEQUENCE_SUBMIT channel=%u config=0x%x\n",
+                    ch, s->sequence_regs[ch][(end - 8) / 4]);
+        }
+        s->sequence_regs[ch][reg / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, true, *value);
+        return true;
+    }
+    return false;
+}
+
+static bool z6ii_fd_peripheral_dma_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                     bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || (addr & 3)) { return false; }
+    unsigned bank;
+    if (addr >= 0x2c020010 && addr <= 0x2c02008c) { bank = 0; }
+    else if (addr >= 0x2c030010 && addr <= 0x2c03008c) { bank = 1; }
+    else { return false; }
+    unsigned ch = ((addr & 0xfff) - 0x10) / 0x10, i = (addr & 0xf) / 4;
+    /* Original a180574c table and 10068d36 config bit fields. Bit31 arms a
+     * channel; transfers wait for serial requests and are not completed here. */
+    uint32_t mask = i == 0 ? 0xbfffffff : i == 1 ? 0x3fff0000 : UINT32_MAX;
+    if (write) {
+        if (*value & ~(uint64_t)mask) { return false; }
+        s->peripheral_dma_regs[bank][ch][i] = *value;
+    } else { *value = s->peripheral_dma_regs[bank][ch][i]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+static bool z6ii_fd_serial_drain_access(Z6IIFunctionalDevices *s, hwaddr addr,
+                                      unsigned size, bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || write || addr != 0x2c08011c) {
+        return false;
+    }
+    /* Original 103702da waits for this word to be zero before clearing
+     * DMA bit31 through 102defc0. No 2c0801xx data port/request is supported
+     * yet, hence this controller has accepted no in-flight serial data.
+     * Expose only that empty drain state. Configuring/arming DMA does not
+     * consume bytes, update remaining lengths, signal an IRQ or assert
+     * readiness. Data-port accesses and writes to this status stay strict.
+     * The physical register name/reset value remain unverified. */
+    *value = 0;
+    if (s->serial_drain_reads < 16) {
+        unsigned armed[2] = { 0, 0 };
+        for (unsigned bank = 0; bank < 2; bank++) {
+            for (unsigned ch = 0; ch < 8; ch++) {
+                if (s->peripheral_dma_regs[bank][ch][0] & 0x80000000U) {
+                    armed[bank] |= 1U << ch;
+                }
+            }
+        }
+        fprintf(stderr, "Z6II_SERIAL_DRAIN_EMPTY addr=%08" HWADDR_PRIx
+                " value=0 accepted_serial_data=0 dma_armed=%02x/%02x"
+                " pc=%08x virtual_ns=%" PRId64 " physical_reset_verified=0\n",
+                addr, armed[0], armed[1],
+                current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+        ++s->serial_drain_reads;
+    }
+    z6ii_fd_mmio_trace(s, addr, size, false, *value);
+    return true;
+}
+
+static void z6ii_fd_i2c_irq(Z6IIFunctionalDevices *s, unsigned ch)
+{
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 214 + ch - 32),
+                (s->i2c_regs[ch][4] & ~s->i2c_regs[ch][8] & 0x2ff) != 0);
+}
+
+#include "nikon-z6ii-post68-qemu.h"
+
+static void z6ii_fd_i2c_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    for (unsigned ch = 0; ch < 4; ch++) {
+        if (z6ii_post68_qemu_owns(s, ch)) {
+            z6ii_post68_qemu_complete_lane(s, ch, now);
+            continue;
+        }
+        if (!s->i2c_pending[ch]) { continue; }
+        if (s->i2c_deadline[ch] > now) { continue; }
+        s->i2c_pending[ch] = false;
+        s->i2c_regs[ch][1] &= ~0x100U;
+        /* Empty bus: no slave acknowledges an address, so report NACK.
+         * No receive bytes or successful peripheral reply are fabricated. */
+        s->i2c_regs[ch][4] |= 4;
+        z6ii_fd_i2c_irq(s, ch);
+        z6ii_boot_i2c_timer_observe(s->engine, ch, 1, now, s->i2c_regs[ch], s->i2c_tx[ch],
+            s->i2c_tx_count[ch], s->i2c_pending[ch], s->i2c_deadline[ch], s->i2c_generation[ch]);
+        fprintf(stderr, "Z6II_I2C_NACK ch=%u address=0x%x tx_count=%u irq=%u\n",
+                ch, s->i2c_regs[ch][2], s->i2c_tx_count[ch], 214 + ch);
+        /* xiicps_master.c documents NACK on each slave-monitor retry.
+         * Original error ISR clears the FIFO and disables the controller IRQ. */
+        if ((s->i2c_regs[ch][0] & 0x22) == 0x22) {
+            s->i2c_pending[ch] = true;
+            if (s->i2c_generation[ch] != UINT64_MAX) { ++s->i2c_generation[ch]; }
+            s->i2c_deadline[ch] = now + 100000;
+            z6ii_boot_i2c_timer_observe(s->engine, ch, 2, now, s->i2c_regs[ch], s->i2c_tx[ch],
+                s->i2c_tx_count[ch], true, s->i2c_deadline[ch], s->i2c_generation[ch]);
+        }
+    }
+    z6ii_fd_i2c_reschedule(s);
+}
+
+/* Register-compatible I2C hypothesis from original 10109afc..d4c and the
+ * primary xiicps_hw.h definitions (phase7/evidence). Nikon channel 3 additionally
+ * uses control bit7. Timing 100 us is synthetic; unselected buses are empty. */
+static bool z6ii_fd_i2c_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                          bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || (addr & 3) ||
+        addr < 0x2c018000 || addr >= 0x2c01c000) { return false; }
+    unsigned ch = (addr - 0x2c018000) / 0x1000, off = addr & 0xfff;
+    if (z6ii_post68_qemu_owns(s, ch)) {
+        return z6ii_post68_qemu_access(s, addr, size, write, value);
+    }
+    if (off > 0x28) { return false; }
+    uint32_t *r = s->i2c_regs[ch];
+    unsigned i = off / 4;
+    uint32_t mask = i == 0 ? 0xffff : i == 2 ? 0x3ff :
+                    i == 3 || i == 7 ? 0xff : i == 5 ? 0x3f :
+                    i == 6 ? 0xf : 0x2ff;
+    if (write) {
+        if (i == 1 || i == 8 || (*value & ~(uint64_t)mask)) { return false; }
+        if (i == 0) {
+            if (*value & 0x40) {
+                s->i2c_tx_count[ch] = 0; r[5] = 0; r[1] &= ~0x140U;
+                s->i2c_pending[ch] = false;
+                if (s->i2c_generation[ch] != UINT64_MAX) { ++s->i2c_generation[ch]; }
+            }
+            r[0] = *value & ~0x40U;
+        } else if (i == 2) {
+            /* Slave mode merely programs own address. */
+            r[2] = *value;
+            if (r[0] & 2) {
+                r[1] |= 0x100;
+                s->i2c_pending[ch] = true;
+                if (s->i2c_generation[ch] != UINT64_MAX) { ++s->i2c_generation[ch]; }
+                s->i2c_deadline[ch] = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000;
+                z6ii_fd_i2c_reschedule(s);
+            }
+        } else if (i == 3) {
+            if (s->i2c_tx_count[ch] == 16) { r[4] |= 0x40; }
+            else { s->i2c_tx[ch][s->i2c_tx_count[ch]++] = *value; r[1] |= 0x40; }
+        } else if (i == 4) { r[4] &= ~*value; }
+        else if (i == 9) { r[8] &= ~*value; }
+        else if (i == 10) { r[8] |= *value; }
+        else { r[i] = *value; }
+        z6ii_fd_i2c_irq(s, ch);
+        z6ii_fd_i2c_reschedule(s);
+    } else {
+        if (i == 3) { return false; } /* No RX data exists on an empty bus. */
+        *value = i == 5 && !(r[0] & 1) ? s->i2c_tx_count[ch] : i >= 9 ? 0 : r[i];
+    }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+static void z6ii_fd_copy_irq(Z6IIFunctionalDevices *s, unsigned ch)
+{
+    /* Original ISR 10068ec4 reads status low nibble then clears those bits
+     * by writing zero. 101c30ca expects completion code 8. */
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 45 + ch - 32),
+                 (s->copy_regs[ch][8] & 0xf) && (s->copy_regs[ch][6] & 2));
+}
+
+static void z6ii_fd_copy_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), next = INT64_MAX;
+    for (unsigned ch = 0; ch < 4; ch++) {
+        if (!s->copy_pending[ch]) { continue; }
+        if (s->copy_deadline[ch] > now) { next = MIN(next, s->copy_deadline[ch]); continue; }
+        uint32_t *r = s->copy_regs[ch];
+        uint32_t len = r[0] + 1, src = r[1], dst = r[2];
+        uint64_t ba2_token = s->ba2_payload_pre ?
+            s->ba2_payload_pre(s->ba2_payload_opaque, ch, src, dst, len) : 0;
+        uint8_t *buf = g_malloc(len);
+        /* Missing first 128 KiB is explicitly erased input, just like the
+         * absent persistent flash; present payload bytes are copied exactly. */
+        unsigned prefix = src >= 0x10000000 && src < 0x10020000 ? MIN(len, 0x10020000 - src) : 0;
+        uint32_t boot_copy_token = z6ii_boot_copy_pre_observe(s->engine, s->recovery_profile, ch,
+            s->copy_pending[ch], s->copy_deadline[ch], now, src, dst, len, prefix);
+        memset(buf, 0xff, prefix);
+        if (prefix < len) { z6ii_engine_read(s->engine, src + prefix, buf + prefix, len - prefix); }
+        z6ii_boot_copy_buffer_observe(s->engine, boot_copy_token, buf, len, now);
+        z6ii_engine_write(s->engine, dst, buf, len);
+        z6ii_boot_copy_destination_post_observe(s->engine, boot_copy_token, len, now);
+        if (s->ba2_payload_post) {
+            s->ba2_payload_post(s->ba2_payload_opaque, ba2_token, ch, src, dst, buf, len);
+        }
+        g_free(buf);
+        s->copy_pending[ch] = false;
+        r[0] = 0;
+        r[8] = (r[8] & ~0xfU) | 8;
+        z6ii_fd_copy_irq(s, ch);
+        fprintf(stderr, "Z6II_COPY_COMPLETE ch=%u src=0x%08x dst=0x%08x len=0x%x erased_prefix=0x%x irq=%u\n",
+                ch, src, dst, len, prefix, 45 + ch);
+    }
+    if (next != INT64_MAX) { timer_mod(s->copy_timer, next); }
+}
+
+/* 10068f6c configures four transfer channels via a180668c table. Only the
+ * contiguous incrementing ROM-to-shadow-RAM mode observed at boot is known. */
+static bool z6ii_fd_copy_ram_range(Z6IIFunctionalDevices *s, uint32_t addr, uint64_t len)
+{
+    if (!len || len > 0x2000000 || (uint64_t)addr + len > UINT64_C(0x100000000)) {
+        return false;
+    }
+    /* Validate the actual mapped RAM interval, not a donor address whitelist.
+     * In particular an unmapped donor pool must never authorize Z6 DMA. */
+    MemoryRegionSection section = memory_region_find(s->engine->memory, addr, len);
+    bool valid = section.mr && memory_region_is_ram(section.mr) &&
+                 !memory_region_is_rom(section.mr) &&
+                 int128_ge(section.size, int128_make64(len));
+    if (section.mr) { memory_region_unref(section.mr); }
+    return valid;
+}
+
+
+static bool z6ii_fd_copy_rom_range(Z6IIFunctionalDevices *s, uint32_t addr, uint64_t len)
+{
+    if (!len || len > 0x2000000 || (uint64_t)addr + len > UINT64_C(0x100000000)) {
+        return false;
+    }
+    /* The board sets these bounds only after checking the exact input file
+     * and SHA-256. That window is serviced by its flash device, so it is
+     * intentionally not a MemoryRegion RAM/ROM allocation. */
+    if (s->supplied_persistent_source_end && addr >= s->supplied_persistent_source_start &&
+        (uint64_t)addr + len <= s->supplied_persistent_source_end) {
+        return true;
+    }
+    /* The native application-shadow copy starts at10000000, while the
+     * official image begins at10020000. copy_complete already supplies that
+     * missing128KiB as explicit erased diagnostic input. Validate the actual
+     * ROM tail here; never authorize arbitrary missing flash/MMIO. */
+    if (addr >= 0x10000000 && addr < 0x10020000) {
+        uint64_t prefix = MIN(len, 0x10020000 - addr);
+        addr += prefix;
+        len -= prefix;
+        if (!len) { return true; }
+    }
+    MemoryRegionSection section = memory_region_find(s->engine->memory, addr, len);
+    bool valid = section.mr && memory_region_is_rom(section.mr) &&
+                 int128_ge(section.size, int128_make64(len));
+    if (section.mr) { memory_region_unref(section.mr); }
+    return valid;
+}
+
+static bool z6ii_fd_copy_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                           bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || (addr & 3) ||
+        addr < 0x04251010 || addr > 0x042510c0) { return false; }
+    unsigned ch = (addr - 0x04251010) / 0x30, off = (addr - 0x04251010) % 0x30;
+    if (off > 0x20 || off == 0x1c) { return false; }
+    unsigned i = off / 4;
+    uint32_t mask = i <= 2 ? UINT32_MAX :
+                    i <= 4 ? 0x00030f05 : i == 5 ? 0xfffffff1 :
+                    i == 6 ? 0x11f09113 : 0xf;
+    if (write) {
+        if (*value & ~(uint64_t)mask) { return false; }
+        if (s->copy_pending[ch] && i != 8) { return false; }
+        if (i == 6 && (*value & 3) == 3 && !(s->copy_regs[ch][6] & 1)) {
+            uint32_t *r = s->copy_regs[ch];
+            uint64_t len = (uint64_t)r[0] + 1;
+            bool source_ok = z6ii_fd_copy_rom_range(s, r[1], len) ||
+                             z6ii_fd_copy_ram_range(s, r[1], len);
+            if (r[3] != 0x30f00 || r[4] != 0x30f00 || r[5] != 0 ||
+                !source_ok || !z6ii_fd_copy_ram_range(s, r[2], len)) {
+                fprintf(stderr, "Z6II_COPY_REJECT ch=%u src=%08x dst=%08x len=%" PRIx64 " mode=%x/%x stride=%x command=%" PRIx64 "\n",
+                        ch, r[1], r[2], len, r[3], r[4], r[5], *value);
+                return false;
+            }
+            s->copy_pending[ch] = true;
+            s->copy_deadline[ch] = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000 + len * 10;
+            int64_t next = s->copy_deadline[ch];
+            for (unsigned n = 0; n < 4; n++) {
+                if (s->copy_pending[n]) { next = MIN(next, s->copy_deadline[n]); }
+            }
+            timer_mod(s->copy_timer, next);
+            fprintf(stderr, "Z6II_COPY_START ch=%u src=0x%08x dst=0x%08x len=0x%" PRIx64 "\n",
+                    ch, r[1], r[2], len);
+        }
+        if (i == 8) { s->copy_regs[ch][i] &= *value; }
+        else {
+        s->copy_regs[ch][i] = *value;
+        }
+        z6ii_fd_copy_irq(s, ch);
+    } else { *value = s->copy_regs[ch][i]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+static void z6ii_fd_engine_irq(Z6IIFunctionalDevices *s)
+{
+    uint32_t pending = (s->engine_regs[6] & s->engine_regs[3]) |
+                       (s->engine_regs[7] & s->engine_regs[4]) |
+                       (s->engine_regs[8] & s->engine_regs[5]);
+    qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 102 - 32), pending != 0);
+}
+
+static void z6ii_fd_engine_stopped(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    /* 1017dd2a stop -> ISR 1017d6b0 status +18 bit0 -> callback
+     * 1010efb8 -> event bit2 releases the original 1010ebf0 waiter. */
+    s->engine_regs[6] |= 1;
+    z6ii_fd_engine_irq(s);
+    fprintf(stderr, "Z6II_ENGINE_STOP_COMPLETE irq102 pending0=0x%x\n", s->engine_regs[6]);
+}
+
+static bool z6ii_fd_engine_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                             bool write, uint64_t *value)
+{
+    if (!s->recovery_profile || size != 4 || addr < 0x20100000 ||
+        addr > 0x20100020 || (addr & 3)) { return false; }
+    unsigned i = (addr - 0x20100000) / 4;
+    if (i == 2) { return false; }
+    if (write) {
+        if ((i == 0 && *value != 0) || (i == 1 && (*value & ~UINT64_C(3)))) { return false; }
+        if (i >= 6) { s->engine_regs[i] &= ~*value; }
+        else {
+            if (i == 1 && (s->engine_regs[1] & 1) && !(*value & 1)) {
+                timer_mod(s->engine_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 1000);
+            }
+            s->engine_regs[i] = *value;
+        }
+        z6ii_fd_engine_irq(s);
+    } else { *value = s->engine_regs[i]; }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+}
+
+#include "nikon-z6ii-functional-isp.h"
+#include "nikon-z6ii-bayer-qemu.h"
+
+/* Display experiment: original 104feae2 uploads two command streams, then
+ * 104fec90 waits for IRQ 129 -> 104fee62 -> event bit 1. The source buffers
+ * use word counts (1047bd42); hardware length is in 64-bit units.
+ * Captured streams also drive the experimental software GUI rasterizer. */
+static void z6ii_fd_graphics_capture_memory(Z6IIFunctionalDevices *s, const char *prefix, unsigned reg,
+                                       uint32_t addr, uint64_t length)
+{
+    length = MIN(length, 0x800000);
+    if (!nikon_gpu_range(s->gpu, addr, length, false)) { return; }
+    g_autofree uint8_t *data = g_malloc(length);
+    z6ii_engine_read(s->engine, addr, data, length);
+    g_autofree char *path = g_strdup_printf("%s-r%03x-%08x.bin", prefix, reg, addr);
+    g_file_set_contents(path, (char *)data, length, NULL);
+}
+
+/* Capture referenced path/texture bytes at each draw, before guest allocators
+ * can recycle them. This observer decodes headers only; it does not rasterize. */
+static void z6ii_fd_graphics_capture_draws(Z6IIFunctionalDevices *s, unsigned ch, const char *dir)
+{
+    uint32_t *regs = s->graphics_cmd_regs[ch];
+    unsigned at = 0, draw = 0, length = s->graphics_table_lengths[ch];
+    uint8_t *data = s->graphics_tables[ch];
+    while (at + 4 <= length) {
+        uint32_t header = ldl_le_p(data + at);
+        at += 4;
+        if (!header) { continue; }
+        unsigned op = header & 7, count = ((header >> 3) & 255) + 1;
+        if (at + count * 4 > length || (op != 2 && op != 4 && op != 6)) { return; }
+        uint32_t mask = 0;
+        for (unsigned b = 0; b < 4; b++) {
+            if (header & (1U << (12 + b))) { mask |= 255U << (8 * b); }
+        }
+        for (unsigned i = 0; i < count && op != 2; i++) {
+            unsigned reg = (header >> 16) + (op == 6 ? i : 0);
+            if (reg >= 512) { return; }
+            regs[reg] = (regs[reg] & ~mask) | (ldl_le_p(data + at + i * 4) & mask);
+            if ((ch == 0 && reg == 6 && regs[reg] == 1) ||
+                (ch == 1 && reg == 0x1a6 && (regs[reg] & 255) == 1)) {
+                g_autofree char *prefix = g_strdup_printf("%s/%06u-d%03u", dir,
+                                                          s->graphics_upload_sequence, draw++);
+                g_autofree char *path = g_strdup_printf("%s-regs.bin", prefix);
+                uint8_t raw[512 * 4];
+                for (unsigned r = 0; r < 512; r++) { stl_le_p(raw + r * 4, regs[r]); }
+                g_file_set_contents(path, (char *)raw, sizeof(raw), NULL);
+                if (!ch) {
+                    if (regs[3] & 0x10000000) {
+                        z6ii_fd_graphics_capture_memory(s, prefix, 2, regs[2], MAX(4096U, regs[3] & 0xffff));
+                        z6ii_fd_graphics_capture_memory(s, prefix, 4, regs[4], MAX(4096U, (regs[5] & 0xffff) * 4));
+                    }
+                } else {
+                    uint32_t dim = regs[0x152];
+                    uint64_t bytes = (uint64_t)(dim & 0xffff) * (dim >> 16) * 4;
+                    z6ii_fd_graphics_capture_memory(s, prefix, 0x155, regs[0x155], MAX(bytes, 4096));
+                }
+            }
+        }
+        at += count * 4;
+    }
+}
+
+static void z6ii_fd_graphics_complete(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    bool completed = false;
+    for (unsigned ch = 0; ch < 2; ch++) {
+        if (!s->graphics_upload_pending[ch]) { continue; }
+        unsigned off = 0x10d0 + ch * 0x10;
+        uint32_t src = s->graphics_regs[(off + 4) / 4];
+        unsigned size = s->graphics_regs[(off + 12) / 4] * 8;
+        z6ii_engine_read(s->engine, src, s->graphics_tables[ch], size);
+        s->graphics_table_lengths[ch] = size;
+        const char *dump_dir = z6ii_engine_getenv(s->engine, "Z6II_GRAPHICS_DUMP_DIR");
+        if (dump_dir && s->graphics_upload_sequence < 4096) {
+            g_autofree char *path = g_strdup_printf("%s/%06u-ch%u.bin", dump_dir,
+                                                  s->graphics_upload_sequence, ch);
+            GError *error = NULL;
+            if (!g_file_set_contents(path, (const char *)s->graphics_tables[ch], size, &error)) {
+                error_report("Graphics capture failed: %s", error->message);
+                g_error_free(error);
+            }
+            z6ii_fd_graphics_capture_draws(s, ch, dump_dir);
+        }
+        nikon_gpu_execute(s->gpu, ch, s->graphics_tables[ch], size);
+        s->graphics_upload_sequence++;
+        s->graphics_upload_pending[ch] = false;
+        s->graphics_regs[off / 4] = 0;
+        fprintf(stderr, "Z6II_GRAPHICS_UPLOAD ch=%u src=0x%08x bytes=%u\n", ch, src, size);
+        completed = true;
+    }
+    if (completed) {
+        s->graphics_regs[0x1020 / 4] = 1;
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 129 - 32), 1);
+    }
+}
+
+/* Native10241012 routes the interface mode (not instance number) to IRQ111..113.
+ * 1024350e enables causes; 10240fb0 reads and acknowledges +1214 as W1C. */
+
+
+/* LCD sources must be one actual ordinary RAM span. The inherited GPU
+ * address whitelist also accepts unmapped donor pools, so it cannot prove a
+ * Z6II frame was read. A NULL destination validates without reading bytes. */
+static bool z6ii_lcd_read_ram(Z6IIFunctionalDevices *s, uint32_t address, void *destination, uint64_t length)
+{
+    if (!length || length > 0x2000000 ||
+        (uint64_t)address + length > UINT64_C(0x100000000)) {
+        return false;
+    }
+    MemoryRegionSection section = memory_region_find(s->engine->memory, address, length);
+    bool valid = false;
+    if (section.mr) {
+        uint64_t region_size = memory_region_size(section.mr);
+        valid = section.offset_within_address_space == address &&
+                int128_ge(section.size, int128_make64(length)) &&
+                memory_region_is_ram(section.mr) &&
+                !memory_region_is_ram_device(section.mr) &&
+                !memory_region_is_rom(section.mr) && !section.readonly &&
+                region_size >= length &&
+                section.offset_within_region <= region_size - length;
+        if (valid && destination) {
+            memcpy(destination, (const uint8_t *)memory_region_get_ram_ptr(section.mr) +
+                   section.offset_within_region, length);
+        }
+        memory_region_unref(section.mr);
+    }
+    return valid;
+}
+
+/* Z6II ROM1046ECDC/1046ECEE: request bits8:9, active bits16:17.
+ * Selectors0/1 share260; selector2 uses2214; selector3 uses3214.
+ * Active transition is an explicit functional policy: only a successfully
+ * rendered LCD instance1 frame commits the source actually read. Other
+ * instances and an unrendered overlay do not acquire fabricated boundaries. */
+static unsigned z6ii_lcd_requested(uint32_t bank)
+{
+    return (bank >> 8) & 3;
+}
+
+static void z6ii_lcd_commit(uint32_t *bank, unsigned rendered_bank)
+{
+    *bank = (*bank & ~0x30000U) | ((rendered_bank & 3) << 16);
+}
+
+/* Preserve the complete native configuration word. Separating the low5-bit
+ * format from known controls permits both inherited00300000 and the native
+ * 1046ED48 control30300000. Format1 remains uninterpreted. NV16/NV12 packing,
+ * colour conversion and100ms presentation cadence remain functional policies. */
+static bool z6ii_lcd_format_supported(uint32_t config)
+{
+    unsigned format = config & 0x1f;
+    uint32_t controls = config & ~0x1fU;
+    return (controls == 0x00300000 || controls == 0x30300000) &&
+           (format == 0 || format == 4);
+}
+
+/* Observe only changes in the native LCD submission. This runs before the
+ * presenter checks holds/descriptors, so a stalled transaction is visible
+ * without enabling the broad MMIO trace or altering completion behavior. */
+static void z6ii_lcd_observe_submission(Z6IIFunctionalDevices *s, uint32_t *r)
+{
+    const char *trace = z6ii_engine_getenv(s->engine, "Z6II_LCD98_TRACE");
+    if (!trace || strcmp(trace, "1")) { return; }
+    unsigned bank = z6ii_lcd_requested(r[0x260/4]);
+    unsigned overlay_bank = z6ii_lcd_requested(r[0x2214/4]);
+    const uint32_t state[] = {
+        r[0], r[0x1000/4], r[0x2000/4], r[0x3000/4],
+        r[0x1200/4], r[0x110/4], r[0x200/4], r[0x204/4],
+        r[0x240/4], r[0x250/4], r[0x260/4],
+        r[0x210/4 + bank], r[0x220/4 + bank],
+        r[0x2110/4], r[0x2200/4], r[0x2204/4], r[0x2400/4],
+        r[0x2500/4], r[0x2540/4], r[0x2580/4], r[0x25c0/4],
+        r[0x2214/4], r[0x2440/4 + overlay_bank], r[0x24c0/4],
+        r[0x1210/4], r[0x1214/4], r[0x1100/4], r[0x3110/4]
+    };
+    G_STATIC_ASSERT(sizeof(state) == sizeof(s->last_lcd_submission));
+    if (s->last_lcd_submission_valid &&
+        !memcmp(state, s->last_lcd_submission, sizeof(state))) { return; }
+    memcpy(s->last_lcd_submission, state, sizeof(state));
+    s->last_lcd_submission_valid = true;
+    fprintf(stderr, "Z6II_LCD_SUBMISSION ns=%" PRId64
+            " hold=%x/%x/%x/%x enable=%x/%x format=%08x geometry=%08x"
+            " stride=%u/%u bank=%08x y=%08x uv=%08x overlay_enable=%x/%x"
+            " overlay_format=%08x overlay_geometry=%08x region_geometry=%08x"
+            " region_stride=%u/%u region_origin=%08x region_enable=%x"
+            " overlay_bank=%08x color=%08x alpha=%08x"
+            " irq_mode=%x irq_mask=%x irq_pending=%x frames=%u\n",
+            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+            state[0], state[1], state[2], state[3], state[4], state[5],
+            state[6], state[7], state[8], state[9], state[10], state[11],
+            state[12], state[13], state[27], state[14], state[15], state[16],
+            state[17], state[18], state[19], state[20], state[21], state[22],
+            state[23], state[26], state[24], state[25], s->lcd_frames);
+}
+
+static void z6ii_fd_display_irq_update(Z6IIFunctionalDevices *s)
+{
+    bool level[3] = { false, false, false };
+    for (unsigned inst = 0; inst < 3; inst++) {
+        uint32_t *r = s->display_regs + inst*0x4000/4;
+        unsigned mode = r[0x1100/4] & 3;
+        if (mode && (r[0x1210/4] & r[0x1214/4])) { level[mode-1] = true; }
+    }
+    for (unsigned i = 0; i < 3; i++) {
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 111+i-32), level[i]);
+    }
+}
+
+/* Read only the native LCD source/overlay descriptors. No photo, UI element,
+ * or exposure value is inserted here. The conversion matrix and presentation
+ * cadence are functional assumptions; programmable display LUTs are not yet
+ * executed. The GUI-surface probe remains available when this is disabled. */
+/* Z6 native layer4 is a dedicated display rectangle generator, not GPU
+ * paths. Field packing:1034d884 ->10244086; enable:102441e8.
+ * Packed native palette bytes are RGB;2-bit opacity uses functional levels. */
+static void z6ii_fd_lcd_grid(uint32_t *r, uint8_t *out, unsigned stride,
+                          unsigned w, unsigned h)
+{
+    if (!(r[0x1620/4] & 1)) { return; }
+    uint32_t color = r[0x1618/4];
+    unsigned alpha = ((color >> 24) & 3) * 85;
+    if (!alpha) { return; }
+    uint8_t rgb[3] = {color & 255, (color >> 8) & 255, (color >> 16) & 255};
+    for (unsigned group = 0; group < 2; group++) {
+        uint32_t xy = r[(group ? 0x1604 : 0x1600)/4];
+        unsigned x0 = xy & 0xffff, y0 = (xy >> 16) & 0x3fff;
+        unsigned rw = group ? (r[0x160c/4] >> 16) & 0x3f : r[0x1608/4] & 0xffff;
+        unsigned rh = group ? (r[0x1608/4] >> 16) & 0x3fff : r[0x160c/4] & 0x3f;
+        unsigned step = group ? r[0x1610/4] >> 16 : r[0x1610/4] & 0x3fff;
+        unsigned count = ((r[0x1614/4] >> (group ? 16 : 0)) & 7) + 1;
+        for (unsigned i = 0; i < count; i++) {
+            unsigned x = x0 + (group ? i*step : 0);
+            unsigned y = y0 + (group ? 0 : i*step);
+            unsigned xe = MIN(w, x+rw), ye = MIN(h, y+rh);
+            for (unsigned py = y; py < ye; py++) {
+                for (unsigned px = x; px < xe; px++) {
+                    uint8_t *dest = out + (size_t)py*stride + px*4;
+                    uint32_t pixel = ldl_p(dest);
+                    unsigned red = (rgb[0]*alpha + ((pixel>>16)&255)*(255-alpha) + 127)/255;
+                    unsigned green = (rgb[1]*alpha + ((pixel>>8)&255)*(255-alpha) + 127)/255;
+                    unsigned blue = (rgb[2]*alpha + (pixel&255)*(255-alpha) + 127)/255;
+                    stl_p(dest, (red<<16)|(green<<8)|blue);
+                }
+            }
+        }
+    }
+}
+
+
+/* Output timing is independent of fetching the source/overlay pixels. The
+ * native mode2 output remains enabled during an APPLV mode transaction even
+ * when +110 disables its source. 102442E4 maps raw bit16 to the native frame
+ * event; existing +1210 masking, W1C and mode-selected IRQ routing own delivery.
+ * This optional fixed-period policy models that contract, not a measured PLL
+ * frequency. A blank boundary never commits a source bank or completes a job
+ * directly. Output-stage hold (+1000), disable and mode0 suppress the clock. */
+static void z6ii_fd_display_clock_tick(Z6IIFunctionalDevices *s)
+{
+    if (!s->display_clock_enabled) { return; }
+    for (unsigned inst = 0; inst < 3; inst++) {
+        uint32_t *r = s->display_regs + inst * (0x4000 / 4);
+        unsigned mode = r[0x1100 / 4];
+        if (!(r[0x1200 / 4] & 1) || !mode || mode > 3 || r[0x1000 / 4]) {
+            continue;
+        }
+        r[0x1214 / 4] |= 1U << 16;
+        uint64_t frame = ++s->display_clock_frames[inst];
+        if (frame == 1 || !(frame % 30)) {
+            fprintf(stderr, "Z6II_DISPLAY_BOUNDARY ns=%" PRId64
+                    " instance=%u mode=%u irq=%u frame=%" PRIu64
+                    " source_enabled=%u mask=%08x raw=%08x period_ns=%" PRIu64
+                    " policy=enabled-timing-v1\n",
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), inst, mode,
+                    110 + mode, frame, !!(r[0x110 / 4] & 1),
+                    r[0x1210 / 4], r[0x1214 / 4], s->display_frame_period_ns);
+        }
+    }
+    z6ii_fd_display_irq_update(s);
+}
+
+static void z6ii_fd_display_clock_init(Z6IIFunctionalDevices *s)
+{
+    const char *policy = z6ii_engine_getenv(s->engine, "Z6II_DISPLAY_CLOCK_MODEL");
+    const char *period = z6ii_engine_getenv(s->engine, "Z6II_DISPLAY_FRAME_PERIOD_NS");
+    s->display_frame_period_ns = 100000000;
+    if (policy && strcmp(policy, "legacy") && strcmp(policy, "enabled-timing-v1")) {
+        error_report("unsupported Z6II_DISPLAY_CLOCK_MODEL: %s", policy);
+        exit(1);
+    }
+    s->display_clock_enabled = policy && !strcmp(policy, "enabled-timing-v1");
+    if (period) {
+        char *end;
+        errno = 0;
+        uint64_t value = strtoull(period, &end, 10);
+        if (!s->display_clock_enabled || errno || end == period || *end ||
+            value < 1000000 || value > 1000000000) {
+            error_report("Z6II_DISPLAY_FRAME_PERIOD_NS requires enabled-timing-v1"
+                         " and a period from 1000000 to 1000000000 ns");
+            exit(1);
+        }
+        s->display_frame_period_ns = value;
+    }
+    fprintf(stderr, "Z6II_DISPLAY_CLOCK policy=%s period_ns=%" PRIu64
+            " physical_frequency_measured=0 blank_boundary_commits_bank=0\n",
+            s->display_clock_enabled ? "enabled-timing-v1" : "legacy",
+            s->display_frame_period_ns);
+}
+
+static void z6ii_fd_lcd_present(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    uint32_t *r = s->display_regs + 0x4000/4;
+    if (!s->lcd_scanout_test) { return; }
+    timer_mod(s->lcd_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+              s->display_frame_period_ns);
+    z6ii_fd_display_clock_tick(s);
+    z6ii_lcd_observe_submission(s, r);
+    /* Z6II 1046e9a8 asserts these controls; 1046e63c releases them.
+     * Preserve the last surface during configuration. No buffer becomes
+     * active and no frame completion is produced while a used stage holds. */
+    if (r[0] || r[0x1000/4] ||
+        (r[0x2110/4] && r[0x2000/4]) ||
+        (r[0x3110/4] && r[0x3000/4])) { return; }
+    unsigned w = r[0x204/4] & 0xffff, h = (r[0x204/4] >> 16) & 0x3fff;
+    unsigned bank = z6ii_lcd_requested(r[0x260/4]);
+    uint32_t ya = r[0x210/4 + bank], ua = r[0x220/4 + bank];
+    unsigned ys = r[0x240/4], us = r[0x250/4];
+    /* Native10241706 selects format4 for processed live view. Its preview
+     * slots cannot hold full-height chroma at the submitted UV offset;
+     * model this two-plane420 layout as NV12 (packing still experimental). */
+    bool nv12 = (r[0x200/4] & 0x1f) == 4;
+    uint64_t lcd_config = ((uint64_t)r[0x204/4] << 32) | r[0x200/4];
+    if (s->z6_profile && lcd_config != s->last_lcd_config) {
+        s->last_lcd_config = lcd_config;
+        fprintf(stderr, "Z6II_LCD_CONFIG size=%ux%u format=%x enabled=%x/%x y=%x uv=%x overlay_size=%x\n", w, h, r[0x200/4], r[0x1200/4], r[0x110/4], ya, ua, r[0x2204/4]);
+    }
+    unsigned uvh = nv12 ? h/2 : h;
+    if (!(r[0x1200/4] & 1) || !(r[0x110/4] & 1) || !z6ii_lcd_format_supported(r[0x200/4]) ||
+        w != 1024 || (h != 682 && h != 680) || ys != w || us != w ||
+        !z6ii_lcd_read_ram(s, ya, NULL, (uint64_t)ys*h) ||
+        !z6ii_lcd_read_ram(s, ua, NULL, (uint64_t)us*uvh)) { return; }
+    g_autofree uint8_t *yp = g_malloc((size_t)ys*h), *up = g_malloc((size_t)us*uvh);
+    if (!z6ii_lcd_read_ram(s, ya, yp, (size_t)ys*h) ||
+        !z6ii_lcd_read_ram(s, ua, up, (size_t)us*uvh)) { return; }
+    bool overlay = (r[0x2110/4] & 1) && r[0x2200/4] == 0x30006 &&
+        r[0x2204/4] == r[0x204/4] && r[0x2400/4] == r[0x204/4] &&
+        r[0x2500/4] == w*2 && r[0x2540/4] == w &&
+        r[0x2580/4] == 0 && (r[0x25c0/4] & 1);
+    unsigned overlay_bank = z6ii_lcd_requested(r[0x2214/4]);
+    uint32_t ca = r[0x2440/4 + overlay_bank], aa = r[0x24c0/4];
+    g_autofree uint8_t *cp = NULL, *ap = NULL;
+    if (overlay && z6ii_lcd_read_ram(s, ca, NULL, (uint64_t)w*h*2) &&
+        z6ii_lcd_read_ram(s, aa, NULL, (uint64_t)w*h)) {
+        cp = g_malloc((size_t)w*h*2); ap = g_malloc((size_t)w*h);
+        if (!z6ii_lcd_read_ram(s, ca, cp, (size_t)w*h*2) ||
+            !z6ii_lcd_read_ram(s, aa, ap, (size_t)w*h)) { overlay = false; }
+    } else { overlay = false; }
+    if (!s->gpu->lcd_scanout) {
+        s->gpu->lcd_scanout = true;
+        qemu_console_resize(s->gpu->console, w, h);
+    }
+    DisplaySurface *surface = qemu_console_surface(s->gpu->console);
+    if (surface_width(surface) != w || surface_height(surface) != h) {
+        qemu_console_resize(s->gpu->console, w, h);
+        surface = qemu_console_surface(s->gpu->console);
+    }
+    uint8_t *out = surface_data(surface);
+    for (unsigned y = 0; y < h; y++) {
+        for (unsigned x = 0; x < w; x++) {
+            size_t i = (size_t)y*w+x;
+            uint8_t pixel[4], top[4];
+            size_t uvindex = (size_t)(nv12 ? y/2 : y)*us+(x & ~1U);
+            nikon_yuv_rgb(yp[y*ys+x], up[uvindex], up[uvindex+1], pixel);
+            if (overlay) {
+                nikon_gpu_pixel_read(cp, ap, 0x107, false, i, top);
+                for (unsigned c = 0; c < 3; c++) {
+                    pixel[c] = (top[c]*top[3] + pixel[c]*(255-top[3]) + 127)/255;
+                }
+            }
+            stl_p(out + y*surface_stride(surface) + x*4,
+                  (pixel[0]<<16) | (pixel[1]<<8) | pixel[2]);
+        }
+    }
+    z6ii_fd_lcd_grid(r, out, surface_stride(surface), w, h);
+    /* This callback has read the selected buffers and completed pixels.
+     * Publish and active readback now describe the same bank. */
+    z6ii_lcd_commit(&r[0x260/4], bank);
+    if (overlay) { z6ii_lcd_commit(&r[0x2214/4], overlay_bank); }
+    dpy_gfx_update(s->gpu->console, 0, 0, w, h);
+    /* Functional frame boundary, only after reading validated native buffers.
+     * 102442e4 maps status bit16 to event2, consumed by1023cd6e/display worker.
+     * Exact physical VSync phase/rate remains unverified. */
+    if (!s->display_clock_enabled) {
+        r[0x1214/4] |= 1U << 16;
+        z6ii_fd_display_irq_update(s);
+    }
+    s->lcd_frames++;
+    const char *lcd_trace = z6ii_engine_getenv(s->engine, "Z6II_LCD98_TRACE");
+    if ((lcd_trace && !strcmp(lcd_trace, "1")) ||
+        !((s->lcd_frames - 1) % 30)) {
+        fprintf(stderr, "Z6II_LCD_SCANOUT frame=%u y=0x%08x uv=0x%08x overlay=%u color=0x%08x alpha=0x%08x size=%ux%u input=%s overlay_format=YYUV422A bit_accurate=0\n",
+                s->lcd_frames, ya, ua, overlay, ca, aa, w, h, nv12 ? "NV12" : "NV16");
+    }
+}
+
+
+/* Board reset cancels any pending request and clears all three instances.
+ * Rearming polling does not publish a frame: all enable/descriptor/status
+ * fields are zero until software submits a valid frame again. */
+static void z6ii_fd_lcd_reset(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    if (s->lcd_timer) { timer_del(s->lcd_timer); }
+    memset(s->display_regs, 0, sizeof(s->display_regs));
+    memset(s->display_global_control, 0, sizeof(s->display_global_control));
+    memset(s->display_lut, 0, sizeof(s->display_lut));
+    s->lcd_frames = 0;
+    memset(s->display_clock_frames, 0, sizeof(s->display_clock_frames));
+    s->last_lcd_config = UINT64_MAX;
+    s->last_lcd_submission_valid = false;
+    z6ii_fd_display_irq_update(s);
+    if (s->gpu) {
+        s->gpu->lcd_scanout = false;
+        DisplaySurface *surface = qemu_console_surface(s->gpu->console);
+        memset(surface_data(surface), 0,
+               (size_t)surface_stride(surface) * surface_height(surface));
+        dpy_gfx_update(s->gpu->console, 0, 0,
+                       surface_width(surface), surface_height(surface));
+    }
+    if (s->lcd_timer && s->lcd_scanout_test) {
+        timer_mod(s->lcd_timer,
+                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + s->display_frame_period_ns);
+    }
+}
+
+static bool z6ii_fd_display_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                              bool write, uint64_t *value)
+{
+    /* Same assert/release transaction also addresses two global stages.
+     * Their Boolean controls are retained; they cannot generate an IRQ. */
+    if (s->graphics_profile && size == 4 &&
+        (addr == 0x2014d100 || addr == 0x2014e000)) {
+        unsigned index = addr == 0x2014d100 ? 0 : 1;
+        if (write && *value > 1) {
+            z6ii_fd_unknown_access(s, addr, size, write, *value);
+            return true;
+        }
+        if (write) { s->display_global_control[index] = *value; }
+        else { *value = s->display_global_control[index]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (s->graphics_profile && addr >= 0x24040000 && addr < 0x24060000 &&
+        size == 4 && !(addr & 3)) {
+        unsigned inst = (addr - 0x24040000) / 0x10000;
+        unsigned lo = addr & 0xffff;
+        uint32_t mask;
+        /* 10242c40/10242df2: two banks of 3 x 32 twelve-bit entries. */
+        if ((lo < 0xc0) || (lo >= 0x100 && lo < 0x1c0) ||
+            (lo >= 0x2000 && lo < 0x20c0) || (lo >= 0x2100 && lo < 0x21c0)) {
+            mask = 0x0fff0fff;
+        /* 10242f88: two banks of 3 x 33 eight-bit entries. */
+        } else if (lo >= 0x5000 && lo < 0x5400 &&
+                   (lo & 0x1ff) < 0x144 && (lo & 0x7f) <= 0x40) {
+            mask = 0x00ff00ff;
+        /* 10243198/326c: two additional pairs of 33-entry curves. */
+        } else if (lo >= 0x6000 && lo < 0x6200 && (lo & 0x7f) <= 0x40) {
+            mask = (lo & 0x7f) == 0x40 ? 0xffff : 0x00ff00ff;
+        } else { return false; }
+        if (write && (*value & ~(uint64_t)mask)) {
+            z6ii_fd_unknown_access(s, addr, size, write, *value);
+            return true;
+        }
+        if (write) { s->display_lut[inst][lo / 4] = *value; }
+        else { *value = s->display_lut[inst][lo / 4]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (!s->graphics_profile || addr < 0x20140000 || addr >= 0x2014c000 ||
+        size != 4 || (addr & 3)) { return false; }
+    unsigned index = (addr - 0x20140000) / 4;
+    unsigned off = (addr - 0x20140000) % 0x4000;
+    if (off == 0x1210 || off == 0x1214) {
+        if (write) {
+            if (off == 0x1214) { s->display_regs[index] &= ~(uint32_t)*value; }
+            else { s->display_regs[index] = *value; }
+            z6ii_fd_display_irq_update(s);
+        } else { *value = s->display_regs[index]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    /* 102427ce/2924: ten regions per overlay, two overlay components. */
+    unsigned plane_off = off >= 0x3000 ? off - 0x1000 : off;
+    uint64_t region_mask = 0;
+    if ((plane_off >= 0x2400 && plane_off < 0x2428) ||
+        (plane_off >= 0x2580 && plane_off < 0x25a8)) {
+        region_mask = 0x3fffffff;
+    } else if ((plane_off >= 0x2480 && plane_off < 0x24a4) ||
+               (plane_off >= 0x24c0 && plane_off < 0x24e8)) {
+        region_mask = UINT32_MAX;
+    } else if ((plane_off >= 0x2500 && plane_off < 0x2528) ||
+               (plane_off >= 0x2540 && plane_off < 0x2568)) {
+        region_mask = 0xffff;
+    } else if (plane_off == 0x25c0 || plane_off == 0x25c4 || plane_off == 0x2600) {
+        region_mask = 0x3ff;
+    } else if (plane_off >= 0x25e0 && plane_off < 0x25f4) {
+        region_mask = 0x3f3f3f3f;
+    } else if (plane_off == 0x2604) { region_mask = 3; }
+    if (region_mask) {
+        if (write && (*value & ~region_mask)) { goto rejected; }
+        goto retained;
+    }
+    /* 1024151e and ROM 106159f4: three rows of packed coefficients. */
+    bool matrix = (off >= 0x4a0 && off < 0x4b8) ||
+                  (off >= 0x4d0 && off < 0x4e8) ||
+                  (off >= 0x1490 && off < 0x14a8) ||
+                  (off >= 0x14f0 && off < 0x1508) ||
+                  (off >= 0x2840 && off < 0x284c) ||
+                  (off >= 0x3840 && off < 0x384c);
+    if (matrix) {
+        if (write && off >= 0x2840 && (*value & ~0xffffffULL)) { goto rejected; }
+        goto retained;
+    }
+    switch (off) {
+    case 0x0000: case 0x1000: case 0x2000: case 0x3000:
+        /* Z6II 1046e9a8/1046e63c, applied to each 0x4000 instance. */
+        if (write && *value > 1) { goto rejected; }
+        break;
+    case 0x1100: /* 102410d4 mode; formerly a recovery-only latch. */
+        if (write && *value > 3) { goto rejected; }
+        break;
+    case 0x4f0: /* 10243348: lookup-table controls */
+        if (write && (*value & ~0xffULL)) { goto rejected; }
+        break;
+    case 0x1c00: case 0x1c04:
+        /* Z6II 1046FA06 writes two complete raw32 configuration words;
+         * 1046FA40 reads the same pair, per 0x4000 display instance.
+         * Configuration alone produces no completion or IRQ cause. */
+        break;
+    case 0x1480: /* 1024209c: output component order */
+        if (write && (*value & ~0x3333ULL)) { goto rejected; }
+        break;
+    /* 1024246a: additional output conversion geometry. */
+    case 0x14b0: case 0x14b8: case 0x14c0: case 0x14c8:
+        break;
+    case 0x14b4:
+        if (write && (*value & ~0xffffULL)) { goto rejected; }
+        break;
+    case 0x14bc: case 0x14c4:
+        if (write && (*value & ~0x3fffffffULL)) { goto rejected; }
+        break;
+    /* 10244086: native grid repeated rectangles, color/opacity. */
+    case 0x1600: case 0x1604: case 0x1608:
+        if (write && (*value & ~0x3fffffffULL)) { goto rejected; }
+        break;
+    case 0x160c:
+        if (write && (*value & ~0x3f003fULL)) { goto rejected; }
+        break;
+    case 0x1610:
+        if (write && (*value & ~0xffff3fffULL)) { goto rejected; }
+        break;
+    case 0x1614:
+        if (write && (*value & ~0x70007ULL)) { goto rejected; }
+        break;
+    case 0x1618:
+        if (write && (*value & ~0x03ffffffULL)) { goto rejected; }
+        break;
+    case 0x1620: /* 102441e8: native grid boolean enable. */
+        if (write && *value > 1) { goto rejected; }
+        break;
+    case 0x4c0: case 0x1510:
+        if (write && (*value & ~0x606ULL)) { goto rejected; }
+        break;
+    /* 10242a2c: two overlay components, source format and geometry. */
+    case 0x2200: case 0x3200:
+        if (write && (*value & ~0x137f0017ULL)) { goto rejected; }
+        break;
+    case 0x2204: case 0x3204: case 0x2208: case 0x3208:
+        if (write && (*value & ~0x3fffffffULL)) { goto rejected; }
+        break;
+    case 0x2210: case 0x3210:
+        if (write && (*value & ~0x03030303ULL)) { goto rejected; }
+        break;
+    case 0x2218: case 0x3218:
+        if (write && *value > 1) { goto rejected; }
+        break;
+    case 0x2810: case 0x3810: /* 10242b9e: format conversion */
+        if (write && (*value & ~0xffULL)) { goto rejected; }
+        break;
+    case 0x2814: case 0x3814:
+        if (write && (*value & ~0x1f001f1fULL)) { goto rejected; }
+        break;
+    case 0x2818: case 0x3818:
+        if (write && (*value & ~0x1f1fULL)) { goto rejected; }
+        break;
+    /* 10241698 / 10243594: four addresses per source plane. */
+    case 0x210: case 0x214: case 0x218: case 0x21c:
+    case 0x220: case 0x224: case 0x228: case 0x22c:
+    case 0x2440: case 0x2444: case 0x2448: case 0x244c:
+    case 0x3440: case 0x3444: case 0x3448: case 0x344c:
+        break;
+    case 0x260: case 0x2214: case 0x3214: /* 102416cc */
+        if (write && (*value & ~0x30300ULL)) { goto rejected; }
+        break;
+    /* 10241706: source dimensions, pixel format and crop. */
+    case 0x200:
+        if (write && (*value & ~0x37f0311fULL)) { goto rejected; }
+        break;
+    case 0x204: case 0x600:
+        if (write && (*value & ~0x3fffffffULL)) { goto rejected; }
+        break;
+    case 0x240: case 0x250:
+        if (write && (*value & ~0xffffULL)) { goto rejected; }
+        break;
+    case 0x604:
+        if (write && (*value & ~0x101ULL)) { goto rejected; }
+        break;
+    case 0x40c:
+    case 0x400: /* 10241970 */
+        if (write && (*value & ~0xffULL)) { goto rejected; }
+        break;
+    case 0x404:
+        if (write && (*value & ~0x1f001f1fULL)) { goto rejected; }
+        break;
+    case 0x408:
+        if (write && (*value & ~0x1f1fULL)) { goto rejected; }
+        break;
+    /* 10241890: conversion/clipping parameters. */
+    case 0x410: case 0x430: /* 10241a0e: optional correction enable */
+        if (write && (*value & ~0x301ULL)) { goto rejected; }
+        break;
+    case 0x414:
+        if (write && (*value & ~0xff01ffULL)) { goto rejected; }
+        break;
+    case 0x418:
+        if (write && (*value & ~0xff00ffULL)) { goto rejected; }
+        break;
+    case 0x41c: case 0x420:
+        break;
+    case 0x424:
+        if (write && (*value & ~0xffffULL)) { goto rejected; }
+        break;
+    /* 1024255e: six component selectors, enables and byte remapping. */
+    case 0x14d0:
+        if (write && (*value & ~0x333333ULL)) { goto rejected; }
+        break;
+    case 0x14d4:
+        if (write && (*value & ~0x7711ULL)) { goto rejected; }
+        break;
+    case 0x14d8:
+        if (write && (*value & ~0x30131ULL)) { goto rejected; }
+        break;
+    case 0x14e0: case 0x14e4:
+    case 0x1420: /* 1024270a: two halfwords */
+        break;
+    case 0x1424:
+        if (write && (*value & ~0xffffULL)) { goto rejected; }
+        break;
+    case 0x1340: /* 10242752 */
+        if (write && (*value & ~0xfffULL)) { goto rejected; }
+        break;
+    case 0x100: case 0x1200: case 0x2100: case 0x3100:
+        if (write && (*value & ~0x13ULL)) { goto rejected; }
+        break;
+    /* 10241dc4: output conversion and timing configuration, packed from
+     * byte/halfword fields. These are retained, not interpreted as pixels. */
+    case 0x1400:
+        if (write && (*value & ~0x030100ffULL)) { goto rejected; }
+        break;
+    case 0x1204: case 0x130c: case 0x1314: case 0x1318: case 0x131c:
+    case 0x1328: case 0x132c:
+        if (write && (*value & ~0xffffULL)) { goto rejected; }
+        break;
+    case 0x1208:
+        if (write && (*value & ~0x301ULL)) { goto rejected; }
+        break;
+    case 0x1300:
+        if (write && (*value & ~0x11111ULL)) { goto rejected; }
+        break;
+    case 0x1304: case 0x1320: case 0x1324: case 0x1330:
+    case 0x120c: /* 10243532/40 */
+    case 0x110: case 0x2110: case 0x3110: case 0x1220: /* 10241402/52 */
+    case 0x500: case 0x2880: case 0x3880: /* 102414a4/c8 */
+        if (write && (*value & ~0xffULL)) { goto rejected; }
+        break;
+    case 0x1308:
+        if (write && (*value & ~0xbfff3fffULL)) { goto rejected; }
+        break;
+    case 0x1310:
+        if (write && (*value & ~0x103ffULL)) { goto rejected; }
+        break;
+    case 0x1338: case 0x1224:
+        if (write && *value > 1) { goto rejected; }
+        break;
+    default:
+        return false;
+    }
+retained:
+    if (write) {
+        if (off == 0x260 || off == 0x2214 || off == 0x3214) {
+            /* Original request RMW may carry active readback. Guest
+             * writes cannot alter it or erase a prior active bank. */
+            s->display_regs[index] = (s->display_regs[index] & 0x30000U) |
+                                     ((uint32_t)*value & 0x300U);
+        } else { s->display_regs[index] = *value; }
+    } else { *value = s->display_regs[index]; }
+    if (write && off == 0x1100) { z6ii_fd_display_irq_update(s); }
+    if (write && off == 0x1620) {
+        uint32_t *d = &s->display_regs[(addr - 0x20140000 - off)/4];
+        fprintf(stderr, "Z6II_LCD_GRID enable=%u geometry=%08x/%08x/%08x/%08x step=%08x count=%08x color=%08x opacity_functional=1\n",
+            (unsigned)*value,d[0x1600/4],d[0x1604/4],d[0x1608/4],d[0x160c/4],d[0x1610/4],d[0x1614/4],d[0x1618/4]);
+    }
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+rejected:
+    z6ii_fd_unknown_access(s, addr, size, write, *value);
+    return true;
+}
+
+static bool z6ii_fd_graphics_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                               bool write, uint64_t *value)
+{
+    if (!s->graphics_profile || size != 4 || (addr & 3) ||
+        addr < 0x20180000 || addr >= 0x20181600) { return false; }
+    unsigned off = addr - 0x20180000;
+    switch (off) {
+    case 0x58:
+        /* 104fecd0 tests bit 26 after an upload interrupt. */
+        if (write) { goto rejected; }
+        *value = (s->graphics_upload_pending[0] || s->graphics_upload_pending[1]) ? (1U << 26) : 0;
+        z6ii_fd_mmio_trace(s, addr, size, false, *value);
+        return true;
+    case 0x10d4: case 0x10e4:
+    case 0x10dc: case 0x10ec:
+        if (!write || s->graphics_upload_pending[(off - 0x10d0) / 0x10]) { goto rejected; }
+        break;
+    case 0x10d0: case 0x10e0: {
+        unsigned ch = (off - 0x10d0) / 0x10;
+        if (!write || *value != 1 || s->graphics_upload_pending[ch]) { goto rejected; }
+        uint32_t src = s->graphics_regs[(off + 4) / 4];
+        uint64_t length = (uint64_t)s->graphics_regs[(off + 12) / 4] * 8;
+        if (!length || length > sizeof(s->graphics_tables[ch]) ||
+            !nikon_gpu_range(s->gpu, src, length, false)) { goto rejected; }
+        s->graphics_upload_pending[ch] = true;
+        timer_mod(s->graphics_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + 100000);
+        break;
+    }
+    case 0x1020:
+        if (!write || *value != 0) { goto rejected; }
+        qemu_set_irq(qdev_get_gpio_in(DEVICE(s->priv), 129 - 32), 0);
+        break;
+    default:
+        return false;
+    }
+    s->graphics_regs[off / 4] = *value;
+    z6ii_fd_mmio_trace(s, addr, size, write, *value);
+    return true;
+rejected:
+    /* This model owns these registers. Invalid transfers must not fall
+     * through to the historical recovery profile's configuration latches. */
+    z6ii_fd_unknown_access(s, addr, size, write, *value);
+    return true;
+}
+
+/* Recovery-only configuration latches. No completed transfer is inferred from
+ * these writes. Each entry must have an original-code address/bit reference. */
+static bool z6ii_fd_recovery_config_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                      bool write, uint64_t *value)
+{
+    static const struct { hwaddr addr; uint32_t mask; bool write_only; unsigned width; } regs[] = {
+        { 0x04281030, 0x3f07ff07 }, /* 101d7bbe..c24 + a1806e84: gate/divider fields; reset zero hypothesis */
+        /* 100cbca2/100cbd1e and 100cbda0: two serial format/clock
+         * configuration banks, selected by 100cc752. These retain fields;
+         * FIFO readiness, transfers and interrupts are separate contracts. */
+        /* 1036fe54/fe6c and 1036fe8a/fea8 set/clear bits13/12 at
+         * literal 103700c4 + bank. Keep the written enables; do not
+         * invent the distinct readiness bits14/15 or a transfer. */
+        { 0x2c080108, 0xff8f3003 }, { 0x2c080208, 0xff8f3003 },
+        { 0x2c08010c, 0x0f8f0000 }, { 0x2c08020c, 0x0f8f0000 },
+        /* 1036fecc/1036ff26 read-modify-write bits30..31 at +110,
+         * bit8/bit0 at +140, and low16 lengths at +148/+144.
+         * These software fields neither assert FIFO ready nor submit
+         * a transfer. 10370606 selects the corresponding +100 bank. */
+        /* 10370594/1037053c additionally update bits26/28/18 and
+         * bits27/29/19 at +110. Their +104 RMWs update bits10/14 and
+         * bits11/15. The branch inputs come from +108 and the caller;
+         * retain them without synthesizing FIFO status or an IRQ. */
+        { 0x2c080110, 0xfc0c0000 }, { 0x2c080210, 0xfc0c0000 },
+        { 0x2c080104, 0x0000cc00 }, { 0x2c080204, 0x0000cc00 },
+        { 0x2c080140, 0x00000101 }, { 0x2c080240, 0x00000101 },
+        { 0x2c080144, 0x0000ffff }, { 0x2c080244, 0x0000ffff },
+        { 0x2c080148, 0x0000ffff }, { 0x2c080248, 0x0000ffff },
+        /* Master 1036fb32/1036fb44 inserts bit31 into bank+14;
+         * 1036fab8 clears it, while 1036fc56 updates bits16..20/24..28
+         * after clearing bit30. 10370606 selects bank0 or bank1 (+100).
+         * These remain configuration latches: no transfer/status/IRQ is
+         * completed by setting either control bit. */
+        { 0x2c080114, 0xdf1f0000 }, { 0x2c080214, 0xdf1f0000 },
+        { 0x2c080118, 0x33030101 }, { 0x2c080218, 0x33030101 },
+        { 0x04280024, 1, true }, /* 101f24fc output enable used by graphics init 1044fab0 */
+        { 0x2b100000, 0x101, true }, { 0x2b100004, 1, true }, /* 103201e0/f6 disable controls */
+        { 0x2b100008, UINT32_MAX, true }, { 0x2b10000c, 0x110000, true }, /* 10320204 config */
+        { 0x2c04000c, 0xff, true }, /* 10180040 configuration byte stored as word */
+        { 0x2c040000, 1, true }, { 0x2c040004, 1, true }, { 0x2c040008, 1, true }, /* 1017ff2c..72 reset/config gates */
+        { 0x2c040014, UINT32_MAX, true }, /* 1017ff3a program address, processor execution unmodeled */
+        { 0x2c040010, 0x01030001 }, /* 10180048 control/command bits; no auto-completion */
+        { 0x20060028, 1, true }, { 0x2006002c, 1, true },
+        { 0x20060030, 1, true }, /* 1010c62a/632 submission */
+        { 0x20060314, UINT32_MAX, true }, { 0x20060328, 0xff, true },
+        { 0x2006032c, 0xff, true }, /* 1010c7d0..7e4 */
+        /* 1010b628..64e: paired command writes (callers also pass inverted
+         * masks), trigger/cancel, and an ordinary interrupt gate at +18.
+         * Submission alone produces no image, status or interrupt. */
+        { 0x20068000, UINT32_MAX, true }, { 0x20068004, UINT32_MAX, true },
+        { 0x20068008, 0xfff, true }, { 0x2006800c, 0xfff, true },
+        { 0x20068010, 0xfff, true }, { 0x20068014, 0xfff, true },
+        { 0x20068018, 0xfff },
+        { 0x20068020, UINT32_MAX, true }, { 0x20068024, UINT32_MAX, true },
+        { 0x20068028, 1, true }, /* 1010bc4a: optional pair plus gate */
+        { 0x20068060, UINT32_MAX, true }, /* 1010bc56 submission */
+        { 0x20068070, UINT32_MAX, true }, /* 1010bc5c: selectors at bits 1,3,5 */
+        { 0x20068074, UINT32_MAX, true }, { 0x20068078, UINT32_MAX, true },
+        { 0x20068080, UINT32_MAX, true }, /* 1010bc6c timing configuration */
+        { 0x20068088, 0xff, true }, { 0x2006808c, 0xffffffff, true }, /* 1010bc1c */
+        { 0x20068100, UINT32_MAX, true }, { 0x20068104, UINT32_MAX, true }, /* 1010bc3a/42 */
+        /* 1010bc96/1010bd7a: eight independent interrupt mask words. */
+        { 0x20068200, UINT32_MAX }, { 0x20068220, UINT32_MAX },
+        { 0x20068240, UINT32_MAX }, { 0x20068260, UINT32_MAX },
+        { 0x20068280, UINT32_MAX }, { 0x200682a0, UINT32_MAX },
+        { 0x200682c0, UINT32_MAX }, { 0x200682e0, UINT32_MAX },
+        { 0x24060008, UINT32_MAX, true }, { 0x2406000c, 0xff, true }, /* 100ce4ba config */
+        { 0x24060000, 1 }, { 0x24060014, UINT32_MAX, true }, /* 100ce3ba reset/boot address */
+        { 0x20016020, UINT32_MAX }, { 0x20016024, UINT32_MAX },
+        { 0x20016028, UINT32_MAX }, { 0x2001602c, UINT32_MAX },
+        { 0x20016030, UINT32_MAX }, { 0x20016034, UINT32_MAX },
+        { 0x20016038, UINT32_MAX }, { 0x2001603c, UINT32_MAX }, /* 101bb76e snapshot */
+        { 0x04280074, 0xff, true }, /* 101f2544 two 4-bit fields */
+        { 0x200600b0, 1 }, /* 1010c992/9a4 enable state, reset zero hypothesis */
+        { 0x20060070, 3, true }, { 0x20060074, 3, true },
+        { 0x20060078, 3, true }, { 0x2006007c, 3, true },
+        { 0x20060080, 3, true }, { 0x20060084, 3, true },
+        { 0x20060088, 3, true }, { 0x2006008c, 3, true },
+        { 0x20060090, 3, true }, { 0x20060094, 3, true },
+        { 0x20060098, 3, true }, { 0x2006009c, 3, true }, /* 1010c7ea/846 per-channel state */
+        { 0x200600a4, 0x1f }, /* 1010c8ae..954 bit controls */
+        { 0x200600a0, UINT32_MAX, true }, /* 1010c8a6 submission */
+        { 0x200600a8, UINT32_MAX, true }, { 0x200600ac, UINT32_MAX, true }, /* 1010c960/968 command writes */
+        { 0x200600b4, 0xff, true }, { 0x200600b8, 0xff, true },
+        { 0x200600bc, 0xff, true }, { 0x200600c0, 0xff, true },
+        { 0x200600c4, 0xff, true }, /* 1010c970 byte configuration */
+        { 0x200632d0, 0x7ff }, { 0x200632e0, 0x7ff }, /* 100cdf44/58 channel mask */
+        { 0x200632d4, 1, true }, { 0x200632e4, 1, true }, /* mask submission */
+        { 0x200632d8, 0x7ff7ff, true }, { 0x200632dc, 1, true }, /* 100ce158 banked mask submission */
+        { 0x200632e8, UINT32_MAX, true }, /* 100ce16a configuration */
+        { 0x200632ec, 0xfff, true }, { 0x200632f0, 0xfff, true }, /* 100ce172/182 byte pairs */
+        { 0x200632f4, UINT32_MAX, true }, { 0x200632f8, UINT32_MAX, true }, /* 100ce192/19a */
+        { 0x200632fc, 1, true }, { 0x20063300, 1, true }, /* 100ce1a2/1b2 */
+        { 0x20063304, 0xf, true }, { 0x20063308, 1, true }, /* 100ce1c2 index 0..9 + submission */
+        { 0x20202018, 1 }, /* 10104e7e/494: enable and disable */
+        { 0x20070040, 1 }, /* 1008d998: second fill channel initially disabled */
+        { 0x20102000, 0xf }, { 0x20102100, 0xf }, /* 1017d902/91a */
+        { 0x20102820, 0x0f330f33 }, { 0x20102824, 0x0f330f33 },
+        { 0x20102828, 0x0f330f33 }, { 0x2010282c, 0x0f330f33 },
+        { 0x20102830, 0x0f330f33 }, { 0x20102834, 0x0f330f33 },
+        { 0x20102838, 0xf33 }, /* 1017dbae setter / 1017dc1e getter: 13 routing entries */
+        { 0x20102800, 1, true }, /* 1017dc18/dd14 submission; output not yet modeled */
+        /* 104fea6e initial graphics configuration. Three IRQ handlers clear
+         * +1020/+c18/+1c with zero (104fee62/6e/7a). No IRQ generated yet. */
+        { 0x20181020, 0, true }, { 0x20180c18, 0, true }, { 0x2018001c, 0, true },
+        { 0x20181248, 1, true }, { 0x20180034, 0, true },
+        { 0x20180c1c, 0x8000, true }, { 0x2018151c, 1, true }, { 0x2018155c, 1, true },
+        { 0x20181214, 0x0100ffff, true }, { 0x20181298, 0, true }, /* 104feae2 graphics config */
+        { 0x201810d4, UINT32_MAX, true }, { 0x201810dc, 0x7fffffff, true },
+        { 0x201810d0, 1, true }, { 0x201810e4, UINT32_MAX, true },
+        { 0x201810ec, 0x7fffffff, true }, { 0x201810e0, 1, true }, /* 104feb0e..64 table bases/lengths */
+        { 0x0426f000, UINT32_MAX }, { 0x0426f010, UINT32_MAX }, /* 1017fbd6/1017fc0a: per-pin IRQ masks */
+        { 0x0426f014, UINT32_MAX }, { 0x0426f018, UINT32_MAX }, /* 1017fb50 edge configuration */
+        { 0x20100030, 0x00ffff01 }, { 0x20100034, 0x00ffff01 }, /* 1017dff2 */
+        { 0x201000f4, 0x000fff00, true }, /* 1017e04a */
+        { 0x201000f8, 0xfffffff0, true }, { 0x201000fc, 0xfffffff0, true },
+        { 0x20100100, 0xfffffff0, true }, { 0x20100104, 0xfffffff0, true },
+        { 0x20100108, 0x000fff00, true }, { 0x2010010c, 0xff0fff00, true },
+        { 0x20100120, 0xfffffff0, true }, { 0x20100124, 0xfffffff0, true },
+        { 0x20100128, 0xfffffff0, true }, { 0x2010012c, 0xfffffff0, true }, /* 1017e05e..13e */
+        { 0x2038000c, 1, true }, { 0x203c000c, 1, true },
+        { 0x20380000, 3, true }, { 0x203c0000, 3, true },
+        { 0x20380004, 3, true }, { 0x203c0004, 3, true }, /* 101054e6 */
+        { 0x203800e8, UINT32_MAX, true }, { 0x203c00e8, UINT32_MAX, true },
+        { 0x203800f0, UINT32_MAX, true }, { 0x203c00f0, UINT32_MAX, true }, /* 10105820/26 */
+        { 0x203800d0, 1, true }, /* 101056e4/10105778 mode selector */
+        { 0x201002c0, 1, true }, /* 1017e64a prepares 24010000 scratch */
+        { 0x20201044, 3, true }, { 0x20201048, 7, true }, /* 10108834 */
+        { 0x20204000, 1 }, { 0x20204004, 1 }, /* 10108d80/8e */
+        { 0x20205308, 3 }, /* 1008dcae clears low two enable bits */
+        { 0x20203010, 0, true }, /* 10108e70 initial disable */
+        { 0x20141100, 3 }, { 0x20145100, 3 }, /* 102410d4 config, 10241004 getter */
+        { 0x20140000, 0, true }, { 0x20144000, 0, true },
+        { 0x20142000, 0, true }, { 0x20146000, 0, true },
+        { 0x20143000, 0, true }, { 0x20147000, 0, true }, /* 1024104c */
+        { 0x20141000, 0, true }, { 0x20145000, 0, true },
+        { 0x2014d100, 1 }, /* 102434cc: configuration hold, write then clear after delay */
+        { 0x2014d200, UINT32_MAX, true }, /* 102434de/f0 configuration under hold */
+        { 0x2014c0a0, 1, true }, /* 102436f0/fc enable/disable, no external output modeled */
+        { 0x2014e000, 0, true }, /* 10241074..88 */
+        { 0x2016c000, 6, false, 1 }, { 0x2016c018, 0xf2, true, 1 }, /* 1025ad06 */
+        { 0x2016c0a4, 8, true, 1 }, { 0x2016c0cc, 0xff, true, 1 },
+        { 0x2016c0ac, 0xff, true, 1 }, { 0x2016c0b0, 0xff, true, 1 },
+        { 0x2016c0b4, 0xff, true, 1 }, { 0x2016c0b8, 0xff, true, 1 },
+        { 0x2016c0bc, 0xff, true, 1 }, { 0x2016c0c0, 0xff, true, 1 },
+        { 0x2016c0c4, 0xff, true, 1 }, { 0x2016c0c8, 0xff, true, 1 },
+        { 0x2016c0a8, 0, false, 1 }, /* 10259452: zero error during bounded poll */
+        { 0x2017f81c, 8, true, 1 }, { 0x2017f84c, 0xff, true, 1 },
+        { 0x2017f82c, 0xff, true, 1 }, { 0x2017f830, 0xff, true, 1 },
+        { 0x2017f834, 0xff, true, 1 }, { 0x2017f838, 0xff, true, 1 },
+        { 0x2017f83c, 0xff, true, 1 }, { 0x2017f840, 0xff, true, 1 },
+        { 0x2017f844, 0xff, true, 1 }, { 0x2017f848, 0xff, true, 1 },
+        { 0x2017f824, 0, false, 1 }, /* 102593dc: zero error during bounded poll */
+        { 0x20160600, 0xff, true, 1 }, { 0x20160604, 0xff, true, 1 },
+        { 0x20160608, 0x13, true, 1 }, { 0x2016060c, 0xb, true, 1 },
+        { 0x20160610, 0x3d, true, 1 }, { 0x20160614, 0, true, 1 },
+        { 0x20160618, 0x7f, true, 1 }, { 0x2016061c, 0xff, true, 1 },
+        { 0x20160620, 0, true, 1 }, { 0x201607fc, 3, true, 1 }, /* 1025ad40..76 */
+    };
+    QEMU_BUILD_BUG_ON(ARRAY_SIZE(regs) > ARRAY_SIZE(s->recovery_config));
+    if (!s->recovery_profile) { return false; }
+    for (unsigned i = 0; i < ARRAY_SIZE(regs); i++) {
+        if (addr != regs[i].addr) { continue; }
+        if (size != (regs[i].width ? regs[i].width : 4)) { return false; }
+        if (!write && regs[i].write_only) { return false; }
+        if (write) {
+            if (*value & ~(uint64_t)regs[i].mask) { return false; }
+            s->recovery_config[i] = *value;
+        } else { *value = s->recovery_config[i]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    return false;
+}
+
+
+static void z6ii_fd_image_input_buffer_snapshot(Z6IIFunctionalDevices *s)
+{
+    /* Passive spans only, after original geometry, header, stride and all
+     * address words were uploaded. Do not guess an8/C alias or a format. */
+    for (unsigned bank = 0; bank < 2; ++bank) {
+        Z6IIImageInputView view;
+        if (s->image_buffer_snapshot_reports[bank] >= 3 ||
+            !z6ii_image_input_view(s->image_processor_config[bank],
+                                   s->image_input_fields_written[bank], &view)) { continue; }
+        ++s->image_buffer_snapshot_reports[bank];
+        const uint64_t offsets[] = {0, (uint64_t)view.stride * (view.height / 2),
+                                    (uint64_t)view.stride * (view.height - 1)};
+        const unsigned sample_bytes = MIN(view.stride, 64);
+        for (unsigned i = 0; i < 16; ++i) {
+            uint32_t address = view.sources[i];
+            if (!address) { continue; }
+            bool mapped = z6ii_lcd_read_ram(s, address, NULL, view.extent_bytes);
+            fprintf(stderr, "Z6II_IMAGE_INPUT_BUFFER_SAMPLE bank=%u report=%u vector=%u"
+                    " address=%x extent_bytes=%" PRIu64 " mapped_RAM=%u"
+                    " width=%u height=%u stride=%u header=%x,%x,%x"
+                    " virtual_ns=%" PRId64 " generation=%" PRIu64
+                    " sampling_only=1 DMA_completion=0 packing_verified=0",
+                    bank, s->image_buffer_snapshot_reports[bank], i, address, view.extent_bytes, mapped,
+                    view.width, view.height, view.stride, view.header[0], view.header[1], view.header[2],
+                    qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL), s->image_submissions.generation);
+            if (mapped) {
+                uint8_t sample[3 * 64];
+                bool read_ok = true;
+                for (unsigned j = 0; j < 3; ++j) {
+                    read_ok &= z6ii_lcd_read_ram(s, (uint64_t)address + offsets[j],
+                                                 sample + j * sample_bytes, sample_bytes);
+                }
+                fprintf(stderr, " samples_read=%u offsets=0,%" PRIu64 ",%" PRIu64 " bytes_per_sample=%u",
+                        read_ok, offsets[1], offsets[2], sample_bytes);
+                if (read_ok) {
+                    unsigned nonzero = 0, length = 3 * sample_bytes;
+                    for (unsigned j = 0; j < length; ++j) { nonzero += sample[j] != 0; }
+                    g_autofree char *sha = g_compute_checksum_for_data(G_CHECKSUM_SHA256, sample, length);
+                    fprintf(stderr, " sample_nonzero_bytes=%u sample_sha256=%s sample_hex=", nonzero, sha);
+                    for (unsigned j = 0; j < length; ++j) { fprintf(stderr, "%02x", sample[j]); }
+                }
+            }
+            fprintf(stderr, " full_buffer_is_zero_not_inferred=1\n");
+        }
+    }
+}
+
+static void z6ii_fd_image_submission_snapshot(Z6IIFunctionalDevices *s)
+{
+    if (++s->image_submission_snapshots > 32) { return; }
+    fprintf(stderr, "Z6II_IMAGE_SUBMITTED_CONFIG n=%" PRIu64
+            " generation=%" PRIu64 " unresolved=%x unresolved_units=%" PRIx64,
+            s->image_submissions.control_writes, s->image_submissions.generation,
+            s->image_submissions.unresolved, s->image_submissions.unresolved_units);
+    for (unsigned bank = 0; bank < 2; bank++) {
+        uint32_t *r = s->image_processor_config[bank];
+        fprintf(stderr, " bank%u_written=%x bank%u_input=%x,%x,%x,%x bank%u_sources=",
+                bank, s->image_input_fields_written[bank], bank,
+                r[0x300 / 4], r[0x304 / 4], r[0x308 / 4], r[0x30c / 4], bank);
+        for (unsigned i = 0; i < 16; i++) {
+            fprintf(stderr, "%s%x", i ? "," : "", r[0x310 / 4 + i]);
+        }
+        fprintf(stderr, " bank%u_output=%x,%x,%x", bank,
+                r[0x3e8 / 4], r[0x3ec / 4], r[0x3f0 / 4]);
+    }
+    fprintf(stderr, " capture_config_writes=%" PRIu64
+            " capture_geometry=%x,%x,%x,%x raw_pending=%u isp_pending=%u"
+            " raw_frames=%" PRIu64 " isp_frames=%" PRIu64
+            " pc=%08x cpu=%d virtual_ns=%" PRId64
+            " raw_values_are_model_latches=1 frame_completion_implied=0\n",
+            s->bayer.capture_config_writes,
+            s->capture_processing[0x1500 / 4], s->capture_processing[0x1504 / 4],
+            s->capture_processing[0x1508 / 4], s->capture_processing[0x1808 / 4],
+            s->bayer.raw_pending, s->bayer.isp_job_pending,
+            s->bayer.total_raw_frames, s->bayer.total_isp_frames,
+            current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+            current_cpu ? current_cpu->cpu_index : -1,
+            qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    z6ii_fd_image_input_buffer_snapshot(s);
+}
+
+static bool z6ii_fd_devices_access(Z6IIFunctionalDevices *s, hwaddr addr, unsigned size,
+                                 bool write, uint64_t *value)
+{
+    uint64_t old_requests = s->image_submissions.uncertain_requests;
+    /* The separate Bayer adapter exposed allocator reset0 when its own
+     * ISP timer was absent, even after an unexplained native start. Keep
+     * the known modeled ISP transaction's pending status, but do not turn
+     * an absent timer or frame0 into idle for unsupported submissions.
+     * pending-v1 is defined for unit queries, not these allocator words. */
+    if (s->graphics_profile && !s->image_process_test && !write && size == 4 &&
+        !(addr & 3) && addr >= 0x20102040 && addr <= 0x2010207c &&
+        !s->bayer.isp_job_pending &&
+        !z6ii_image_submission_empty(&s->image_submissions)) {
+        fprintf(stderr, "Z6II_IMAGE_ALLOCATOR_STATUS_REJECT address=%x"
+                " unresolved=%x unresolved_units=%" PRIx64
+                " zero_frames_or_timer_do_not_establish_idle=1\n",
+                (uint32_t)addr, s->image_submissions.unresolved,
+                s->image_submissions.unresolved_units);
+        return false;
+    }
+    /* The Bayer adapter previously accepted every write in this bank.
+     * Ordinary operation now admits only byte-proved configuration and
+     * explicit controls. Discovery recording retains its separate opt-in. */
+    if (s->graphics_profile && write &&
+        ((addr >= 0x20380000 && addr < 0x20390000) ||
+         (addr >= 0x203c0000 && addr < 0x203d0000)) &&
+        !(s->capture_isp_boundary_test &&
+          z6ii_engine_getenv(s->engine, "Z6II_IMAGE_CONFIG_RECORD"))) {
+        unsigned bank = addr >= 0x203c0000, off = addr & 0xffff;
+        if (size != 4 || (addr & 3) ||
+            !(z6ii_image_configuration_word(bank, off) ||
+              z6ii_image_control_value(bank, off, *value))) { return false; }
+    }
+    /* Observe before all dispatch paths, including the separate Bayer
+     * adapter. An unsupported request must not disappear from history. */
+    if (s->graphics_profile && write && size == 4 &&
+        z6ii_image_submission_write(&s->image_submissions, addr, *value)) {
+        fprintf(stderr, "Z6II_IMAGE_SUBMISSION n=%" PRIu64
+                " address=%x value=%x unresolved=%x unresolved_units=%" PRIx64
+                " unit_arms=%" PRIu64 " starts=%" PRIu64
+                " generation=%" PRIu64 " pc=%08x cpu=%d virtual_ns=%" PRId64
+                " execution_or_retirement_implied=0\n",
+                s->image_submissions.control_writes, (uint32_t)addr,
+                (uint32_t)*value, s->image_submissions.unresolved,
+                s->image_submissions.unresolved_units,
+                s->image_submissions.unit_arm_writes,
+                s->image_submissions.uncertain_requests,
+                s->image_submissions.generation,
+                current_cpu ? ARM_CPU(current_cpu)->env.regs[15] : 0,
+                current_cpu ? current_cpu->cpu_index : -1,
+                qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL));
+    }
+    typedef bool (*Access)(Z6IIFunctionalDevices *, hwaddr, unsigned, bool, uint64_t *);
+    static const Access devices[] = {
+        z6ii_bayer_access,
+        z6ii_fd_exmcu_access, z6ii_fd_capture_control_access, z6ii_fd_capture_irq_access,
+        z6ii_fd_sequence_access, z6ii_fd_capture_sync_access, z6ii_fd_capture_processing_access,
+        z6ii_fd_capture_image_channel_access, z6ii_fd_display_access, z6ii_fd_graphics_access,
+        z6ii_fd_peripheral_dma_access, z6ii_fd_serial_drain_access,
+        z6ii_fd_i2c_access, z6ii_fd_copy_access,
+        z6ii_fd_channel_access, z6ii_fd_panel_access, z6ii_fd_serial_config_access,
+        z6ii_fd_engine_access, z6ii_fd_recovery_config_access, z6ii_fd_driver_init_access,
+        z6ii_fd_event_access,
+    };
+    for (unsigned i = 0; i < ARRAY_SIZE(devices); i++) {
+        if (devices[i](s, addr, size, write, value)) {
+            if (write) { z6ii_bayer_after_access(s, addr); }
+            if (s->graphics_profile && write && size == 4 &&
+                ((addr >= 0x20380000 && addr < 0x20390000) ||
+                 (addr >= 0x203c0000 && addr < 0x203d0000))) {
+                unsigned bank = addr >= 0x203c0000, off = addr & 0xffff;
+                int field = -1;
+                if (off >= 0x300 && off <= 0x34c) { field = (off - 0x300) / 4; }
+                else if (off == 0x48) { field = Z6II_IMAGE_INPUT_GEOMETRY_FIELD; }
+                else if (off == 0x3e8) { field = 20; }
+                else if (off == 0x3ec) { field = 21; }
+                else if (off == 0x3f0) { field = 22; }
+                if (field >= 0) { s->image_input_fields_written[bank] |= 1u << field; }
+            }
+            if (s->image_submissions.uncertain_requests != old_requests) {
+                z6ii_fd_image_submission_snapshot(s);
+            }
+            return true;
+        }
+    }
+    if (size == 4 && addr >= 0x2c0a0000 && addr < 0x2c0a0b00) {
+        unsigned ch = (addr - 0x2c0a0000) / 0x100, off = addr & 0xff;
+        if (off == 0x60 && write && *value <= 1) {
+            s->serial_disabled[ch] = *value; s->serial_initialized[ch] = true;
+        } else if (off == 0x60 && !write && s->serial_initialized[ch]) {
+            *value = s->serial_disabled[ch];
+        } else if (off == 0x48 && !write && s->serial_initialized[ch]) {
+            unsigned capacity = z6ii_fd_serial_fifo_capacity(s->serial_capacity_measured_master, ch);
+            if (!capacity) { return false; }
+            *value = capacity;
+        } else { return false; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value);
+        return true;
+    }
+    if (size == 4 && write && ((addr == 0x2c010000 && *value <= 1) ||
+                              (addr == 0x2c010004 && *value == 1))) {
+        s->channel_control[(addr - 0x2c010000) / 4] = *value;
+        z6ii_fd_mmio_trace(s, addr, size, write, *value); return true;
+    }
+    if (size == 4 && addr == 0x04251000) {
+        if (write) {
+            if (*value & ~UINT64_C(0x11100000)) { return false; }
+            s->channel_control[2] = *value;
+        } else { *value = s->channel_control[2]; }
+        z6ii_fd_mmio_trace(s, addr, size, write, *value); return true;
+    }
+    return false;
+}
+
+static void z6ii_fd_image_submission_reset(void *opaque)
+{
+    Z6IIFunctionalDevices *s = opaque;
+    timer_del(s->image_process_timer);
+    timer_del(s->image_drain_timer);
+    s->image_drain_requests = 0;
+    memset(s->image_processor_config, 0, sizeof(s->image_processor_config));
+    memset(s->image_command_config, 0, sizeof(s->image_command_config));
+    memset(s->image_sequence_config, 0, sizeof(s->image_sequence_config));
+    memset(s->image_unit_config, 0, sizeof(s->image_unit_config));
+    memset(s->image_input_fields_written, 0, sizeof(s->image_input_fields_written));
+    memset(s->image_buffer_snapshot_reports, 0, sizeof(s->image_buffer_snapshot_reports));
+    s->image_ordering_word = 0;
+    z6ii_image_submission_reset(&s->image_submissions);
+    z6ii_fd_image_raw_irq(s);
+    z6ii_fd_image_raw_bank_irq(s, 1);
+    fprintf(stderr, "Z6II_IMAGE_MODEL_RESET generation=%" PRIu64
+            " canceled_pending_timers=1 storage_SRAM_cleared=0"
+            " completion_generated=0 physical_reset_verified=0\n",
+            s->image_submissions.generation);
+}
+
+static Z6IIFunctionalDevices *z6ii_fd_devices_new(Z6IIEngineContext *engine, A15MPPrivState *priv, bool display)
+{
+    Z6IIFunctionalDevices *s = g_new0(Z6IIFunctionalDevices, 1);
+    s->engine = engine;
+    s->model = &nikon_z6_profile;
+    s->priv = priv;
+    s->driver_fifo_depth = 16;
+    /* The caller enables display for the original master role only. */
+    s->serial_capacity_measured_master = display;
+    s->recovery_profile = s->platform_profile = true;
+    s->graphics_profile = display;
+    const char *image_status = display ?
+        z6ii_engine_getenv(engine, "Z6II_IMAGE_STATUS_MODEL") : NULL;
+    s->image_pending_status_model = g_strcmp0(image_status, "pending-v1") == 0;
+    if (image_status && !s->image_pending_status_model) {
+        error_report("Unknown image status observation policy"); exit(1);
+    }
+    if (s->image_pending_status_model) {
+        fprintf(stderr, "Z6II_IMAGE_PENDING_POLICY unresolved_unit_low2=3"
+                " unresolved_requests_retained=1 completion_generated=0"
+                " physical_full_status_encoding_verified=0\n");
+    }
+    z6ii_image_submission_reset(&s->image_submissions);
+    /* Preserve strict unknown behavior; Z6-specific RAW path overrides are
+     * not enabled until their Z6II descriptors are independently identified. */
+    s->z6_profile = false;
+    s->channel_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_channel_expire, s);
+    qemu_register_reset(z6ii_fd_channel_reset, s);
+    s->sequence_stop_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_sequence_stopped, s);
+    s->capture_isp_stop_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_isp_stopped, s);
+    s->capture_test_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_capture_test_pulse, s);
+    /* Explicit condition experiments only. No sensor-frame clock is claimed,
+     * and strict/default Z6II models continue to produce zero TG test ticks. */
+    const char *tg_test = display ? z6ii_engine_getenv(s->engine, "Z6II_TG_EVENT_TEST") : NULL;
+    s->capture_test_pulse = g_strcmp0(tg_test, "single") == 0;
+    s->capture_periodic_test = g_strcmp0(tg_test, "paired") == 0;
+    s->capture_periodic_paired_test = s->capture_periodic_test;
+    if (tg_test && !s->capture_test_pulse && !s->capture_periodic_test) {
+        error_report("Unknown Z6II TG event test mode"); exit(1);
+    }
+    const char *tg_clock = display ? z6ii_engine_getenv(s->engine, "Z6II_TG_CLOCK_MODEL") : NULL;
+    if (!tg_clock) { tg_clock = display && !tg_test ? "sdes-input-v1" : "disabled"; }
+    s->capture_tg_frame_edges = display && g_strcmp0(tg_clock, "sdes-input-v3") == 0;
+    s->capture_tg_sequence_enabled = display && (g_strcmp0(tg_clock, "sdes-input-v2") == 0 ||
+                                                s->capture_tg_frame_edges);
+    s->capture_tg_enabled = display && (g_strcmp0(tg_clock, "sdes-input-v1") == 0 ||
+                                      s->capture_tg_sequence_enabled);
+    if (g_strcmp0(tg_clock, "disabled") && !s->capture_tg_enabled) {
+        error_report("Unknown Z6II TG clock model"); exit(1);
+    }
+    if (s->capture_tg_enabled && tg_test) {
+        error_report("Z6II TG functional clock and diagnostic pulses are exclusive"); exit(1);
+    }
+    const char *isp_commit = display ? z6ii_engine_getenv(s->engine, "Z6II_ISP_COMMIT_COMPLETION") : NULL;
+    s->isp_group8_input_token = g_strcmp0(isp_commit, "next-frame-ae-v3") == 0;
+    s->isp_mode1_config_ack = g_strcmp0(isp_commit, "next-frame-ae-v4") == 0;
+    s->isp_mask1_input_completion = g_strcmp0(isp_commit, "next-frame-ae-v2") == 0 ||
+                                   s->isp_group8_input_token || s->isp_mode1_config_ack;
+    s->isp_commit_completion = g_strcmp0(isp_commit, "next-frame-v1") == 0 ||
+                               s->isp_mask1_input_completion;
+    if (isp_commit && !s->isp_commit_completion) {
+        error_report("Unknown Z6II ISP commit completion model"); exit(1);
+    }
+    if (s->isp_commit_completion && !s->capture_tg_frame_edges) {
+        error_report("Z6II ISP commit completion requires the sdes-input-v3 TG clock"); exit(1);
+    }
+    if (s->isp_commit_completion) {
+        fprintf(stderr, "Z6II_ISP_COMMIT_MODEL mode=%s parameter_submodel=next-frame-v1 latch=next_TG_cause10 per_frame_bank0_bit3=1"
+                " mapping_source=ROM_1023AE42_102387B6_410728xx_callbacks physical_timing_verified=0"
+                " research_hypothesis=1\n", isp_commit);
+    }
+    if (s->isp_mask1_input_completion) {
+        fprintf(stderr, "Z6II_ISP_AE_FRAME_MODEL mode=next-frame-ae-v2"
+            " admitted_input_cycle=SDES_cause80_to_cause10"
+            " active_engine=20068008_bit0_and_20068010_bit0_reset_clear"
+            " completion=bank0_bit0 physical_completion_semantics_verified=0"
+            " RAW_DMA_completion=0 exposure_values_generated=0 research_hypothesis=1\n");
+    }
+    if (s->isp_group8_input_token) {
+        fprintf(stderr, "Z6II_ISP_INPUT_TOKEN_MODEL mode=next-frame-ae-v3"
+            " operation=started_clocked_group8 admitted_input=SDES_cause80_to_cause10"
+            " cause=bank0_bit6 Mode2_original_enable=60 Mode1_original_enable=20"
+            " firmware_RAM_used_as_generation_condition=0 DMA_completion=0"
+            " statistics_generated=0 hardware_token_mapping_verified=0 research_hypothesis=1\n");
+    }
+    if (s->isp_mode1_config_ack) {
+        fprintf(stderr, "Z6II_ISP_MODE1_CONFIG_MODEL mode=next-frame-ae-v4"
+            " commit=20068100_mask8 acknowledgement=bank3_bit7"
+            " source=ROM_1023C3C4_102392B8_1023C38A"
+            " pending_flag_written_by_original_firmware_only=1"
+            " DMA_completion=0 statistics_generated=0 hardware_config_ack_mapping_verified=0"
+            " research_hypothesis=1\n");
+    }
+    s->capture_tg_period_ns = 33333333;
+    const char *tg_period = display ? z6ii_engine_getenv(s->engine, "Z6II_TG_FRAME_PERIOD_NS") : NULL;
+    if (tg_period) {
+        char *end = NULL;
+        int64_t value = g_ascii_strtoll(tg_period, &end, 10);
+        if (!*tg_period || *end || value < 1000000 || value > 1000000000) {
+            error_report("Invalid Z6II TG virtual period"); exit(1);
+        }
+        s->capture_tg_period_ns = value;
+    }
+    s->capture_tg_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_capture_tg_tick, s);
+    if (s->capture_tg_enabled) {
+        fprintf(stderr, "Z6II_TG_MODEL mode=%s period_ns=%" PRId64
+                " edges_per_cycle=%u first_cause=%x second_cause=10"
+                " virtual_period_assumed=1 physical_rate_measured=0"
+                " physical_phase_verified=0 raw_frames=0\n",
+                tg_clock, s->capture_tg_period_ns, s->capture_tg_frame_edges ? 2 : 1,
+                s->capture_tg_frame_edges ? 0x80 : 0x10);
+    }
+    s->sdes_mode_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6_sdes_mode_complete, s);
+    s->sdes_sequence_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6_sdes_sequence_complete, s);
+    s->capture_periodic_test_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_capture_periodic_test, s);
+    s->capture_period_ns = 33333333;
+    if (tg_test) {
+        fprintf(stderr, "Z6II_TG_EVENT_TEST mode=%s physical_frame_clock=0 raw_input=0 diagnostic_only=1\n", tg_test);
+    }
+    s->i2c_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_i2c_complete, s);
+    for (unsigned i = 0; i < 4; i++) { s->i2c_regs[i][7] = 0xff; s->i2c_regs[i][8] = 0x2ff; }
+    z6ii_post68_qemu_init(s, display);
+    s->copy_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_copy_complete, s);
+    s->engine_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_engine_stopped, s);
+    s->image_process_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nikon_image_process_tick, s);
+    s->image_drain_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, nikon_image_drain_tick, s);
+    if (display) {
+        /* C1.70 103c0506 calls 1035d2dc(24010000, 1000) to clear this
+         * program bank after the separate 20100148 bit8 guard. Provide
+         * only the original 4096-byte storage aperture. Original guest
+         * stores clear/upload its bytes; storage access does not execute
+         * a program, retire a submission or change a status/IRQ register.
+         * Keep this SRAM in the master's private address space. */
+        g_autofree char *program_name = g_strdup_printf(
+            "z6ii-%s-image-program-sram", engine->role);
+        memory_region_init_ram(&s->image_program_sram, NULL, program_name,
+                               0x1000, &error_fatal);
+        memory_region_add_subregion(engine->memory, 0x24010000,
+                                    &s->image_program_sram);
+        fprintf(stderr, "Z6II_IMAGE_PROGRAM_SRAM role=%s address=24010000"
+                " bytes=4096 guest_owned_clear_and_upload=1"
+                " program_execution=0 completion_generated=0\n", engine->role);
+        s->gpu = nikon_gpu_new_as(&engine->as);
+        s->gpu->icon_dump_dir = z6ii_engine_getenv(engine, "Z6_GPU_ICON_DUMP_DIR");
+        s->gpu->graphics_dump_dir = z6ii_engine_getenv(engine, "Z6_GRAPHICS_DUMP_DIR");
+        s->lcd_scanout_test = true;
+        z6ii_fd_display_clock_init(s);
+        s->last_lcd_config = UINT64_MAX;
+        s->lcd_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_lcd_present, s);
+        timer_mod(s->lcd_timer, qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) +
+                  s->display_frame_period_ns);
+        s->graphics_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_graphics_complete, s);
+        s->exmcu_capture_sync_timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_exmcu_capture_sync_complete, s);
+        s->exmcu_tx_ready = true;
+        s->exmcu_gpio_mask = UINT32_MAX;
+        for (unsigned ch = 0; ch <= 9; ch++) {
+            if (ch > 1 && ch != 6 && ch != 8 && ch != 9) { continue; }
+            Z6IISerialSink *p = &s->serial_sink[ch]; p->owner = s; p->channel = ch;
+            p->timer = timer_new_ns(QEMU_CLOCK_VIRTUAL, z6ii_fd_panel_complete, p);
+        }
+    }
+    qemu_register_reset(z6ii_fd_lcd_reset, s);
+    z6ii_bayer_init(s, display);
+    if (display) { qemu_register_reset(z6ii_fd_image_submission_reset, s); }
+    fprintf(stderr, "Z6II_FUNCTIONAL_DEVICES donor_sha256=%s display=%u "
+            "fifo_source=%s spi0_fifo=%u spi1_fifo=%u spi8_fifo=%u "
+            "empty_i2c_unselected=1 post68_experiment=%u raw_input=%s encoder=absent strict_unknown=1\n",
+            "c2d57a226d7c762a7428113498b8b99e2e91243c3056039c8bf5bcc33987584d", display, display ? "C170_master_live_RAM" : "slave_donor_hypothesis",
+            z6ii_fd_serial_fifo_capacity(display, 0), z6ii_fd_serial_fifo_capacity(display, 1),
+            z6ii_fd_serial_fifo_capacity(display, 8), s->post68_enabled,
+            s->bayer.enabled ? "dynamic_rggb12_assumed" : "absent");
+    return s;
+}

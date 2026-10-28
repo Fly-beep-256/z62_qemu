@@ -1,0 +1,144 @@
+{
+  "schema": "z62.external-pad-schedule/1",
+  "timebase": "QEMU_CLOCK_VIRTUAL",
+  "physical_button_names_verified": false,
+  "purpose": "Original MCU input exploration during MENU and complete MENU return sequence",
+  "schedule": [
+    {
+      "at_virtual_seconds": 2,
+      "pad_kind": "GPIO",
+      "mask": 32,
+      "levels": 0,
+      "label": "PC5:close-low",
+      "port": "C"
+    },
+    {
+      "at_virtual_seconds": 10,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:enter-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 10.2,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:enter-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 12,
+      "pad_kind": "PCAL",
+      "mask": 1,
+      "levels": 0,
+      "label": "PCAL0:explore-0-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 12.2,
+      "pad_kind": "PCAL",
+      "mask": 1,
+      "levels": 1,
+      "label": "PCAL0:explore-0-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 13.5,
+      "pad_kind": "PCAL",
+      "mask": 2,
+      "levels": 0,
+      "label": "PCAL1:explore-1-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 13.7,
+      "pad_kind": "PCAL",
+      "mask": 2,
+      "levels": 2,
+      "label": "PCAL1:explore-1-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 15,
+      "pad_kind": "PCAL",
+      "mask": 4,
+      "levels": 0,
+      "label": "PCAL2:explore-2-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 15.2,
+      "pad_kind": "PCAL",
+      "mask": 4,
+      "levels": 4,
+      "label": "PCAL2:explore-2-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 16.5,
+      "pad_kind": "PCAL",
+      "mask": 8,
+      "levels": 0,
+      "label": "PCAL3:explore-3-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 16.7,
+      "pad_kind": "PCAL",
+      "mask": 8,
+      "levels": 8,
+      "label": "PCAL3:explore-3-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 18,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:toggle-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 18.2,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:toggle-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 19.5,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:exit-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 19.7,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:exit-release",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 21,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 0,
+      "label": "PCAL9:reenter-low",
+      "port": null
+    },
+    {
+      "at_virtual_seconds": 21.2,
+      "pad_kind": "PCAL",
+      "mask": 512,
+      "levels": 512,
+      "label": "PCAL9:reenter-release",
+      "port": null
+    }
+  ]
+}

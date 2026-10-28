@@ -1,0 +1,11 @@
+#!/bin/sh
+Z62_ROOT=$(CDPATH= cd "$(dirname "$0")" && pwd)
+if [ -x "$Z62_ROOT/runtime/python/bin/python3.12" ]; then
+    Z62_PYTHON="$Z62_ROOT/runtime/python/bin/python3.12"
+else
+    Z62_PYTHON=$(command -v python3) || {
+        printf '%s\n' 'Python 3.11+ is required for source inspection; native execution needs the prepared runtime.' >&2
+        exit 1
+    }
+fi
+exec "$Z62_PYTHON" -B -E -s "$Z62_ROOT/scripts/z62.py" "$@"

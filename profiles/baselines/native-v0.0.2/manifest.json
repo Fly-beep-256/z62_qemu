@@ -1,0 +1,1069 @@
+{
+  "schema": "z62.native-milestone/1",
+  "version": "0.0.2",
+  "research_checkpoint": "V44",
+  "method": "./z62 native",
+  "guest_state_injection": false,
+  "camera_access": false,
+  "virtual_seconds": 34,
+  "host_safety_seconds": 1800,
+  "models": {
+    "isp_commit": "next-frame-ae-v4",
+    "image_status": "pending-v1"
+  },
+  "firmware_sha256": {
+    "master": "bb83613121f843d65101da936d942acdc513d86dbd3abc26259d0d870d03f5d4",
+    "slave": "3fd8c2cbdf57fadb03f6d69b596b58a8703efdd61ae82572d5afeea0241a9ed5",
+    "MCU": "4314c17d9a6676a4254aa4d74d4aa35411e3a793ea7056c06f9c83f160da3cb1"
+  },
+  "model_sources": [
+    "src/qemu/accel/tcg/cpu-exec.c",
+    "src/qemu/accel/tcg/cputlb.c",
+    "src/qemu/accel/tcg/icount-common.c",
+    "src/qemu/gdbstub/system.c",
+    "src/qemu/hw/arm/Kconfig",
+    "src/qemu/hw/arm/armv7m.c",
+    "src/qemu/hw/arm/meson.build",
+    "src/qemu/hw/arm/nikon-gpu.h",
+    "src/qemu/hw/arm/nikon-z6.c",
+    "src/qemu/hw/arm/nikon-z6ii-ba2-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-bayer-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-bayer-source.h",
+    "src/qemu/hw/arm/nikon-z6ii-capseq-actuator.h",
+    "src/qemu/hw/arm/nikon-z6ii-coupled-link.h",
+    "src/qemu/hw/arm/nikon-z6ii-cpu-wait.h",
+    "src/qemu/hw/arm/nikon-z6ii-ddr.h",
+    "src/qemu/hw/arm/nikon-z6ii-devices.h",
+    "src/qemu/hw/arm/nikon-z6ii-engine.c",
+    "src/qemu/hw/arm/nikon-z6ii-engine.h",
+    "src/qemu/hw/arm/nikon-z6ii-exmcu.h",
+    "src/qemu/hw/arm/nikon-z6ii-functional-isp.h",
+    "src/qemu/hw/arm/nikon-z6ii-genadc-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-genadc.c",
+    "src/qemu/hw/arm/nikon-z6ii-genadc.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-receiver-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-receiver.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-i2c-reset-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-i2c-reset.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-irq-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-i2c-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-i2c.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-pll-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-pll.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-lifecycle.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi-video.h",
+    "src/qemu/hw/arm/nikon-z6ii-hdmi.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-auxiliary-map.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-input-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-register-map.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-rest-write-map.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-submission-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-table-map.h",
+    "src/qemu/hw/arm/nikon-z6ii-image-unit-map.h",
+    "src/qemu/hw/arm/nikon-z6ii-ipu2402-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-ipu2402.c",
+    "src/qemu/hw/arm/nikon-z6ii-ipu2402.h",
+    "src/qemu/hw/arm/nikon-z6ii-isp-frame-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-link.h",
+    "src/qemu/hw/arm/nikon-z6ii-parameter-stage-contract.h",
+    "src/qemu/hw/arm/nikon-z6ii-peer-parameter.h",
+    "src/qemu/hw/arm/nikon-z6ii-platform.h",
+    "src/qemu/hw/arm/nikon-z6ii-post68-core.h",
+    "src/qemu/hw/arm/nikon-z6ii-post68-qemu.h",
+    "src/qemu/hw/arm/nikon-z6ii-profile.h",
+    "src/qemu/hw/arm/nikon-z6ii-slave-pipeline.h",
+    "src/qemu/hw/arm/nikon-z6ii-slave-storage.h",
+    "src/qemu/hw/arm/nikon-z6ii-wire.h",
+    "src/qemu/hw/arm/nikon-z6ii.c",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-battery-wire-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-battery-wire-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-wait-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-wait-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-gpio-exti-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-power-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-power-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-rtc-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-rtc-exti-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-spi-apb1-control.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-spi2-dma-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-spi2-dma-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim1-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim1-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim10-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim10-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim12-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim234-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-tim234-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-chardev.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-rx-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-usart2-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/ex1850-usart2-core.h",
+    "src/qemu/hw/arm/saiso-ex1850/mcu_wire_bus.h",
+    "src/qemu/hw/arm/saiso-ex1850/mcu_wire_posix.h",
+    "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-board.h",
+    "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-reset.c",
+    "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-wire.h",
+    "src/qemu/hw/cpu/Kconfig",
+    "src/qemu/hw/cpu/a15mpcore.c",
+    "src/qemu/hw/cpu/cluster.c",
+    "src/qemu/hw/cpu/meson.build",
+    "src/qemu/hw/intc/arm_gic.c",
+    "src/qemu/hw/intc/arm_gic_common.c",
+    "src/qemu/hw/intc/armv7m_nvic.c",
+    "src/qemu/include/accel/tcg/cpu-ops.h",
+    "src/qemu/include/hw/arm/armv7m.h",
+    "src/qemu/include/hw/cpu/a15mpcore.h",
+    "src/qemu/include/hw/cpu/cluster.h",
+    "src/qemu/include/hw/intc/arm_gic.h",
+    "src/qemu/include/hw/intc/arm_gic_common.h",
+    "src/qemu/include/hw/intc/armv7m_nvic.h",
+    "src/qemu/target/arm/cpu.c",
+    "src/qemu/target/arm/cpu.h",
+    "src/qemu/target/arm/helper.c",
+    "src/qemu/target/arm/tcg/op_helper.c",
+    "src/qemu/target/arm/tcg/translate.c",
+    "src/qemu/target/arm/tcg/z6ii-boot-observer.h",
+    "src/qemu/target/arm/tcg/z6ii-boot-observer.inc.c",
+    "src/qemu/target/arm/tcg/z6ii-boot-physical.inc.c",
+    "src/qemu/target/arm/tcg/z6ii-saiso-observer.inc.c",
+    "src/qemu/target/arm/tcg/z6ii-saiso-sites.h",
+    "src/qemu/target/arm/tcg/z6ii-source50-observer.h",
+    "src/qemu/target/arm/tcg/z6ii-source50-observer.inc.c"
+  ],
+  "files": [
+    {
+      "path": "VERSION",
+      "bytes": 6,
+      "sha256": "a5dd346546a384362936b97a4c2f5da2d3d253043ea9679aa7b97d89550dfdbd"
+    },
+    {
+      "path": "profiles/baselines/native-v0.0.2/external-pad-schedule.json",
+      "bytes": 4791,
+      "sha256": "fabbce30240777ac49f32c1dabba311ec2b49ca3774b49a061a58c85e28f2e3b"
+    },
+    {
+      "path": "profiles/baselines/native-v0.0.2/ui-observation-plan.json",
+      "bytes": 71900,
+      "sha256": "08c6625150b8f5b5b66cb6407c726eb1ce3afad4c5b3a054851260ae2523dcf1"
+    },
+    {
+      "path": "profiles/native/baseline.json",
+      "bytes": 1811,
+      "sha256": "5dbb6e4b40c5c1ae1320519f012c159017a7cadbcfcea82fa69a85138d14e6d1"
+    },
+    {
+      "path": "profiles/native/environment.json",
+      "bytes": 5147,
+      "sha256": "6a01b415167a45ad77b2d2b12a3e756bf52deafc8ac7589a746dd1570bc7871d"
+    },
+    {
+      "path": "profiles/native/mcu.json",
+      "bytes": 5350,
+      "sha256": "a84d78ab21f43783ac0247f282d2dae6f80c5a93d24cc54215814fad88af1f8d"
+    },
+    {
+      "path": "profiles/native/profile.json",
+      "bytes": 2020,
+      "sha256": "1468cb00fad870b1819cc8afbb03047777abbb1a20a83d970feb3efcad5f7038"
+    },
+    {
+      "path": "scripts/acceptance.py",
+      "bytes": 120446,
+      "sha256": "f13d38c9503c66e698f0a03567c5d03fbea1e9bc238c89e7cbae8aa934260eb1"
+    },
+    {
+      "path": "scripts/audit_battery.py",
+      "bytes": 19248,
+      "sha256": "16f507e3d6d5a09a00d96bd044c62ca5e66e8380b2279a60cc043ea696c94e3b"
+    },
+    {
+      "path": "scripts/audit_battery_config.py",
+      "bytes": 12214,
+      "sha256": "048ad79fa749baeb86ead7421ba7be343d1a6d02d412e7132e8fbca872131953"
+    },
+    {
+      "path": "scripts/audit_battery_task.py",
+      "bytes": 15499,
+      "sha256": "2727c5e5f6f8643c5f2c8ede5506bfaf238c00194a7a1d0e9e7b58551ba792bb"
+    },
+    {
+      "path": "scripts/audit_battery_uart.py",
+      "bytes": 9670,
+      "sha256": "779bbb52172a3441538cc92a9d9f3a6cfca53b80353addc05cebe7ede4913328"
+    },
+    {
+      "path": "scripts/build.py",
+      "bytes": 16300,
+      "sha256": "bfa38271af4ef4c0c19e08c0399ea38fe8b6b195c02f676f0f4f94637f310c98"
+    },
+    {
+      "path": "scripts/native_exposure_verification.py",
+      "bytes": 19322,
+      "sha256": "37cdd2e3427cfc6b07d3158c7054f6b917ca93920111132134e21f76943dde2a"
+    },
+    {
+      "path": "scripts/native_milestone.py",
+      "bytes": 11889,
+      "sha256": "6fd5aba346ae24371f753b57d2c59c9e68fab3c3ce9e6ac3cfeb91a096d57df4"
+    },
+    {
+      "path": "scripts/native_unified_pads.py",
+      "bytes": 13251,
+      "sha256": "e7cea99e930a08c6536e941d8b666c7a382fdc88a688cde3d99dda4a013e9bf5"
+    },
+    {
+      "path": "scripts/progress.py",
+      "bytes": 15529,
+      "sha256": "2ffa39d2626e026cd96c3c624bb3dd83677125c1eed1d4db8f78da271d89fb76"
+    },
+    {
+      "path": "scripts/z62.py",
+      "bytes": 41476,
+      "sha256": "1c0ac494c8e9fa5db55aec3c0f4a19ee2c5ba326c1eedd45ac6d97893b1e642d"
+    },
+    {
+      "path": "scripts/z62_common.py",
+      "bytes": 5273,
+      "sha256": "3457962730c24d7d35587b83af11989e2349080d1d77616a72d6b9ae7a7b03b8"
+    },
+    {
+      "path": "src/harness/application_z6ii.py",
+      "bytes": 15676,
+      "sha256": "1ec8a04f11fcdbd7767d3a1731ad38035b8aa8d0c67d8a2d79e39bee7ed2fb86"
+    },
+    {
+      "path": "src/harness/coupled_dual.py",
+      "bytes": 24463,
+      "sha256": "4d3522f5683a8eeebd4ba67fe186c0e5420c4c8ead5342d52a7af2010817560a"
+    },
+    {
+      "path": "src/harness/debugger_byte_ledger.py",
+      "bytes": 4171,
+      "sha256": "b9e1d27ef7d33d7b4e04f05f07625d94917f41bb57b83365deecfe4919b000e0"
+    },
+    {
+      "path": "src/harness/diagnose_dual.py",
+      "bytes": 19767,
+      "sha256": "2af2fb02cf92bc8200613ae10031009b4aaec1cef67362696da959db8763314c"
+    },
+    {
+      "path": "src/harness/dual_menu_session.py",
+      "bytes": 37078,
+      "sha256": "709eb7eb866e3448c67956c8b3be7e3ed2193e0497fb27c69cca45fb71af22b9"
+    },
+    {
+      "path": "src/harness/ex1850_auxiliary_power.py",
+      "bytes": 9342,
+      "sha256": "6efc381ee037fe72f4ff84a9685f1ba55380f2c5aa47fccf572a9db3b811f66d"
+    },
+    {
+      "path": "src/harness/ex1850_battery_config.py",
+      "bytes": 9569,
+      "sha256": "1f8aed273d6e1c8711cbe203b487b133ec4986a337ee89e134dbcc80d4f758fb"
+    },
+    {
+      "path": "src/harness/ex1850_battery_peer.py",
+      "bytes": 9608,
+      "sha256": "e3e3e55a2407f588c58c41da2f001f2d9c059856022c11796aa11f7ab9ab7832"
+    },
+    {
+      "path": "src/harness/ex1850_battery_task.py",
+      "bytes": 10463,
+      "sha256": "a203fd7470005c0b24103bb8644eb00eb968f582939d7d0d9dbe8870feecd6a5"
+    },
+    {
+      "path": "src/harness/ex1850_battery_wire.py",
+      "bytes": 6472,
+      "sha256": "58d0bc1e1442cd0b9af255434fd21507ec0aa6ec0cd7e172a36552ea0569107a"
+    },
+    {
+      "path": "src/harness/ex1850_cmd89.py",
+      "bytes": 3615,
+      "sha256": "a110e1bbc206b72dee607122f68c3833e4b7dd50e59e70ce3b874d3ea0c4e63b"
+    },
+    {
+      "path": "src/harness/ex1850_original_prng.py",
+      "bytes": 3555,
+      "sha256": "b7601eedf7e325fe8da96c0b4e84b9249a30b95a8d0ce0b0d85e23d183df0971"
+    },
+    {
+      "path": "src/harness/ex1850_public_auth_math.py",
+      "bytes": 7281,
+      "sha256": "a3540e5f1e42a3fc625056381d31e3cf753e475b1a2067d5f0090aec781df406"
+    },
+    {
+      "path": "src/harness/ex1850_usart1_peer.py",
+      "bytes": 8531,
+      "sha256": "0fe5d5c96f7f7837175cc0df3533bcb53875372e102e51f515179aaf13e10832"
+    },
+    {
+      "path": "src/harness/expeed_task_observer.py",
+      "bytes": 28885,
+      "sha256": "c66f550aa03f5dcf89deaf0f4c931caf4845d7187dae39732ad3f1a1e919744b"
+    },
+    {
+      "path": "src/harness/firmware_constants.py",
+      "bytes": 289,
+      "sha256": "676ebfc1cc42d00a31bf9793b6ccbf482fa5123b0252a2c8618562f6447531a9"
+    },
+    {
+      "path": "src/harness/guest_call.py",
+      "bytes": 6903,
+      "sha256": "6f7accaf5d83f9f7fe4d10559e4dfeb623919e3c8336b0d9d283778fdd646e87"
+    },
+    {
+      "path": "src/harness/host_env.py",
+      "bytes": 547,
+      "sha256": "1cf0d934ed2b9229485f864ba7a0d2ef099aaa5948b4231d0404c406734d4018"
+    },
+    {
+      "path": "src/harness/loader_runtime_audit.py",
+      "bytes": 5515,
+      "sha256": "4b24bcc04736cdd1954f95973bdd4d2d988eb2971cf0b04e960d1c8d25fa16c2"
+    },
+    {
+      "path": "src/harness/mcu_wire_contract.py",
+      "bytes": 1430,
+      "sha256": "2f9a627df81455798f5454fc8bbc2c5a68e82f1338b48aa97173bc3723f0e8f4"
+    },
+    {
+      "path": "src/harness/meaningful_qemu_log.py",
+      "bytes": 9720,
+      "sha256": "bace6e0eb7b760ae169b74d07db428a60435e7bf4bf5336602ab621e9d2051be"
+    },
+    {
+      "path": "src/harness/menu_ocr.py",
+      "bytes": 2706,
+      "sha256": "ed12d00408766f412d1873acca7786c3f6669c4227fd82b8931a781dd16ffef2"
+    },
+    {
+      "path": "src/harness/native_mcu_three_probe.py",
+      "bytes": 22315,
+      "sha256": "dabad16a4d586611e325c026f36897a1ac6d91a33c050de9784448388de9db13"
+    },
+    {
+      "path": "src/harness/native_ui_observer.py",
+      "bytes": 16017,
+      "sha256": "b2bee6fe6dcefd097b459f657b1b97b782b09d9ff67ec86a0adfd2046ee1646e"
+    },
+    {
+      "path": "src/harness/native_unified_probe.py",
+      "bytes": 121055,
+      "sha256": "8c02664096fccfc8cec89c9c96bc1429332fc5b5f68da2d36038e21767181f52"
+    },
+    {
+      "path": "src/harness/natural_boot.py",
+      "bytes": 181099,
+      "sha256": "6db807d4ca850bcf5eeece8419b7bd06a1c580a2c2375ae8e37aae7c45d803cf"
+    },
+    {
+      "path": "src/harness/parameter_source_reference.py",
+      "bytes": 4042,
+      "sha256": "1f3609268bd8070c2b506b3b49d7ce0a3661233cc9e7a7b8cc85a1a488625aef"
+    },
+    {
+      "path": "src/harness/persistent_input.py",
+      "bytes": 14328,
+      "sha256": "1e125bafefcdc638fcd6f8c25ebe0fc0737aa528754ebe84bad800e851b4cbc4"
+    },
+    {
+      "path": "src/harness/portable_identity.py",
+      "bytes": 918,
+      "sha256": "f8a590108adbef9f9ad72b8d361d5fbdb92c7f0889e05c4cea1c49a0c02add03"
+    },
+    {
+      "path": "src/harness/probe_z6ii.py",
+      "bytes": 62692,
+      "sha256": "8e71084980e8a21dc6a452b8514651c89270b091c420b3a8b3c1014c4171380a"
+    },
+    {
+      "path": "src/harness/recorded_ram_input.py",
+      "bytes": 8840,
+      "sha256": "729ed8e8f73381d7ebbe92d3baf8d3044cf22ef4c8abcb0f9ec48b775b41a544"
+    },
+    {
+      "path": "src/harness/review_original_dual_menu.py",
+      "bytes": 7077,
+      "sha256": "ccae7c20de6b6eaebe208283679ea64f3538488d2b97c772c73553f8f5a02def"
+    },
+    {
+      "path": "src/harness/rtc_backup_input.py",
+      "bytes": 14013,
+      "sha256": "28483dc3dacd9e8515f764c08edc3575634d16292929d3fad935fd37af885e45"
+    },
+    {
+      "path": "src/harness/run_evidence.py",
+      "bytes": 20764,
+      "sha256": "307b8a31d74f341a0f3c69f58e2427b33d6287ff11498953863395d33beb07c9"
+    },
+    {
+      "path": "src/harness/run_exmcu_qemu_reset.py",
+      "bytes": 138086,
+      "sha256": "769ada65716f9866d30e1ad058daeb60409fbd47f45212a56f799ad06da94a4c"
+    },
+    {
+      "path": "src/harness/run_original_dual_stage.py",
+      "bytes": 5821,
+      "sha256": "cf6f6c8ba817de5af59798f126a90c3eb345fafc5b8079205a8184dfd02d3d26"
+    },
+    {
+      "path": "src/harness/startup_barrier.py",
+      "bytes": 5855,
+      "sha256": "188d865998a22471e2a619e8b9c92e45dd9204eb446b4f8ffc4f40bb1bdcf334"
+    },
+    {
+      "path": "src/harness/tools/interactive.py",
+      "bytes": 2412,
+      "sha256": "9c00d23398ae40fb7ab3d417c03506e90340ac22f8d93bcfcc5111bf55532562"
+    },
+    {
+      "path": "src/harness/tools/rsp.py",
+      "bytes": 2721,
+      "sha256": "616a175b0b0c68d32dcbe774c3ea54da4aaa8c94e2d3e376210cdecc60e202ed"
+    },
+    {
+      "path": "src/harness/virtual_sd.py",
+      "bytes": 4857,
+      "sha256": "8cb268c1e1a4b32f06b077dc417442721b9a239b9b0be6074e8ce6db80e74597"
+    },
+    {
+      "path": "src/qemu/accel/tcg/cpu-exec.c",
+      "bytes": 35095,
+      "sha256": "69df725e98c827468affe72ceab5c1702203f3e7736961c63aeab5f18a310e53"
+    },
+    {
+      "path": "src/qemu/accel/tcg/cputlb.c",
+      "bytes": 95901,
+      "sha256": "dfee5ac509b7ec60c8c9f66a3f8fa550d6d766a18fbe41c0f45d0a5dc6ff1f9b"
+    },
+    {
+      "path": "src/qemu/accel/tcg/icount-common.c",
+      "bytes": 20732,
+      "sha256": "906eb02b0e58cdc4e85a8d8ed06aeb282a259ae10b71571975a5915719456062"
+    },
+    {
+      "path": "src/qemu/gdbstub/system.c",
+      "bytes": 16683,
+      "sha256": "8e5ae5de031c8f006a6ed2584e2f66f34bbbd911161eabb336a326f974c6eb9d"
+    },
+    {
+      "path": "src/qemu/hw/arm/Kconfig",
+      "bytes": 13447,
+      "sha256": "b3cb8f087cf1067b6bacb4881ed5921d470e5f3073f4a8a04821dda8d9d031c5"
+    },
+    {
+      "path": "src/qemu/hw/arm/armv7m.c",
+      "bytes": 23891,
+      "sha256": "0bf6d60d3c70b55a7899d2fbda5bd1ed671a723e8c2b22e5f013b0f265d2b02b"
+    },
+    {
+      "path": "src/qemu/hw/arm/meson.build",
+      "bytes": 6854,
+      "sha256": "b122b400a717c75f1f7873becc237164cf415b39906a159c1e86ad58ba8f2873"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-gpu.h",
+      "bytes": 29887,
+      "sha256": "a0cdd2c6e3180bbb45f50f98f6b85c48076cc0c79a78895f0de3e39a067f6e7a"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6.c",
+      "bytes": 171883,
+      "sha256": "05eca9eaaf872c73ff0aef11596afefd3502ab8569a23dd5f87720d46d0ce14f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-ba2-qemu.h",
+      "bytes": 21605,
+      "sha256": "0738f24659f0a1f5d08ae1fbe7877dcc5841065035bcc55a4cf995709b4d9478"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-bayer-qemu.h",
+      "bytes": 24783,
+      "sha256": "08ef3d2a0e585dc42b025a1bcaedb29490665612ff91acecc7fc8cb3c0996c82"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-bayer-source.h",
+      "bytes": 1659,
+      "sha256": "dd3c5b388a5995810f409f0982749c8b6c65584b2c40f97f7bae3d1bbe47e141"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-capseq-actuator.h",
+      "bytes": 8465,
+      "sha256": "b3bf9bba4179ee8d5b9c5582246d0521331370143d2e5f1e503edb7ce2ad0aca"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-coupled-link.h",
+      "bytes": 9822,
+      "sha256": "de92dbbb33a8480dee8b17512f328eb30b717cc371bd54c7e295e2975e851d9c"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-cpu-wait.h",
+      "bytes": 9730,
+      "sha256": "ec38d9ffbbff7762dee956dd6d7307fda3ed91ea74577f1e167e4ec0ae76b27a"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-ddr.h",
+      "bytes": 4059,
+      "sha256": "5b63676a4129b822de835932ed887ff71db7a0fff31ce223a8aae9fb587f16b8"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-devices.h",
+      "bytes": 212123,
+      "sha256": "75675564ce87da58b9b9e751e5199820374a69eab0c3de1c85c1d7774e348a64"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-engine.c",
+      "bytes": 5724,
+      "sha256": "ec347f0782eafea82e939bd3e89db9c847ad1cfdd15dcc8f3f28d85d889f5ff1"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-engine.h",
+      "bytes": 2073,
+      "sha256": "46ebab89c0bcacb5e1fb809bfe2a66ea9e059ae9af67a051c6a68b066aa98e54"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-exmcu.h",
+      "bytes": 19206,
+      "sha256": "e74211ecdd972aaab092f7906200b289912a220245bd3c296749118eb1b553a0"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-functional-isp.h",
+      "bytes": 8456,
+      "sha256": "1b894ab4ccfa01aaa91407c3bb6228c2c6bc974d83e4ad747587e894928ddb86"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-genadc-qemu.h",
+      "bytes": 9372,
+      "sha256": "5e8d97a9da23b1cbe239faa57396f01f621cddff445387e8256bd850761e9b9e"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-genadc.c",
+      "bytes": 8718,
+      "sha256": "cbc0ee59e1ccd9f2ff4d4d58e7795d489b424adae08dd0a3858e92acbd669c66"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-genadc.h",
+      "bytes": 3863,
+      "sha256": "d2a43681f39c069375b836d525bdefe1678c9bc62ac8074671f3fd30b6e0959f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-core.h",
+      "bytes": 17962,
+      "sha256": "0fd99c02f0c35a67735640e898b0ae37bd2c4b628bc3ca0324fb79fca06813bd"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-core.h",
+      "bytes": 9002,
+      "sha256": "fa13db0d3749561468f651b6ff27506af24b84447580aed83b2a84d840e0ae4b"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-receiver-qemu.h",
+      "bytes": 7717,
+      "sha256": "f4b7c3a7192d8405a5a64cf2a4c88f159e006f61f63a92cc6f3dc36aeaf24eab"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-dma-receiver.h",
+      "bytes": 13257,
+      "sha256": "fe29bf1dd4482ec69833622c7d57beca8e39c4160ac44df37b8dcb164936d6a7"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-i2c-reset-core.h",
+      "bytes": 4000,
+      "sha256": "27d41c678cfaf69c23fef636a9a24aa8d1047cff7379ea248cf2089229bc7fc6"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-i2c-reset.h",
+      "bytes": 6154,
+      "sha256": "f2c1f3da43f53b9076f91dac6999b572c776fdacc8d097431f19deb7e5557bb5"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-irq-core.h",
+      "bytes": 4324,
+      "sha256": "6603fcb734258aaca2629e77a9e3cb341d1ad697dfeaf0a709680d2e9b3aaf50"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-i2c-core.h",
+      "bytes": 6639,
+      "sha256": "e07c34ed7abe827db30880ad3fafa52409b6611aad5a4dcf09323266e335c6c9"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-i2c.h",
+      "bytes": 6575,
+      "sha256": "f47424cabb2845a75cf88b51aaea530027e37be2c9ee511af8deda4559d12af3"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-pll-core.h",
+      "bytes": 8876,
+      "sha256": "d8a705fbd6662af3eb1261ddd296a27794c27628a4a017924a590d00adb24664"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-phy-pll.h",
+      "bytes": 8652,
+      "sha256": "813a3494cddc65829b385fc2795f5e4334b38b0f975a32f3d69f8c2e8821d33f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-core.h",
+      "bytes": 12650,
+      "sha256": "3ebc66cd09dd1a8d8af8e573f970cb3b97557bb8b577b9eb06d9af92311539f5"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-lifecycle.h",
+      "bytes": 3151,
+      "sha256": "b535259b82a7bbcd245c50ef6e0ca8b42a00a90a9dc4d950cacb644e1f9d732b"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-receiver-qemu.h",
+      "bytes": 1869,
+      "sha256": "21f80852b1a60f30a5a6a9b22ff0df0bb1dae591cccb741fe5813d70dde2acbb"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi-video.h",
+      "bytes": 4088,
+      "sha256": "fcd98fa3848b23ab9f5969b9b916ec73fa3529c1b9f8e66099ee6200f7340297"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-hdmi.h",
+      "bytes": 21972,
+      "sha256": "cc82eaffc91e2718612f3dda991a82c4310aee656ac473122c570557b1731dd4"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-auxiliary-map.h",
+      "bytes": 866,
+      "sha256": "8f6bd08f8ebc224d5bca69e692a19dba9f8ff1ca374efe7ea4462b446151e925"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-input-core.h",
+      "bytes": 2315,
+      "sha256": "b9259515f4e5ce0312c14513fb2ad6ec03d8c3a31a52b406b346336661f7246f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-register-map.h",
+      "bytes": 2763,
+      "sha256": "b5b0f7b03f0910a14497d6a29774fbc58c8afeb8ca0dad178553d45aaf4f937f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-rest-write-map.h",
+      "bytes": 3961,
+      "sha256": "d17ec1a814197605ffba136ec0756c7faf06f175e55c9ef1232194bf810b20b7"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-submission-core.h",
+      "bytes": 4296,
+      "sha256": "90982554dc70bee403fb1c6727a50251725bccfa82eb078b7ce4adb36cf56fbb"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-table-map.h",
+      "bytes": 508,
+      "sha256": "ef9d0c667a6d1b1681de94d24293902583581972ec6e4081995a527aa2c1d69f"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-image-unit-map.h",
+      "bytes": 1260,
+      "sha256": "8a1ff3a0ccaa21f8c09edeb766c0cc3a80afbe54a3351248542b42b163dd5b60"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-ipu2402-qemu.h",
+      "bytes": 5933,
+      "sha256": "5dabffdf1de4317ef4275a17de8e2f820645b2ba52684d0a0109e763ae2c6dfa"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-ipu2402.c",
+      "bytes": 6734,
+      "sha256": "e69c716e74ef785a62441842f1104e712e7b23af02e3847ba350ad18f3f802a7"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-ipu2402.h",
+      "bytes": 2526,
+      "sha256": "149e69323ab333118fbc8a61d4b5739a40d2313b2ff181269ab8a5fc78109eaa"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-isp-frame-core.h",
+      "bytes": 2082,
+      "sha256": "e6939095e9ac7bc4e3280ea36d7dc80b02b383480c439f4762dd407e2f2f5106"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-link.h",
+      "bytes": 6104,
+      "sha256": "872b6f6ccff83b2a313c013306cf9db147a9fc2b23f96cd7f7b3e86e38c3a06c"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-parameter-stage-contract.h",
+      "bytes": 3607,
+      "sha256": "9d5786e472985ceac26f3d46ba2c0c669d12d3b18946016eec597ca20d2e8f43"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-peer-parameter.h",
+      "bytes": 3085,
+      "sha256": "9e6ec0a9a7601d743e7389e8f9a7a0418cbfbeb75a0d62ed065349fe32684a97"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-platform.h",
+      "bytes": 3887,
+      "sha256": "32da4336594b35a806ac8bf609649291cb03490ae9fec604b93ee7f8034b3f51"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-post68-core.h",
+      "bytes": 15479,
+      "sha256": "60fdf02565c5c6f5c901d7691d3ae29903ad77e6ce2cf87d156a8be55c795905"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-post68-qemu.h",
+      "bytes": 12514,
+      "sha256": "1d03b32369b2165f1f1484b4035ba950f395b939c119f5787f37411933e44cda"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-profile.h",
+      "bytes": 2700,
+      "sha256": "f7776265d870c552589aadad373772f3a776c52190c6b1dc65e9689e6d84b767"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-slave-pipeline.h",
+      "bytes": 9354,
+      "sha256": "579223f8c99912c73d97786baaaeabc0676077b0beaddf6a5388e0cf3b190917"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-slave-storage.h",
+      "bytes": 7925,
+      "sha256": "b3f4e06d42704853be7162bc369b7473af33eb20853c437e39b479a926a53c76"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii-wire.h",
+      "bytes": 14776,
+      "sha256": "47b91618352c49fdea7133361d78b5b9279ad6592dd71893faa00adf042e494b"
+    },
+    {
+      "path": "src/qemu/hw/arm/nikon-z6ii.c",
+      "bytes": 125013,
+      "sha256": "0a69a0680600e9a2dca8bbb8a8832f2f0b77d456d895c0b4b91c02a83290718d"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-battery-wire-board.h",
+      "bytes": 16759,
+      "sha256": "8f8dc7a836d465cb4f00c07d9931db1c440205c2e335c0dbf4ee767c7c1d8444"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-battery-wire-core.h",
+      "bytes": 5895,
+      "sha256": "4b188ac65009406a97f781c735bc1b76fe27bb2a72e6e29f732b6c81d9657c1a"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-board.h",
+      "bytes": 10660,
+      "sha256": "086e61a6cdff4d2cc5599aa187c16e9d1df39fa4dde8cba8c84806c5060af0b4"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-core.h",
+      "bytes": 12860,
+      "sha256": "b9361a3abf7665d9cb9b6e55ef8ddaafcb46b49db2d97fd13d5873248442e984"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-wait-board.h",
+      "bytes": 6368,
+      "sha256": "97b53381e6ef28f585be28e62871a554fd9f2f3ace287f2fa1b2a0cc429a5c61"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-flash-wait-core.h",
+      "bytes": 1734,
+      "sha256": "2ea0c810d13304cf97e40920896f3f29e3c4c18169e2c72895736b8a2fa5eb6b"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-gpio-exti-core.h",
+      "bytes": 2022,
+      "sha256": "02b3d48d36c5353232baf88d1282860bd8fd84c1a63caf9ea781ec5e6baa04ad"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-power-board.h",
+      "bytes": 7231,
+      "sha256": "7aaa4831310bd57fccde418932fa159d01d3dbc07133f10a58e20fa64512691d"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-power-core.h",
+      "bytes": 1432,
+      "sha256": "aa343a6f4ad3453341c5827354b80ad79371d4c5dc71c21993bb0faa1daa1620"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-rtc-core.h",
+      "bytes": 25842,
+      "sha256": "7ca87ec575ba2cd70eb6e5ca58fa69e568ea5490bd5e6a1e02ee71b39ced0614"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-rtc-exti-core.h",
+      "bytes": 1161,
+      "sha256": "911560e4b392e89f67379dee0b79c92e77d300363450ef1f7a5c28ca25f1c699"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-spi-apb1-control.h",
+      "bytes": 4748,
+      "sha256": "2ea29e036e642d5057c0ea28f768c12e9bb90d93cdd5e325bbab16b8cafe3183"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-spi2-dma-board.h",
+      "bytes": 9957,
+      "sha256": "cce1d9bb70498f612ebbfb926dfe225c6d89d388a0b6ba3204f9c2080963a0c6"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-spi2-dma-core.h",
+      "bytes": 16313,
+      "sha256": "44f56aa3bd77c4544142e99527b6a050c40eedd5858c4dcd29a8e8a6c1814a6a"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim1-board.h",
+      "bytes": 7791,
+      "sha256": "faf7ee46e7a92241fca0e59e6ac43786c921a0e7988ec231852c335d30f4fe5e"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim1-core.h",
+      "bytes": 11815,
+      "sha256": "ed0697567ee1f9842f6061eb003fee887e8f56a8da09f95a61e1565864135440"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim10-board.h",
+      "bytes": 4636,
+      "sha256": "0c3eb4861ae9669cf5b42a5548dc82203bb9aa6aa124f95c91651c606f32cce0"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim10-core.h",
+      "bytes": 9149,
+      "sha256": "f83621a012ae03528c05bcc8cefc76c8ae0539a8faf738a526879c52673d2ff9"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim12-core.h",
+      "bytes": 5921,
+      "sha256": "b4c14cf459d948c05c1fcad6f03c7c7327b85fcfa00f4910e9ee5d3597d8895a"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim234-board.h",
+      "bytes": 3630,
+      "sha256": "10943c9a81de653c32198124d58076c0bf4e2ab5837bad1cc0e7377e26d5fceb"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-tim234-core.h",
+      "bytes": 10091,
+      "sha256": "bf9583be9ce07dec18435e32b50534d799e92420d961a75659af3fa28a40341f"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-board.h",
+      "bytes": 16855,
+      "sha256": "0c73d8a64c495e4bc78e7b53edf8d3ecac7f55d1913795042d4e5afcf8f8e136"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-chardev.h",
+      "bytes": 3607,
+      "sha256": "75569e9dc1ebacb750bd52b75594473eb63ab79f688623aac225e1ef8cad847e"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-usart1-rx-core.h",
+      "bytes": 4370,
+      "sha256": "a48a8cb518012ba3725c516e2cce235c311417f20e12ca08dc9a7e175d6143b3"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-usart2-board.h",
+      "bytes": 3429,
+      "sha256": "e2d94858088a07fc036425b5ef147d4ea5c18c722d8366a9f4980022fed196ca"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/ex1850-usart2-core.h",
+      "bytes": 11226,
+      "sha256": "036ac1db3f8c12db6625c0f63d7cf7cc12a5af1ac2d12ac3da0045977a07225d"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/mcu_wire_bus.h",
+      "bytes": 19601,
+      "sha256": "c7d9fe159a94c45d17d8b7d61c3962a3f6314e4c9939da4b0f65c4f42fe45be7"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/mcu_wire_posix.h",
+      "bytes": 6432,
+      "sha256": "515944e364682beda148f73f9ddd01cbec703fbb18277162351a4a430adf8673"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-board.h",
+      "bytes": 681,
+      "sha256": "d2069227d61ff207772bdfaa86ff11c9057a4a7637b4a6d591682b98153e5a03"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-reset.c",
+      "bytes": 205207,
+      "sha256": "836ffd4411fa7c89ddeab46359012c26fd0246e70c27201dbff65d2ecf75ca1a"
+    },
+    {
+      "path": "src/qemu/hw/arm/saiso-ex1850/nikon-ex1850-wire.h",
+      "bytes": 11596,
+      "sha256": "c41e17864a48bb70d0b25295fc0be0d48207a55220ade620f9c63db63d421005"
+    },
+    {
+      "path": "src/qemu/hw/cpu/Kconfig",
+      "bytes": 256,
+      "sha256": "6638132e7edc6478db2681e031ecc6a0ea6eda281808016d2a56ca656880bfd3"
+    },
+    {
+      "path": "src/qemu/hw/cpu/a15mpcore.c",
+      "bytes": 6932,
+      "sha256": "03359eeaf210fa40ee52df569f5508565870af22fb3a536a1c5a269dc5bf559b"
+    },
+    {
+      "path": "src/qemu/hw/cpu/cluster.c",
+      "bytes": 2894,
+      "sha256": "fff94e6a5b3d7d3ef0d8d8f8378a695be85e0eb09b6dd8b108fc444495e90502"
+    },
+    {
+      "path": "src/qemu/hw/cpu/meson.build",
+      "bytes": 396,
+      "sha256": "fd8db79bf87f972758a33cef35db05109922a5da667976bb49b016582d7d1d3c"
+    },
+    {
+      "path": "src/qemu/hw/intc/arm_gic.c",
+      "bytes": 69603,
+      "sha256": "14a5437f0078e1e29fa11db03e7a793911da9799f4fe8cbeec1253befafe0e38"
+    },
+    {
+      "path": "src/qemu/hw/intc/arm_gic_common.c",
+      "bytes": 13456,
+      "sha256": "0c45f2fd326348ef4e45e8307cc29fe43a977c91af7d7d3494f453d8cea2a64e"
+    },
+    {
+      "path": "src/qemu/hw/intc/armv7m_nvic.c",
+      "bytes": 94850,
+      "sha256": "a1f8f2ced4fa4075e7080f3da9482e20a6e06a67d32ebae25f8cb767eb9f2ab0"
+    },
+    {
+      "path": "src/qemu/include/accel/tcg/cpu-ops.h",
+      "bytes": 13649,
+      "sha256": "25be367aa361031d17e817cd826980401aa4ea961ca38feabefe3fe9b3fc363a"
+    },
+    {
+      "path": "src/qemu/include/hw/arm/armv7m.h",
+      "bytes": 3778,
+      "sha256": "b02ddb3f70ddaa3a88541bfe343be00885bee6b600e99368172fcdfdf6215308"
+    },
+    {
+      "path": "src/qemu/include/hw/cpu/a15mpcore.h",
+      "bytes": 1275,
+      "sha256": "a4f8fde78ad3ac4263b8cf2c1b711e273b83b77ed576bda39bb6f0608a0a4767"
+    },
+    {
+      "path": "src/qemu/include/hw/cpu/cluster.h",
+      "bytes": 3026,
+      "sha256": "182f10a400d97cbc44c1faf2bb99975f5b2935ba2de0f34928f1e656c2097177"
+    },
+    {
+      "path": "src/qemu/include/hw/intc/arm_gic.h",
+      "bytes": 3529,
+      "sha256": "ef24d80bfa97f42dc1c05952c4ab1a0a312efb496989d9e65a4c8ef4f0543bd5"
+    },
+    {
+      "path": "src/qemu/include/hw/intc/arm_gic_common.h",
+      "bytes": 6331,
+      "sha256": "6470bded848e5dba4bc9e20f1d1fb180e96172b5d39578a9f31f9d105ac8377b"
+    },
+    {
+      "path": "src/qemu/include/hw/intc/armv7m_nvic.h",
+      "bytes": 7671,
+      "sha256": "1405117d0e93653058cbb7d5dd53767d2eaff077e91589d6dde55519583dee89"
+    },
+    {
+      "path": "src/qemu/meson.build",
+      "bytes": 185449,
+      "sha256": "21dad54c8775ca67d48b3a2c18529588f389149d9aed1a49b29f316fd0a30c2a"
+    },
+    {
+      "path": "src/qemu/pc-bios/dtb/meson.build",
+      "bytes": 677,
+      "sha256": "034bf249491b355151f44f759c1a0265cc52ca95e48b2d9601ac4f13fb6cfca4"
+    },
+    {
+      "path": "src/qemu/target/arm/cpu.c",
+      "bytes": 83740,
+      "sha256": "3ab991a389dacd3c13e3cfa434e59274a34b7aa478929b4a5f3dc988a16945bb"
+    },
+    {
+      "path": "src/qemu/target/arm/cpu.h",
+      "bytes": 94353,
+      "sha256": "f251ad17bf1326ca8c31a7d1c4b68f0cfaa9fc1ace2bb2f9a38e7dc57ad3123a"
+    },
+    {
+      "path": "src/qemu/target/arm/helper.c",
+      "bytes": 374528,
+      "sha256": "f48f05df951664438e6205a395d63dd77e42243c5c58f941e4118749949e2847"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/op_helper.c",
+      "bytes": 38687,
+      "sha256": "c6fb57d75b1c16bda132e65d61b9ec6cc63ebf9724aeaefb2dd821ab052d18ff"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/translate.c",
+      "bytes": 201344,
+      "sha256": "2e968a3f2bb87a621d743e8bf042474baa140e3eca4f9e01c15cc597b03d507d"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-boot-observer.h",
+      "bytes": 55637,
+      "sha256": "b057627a77af4fc5a27b8e2e2a1d8e7a80e2342cc7bf38518590a752ba7b2b29"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-boot-observer.inc.c",
+      "bytes": 41837,
+      "sha256": "17a1d389393b8cef23ca624f8754657c68717ee96b5a605c366ce602118851c2"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-boot-physical.inc.c",
+      "bytes": 11560,
+      "sha256": "719abadb2dcd608bbe235183c96885352d1b97ea71483fb727b9bc2f1ce80446"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-saiso-observer.inc.c",
+      "bytes": 17373,
+      "sha256": "001cae9e31819b07e117c2434246039f0ddd8d71ba7d1d5978d1fd12c750d574"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-saiso-sites.h",
+      "bytes": 28995,
+      "sha256": "59428224e9bf296b95d87c96193249bdda2f5f0beb25fd32ba5c07b6f7ecd960"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-source50-observer.h",
+      "bytes": 2800,
+      "sha256": "0f5ae64999753d4a6defcb2aa43ade328be5c483503475ba9ddda7915853cf1d"
+    },
+    {
+      "path": "src/qemu/target/arm/tcg/z6ii-source50-observer.inc.c",
+      "bytes": 9585,
+      "sha256": "08f0208e484567a58ec8d537a6ac7906328feb21dec3fcf5a6f9213c554a12fc"
+    },
+    {
+      "path": "z62",
+      "bytes": 425,
+      "sha256": "482fbeabb9eac2784fd9b8af5aa4c4fa79c37ff29d0edd3745428e9592710b25"
+    }
+  ],
+  "reference_build": {
+    "build_id": "20261028-051343-6a9cac",
+    "QEMU_sha256": "acffb3c6b5d6752192c25c28b955f5f0fef7e3f8e02f0ea5b12e50e68f27783e",
+    "reference_run": "20261028-051606-native-display-observation-7a9393"
+  },
+  "local_input_selection": "inputs/local/native-v0.0.2/inputs.json",
+  "local_input_defaults": {
+    "persistent_input": "inputs/local/native-v0.0.2/persistent-input.json",
+    "mcu_rtc_backup_input": "inputs/local/native-v0.0.2/rtc-backup-input.json"
+  },
+  "persistent_input_identity": {
+    "role": "master",
+    "base": "0x12a00000",
+    "bytes": 23068672,
+    "sha256": "1594d90bde1ce7f8d856f8ac18294750e4a2c012cf3632fa32b5d0a6466fe4b5",
+    "analysis_only": true,
+    "complete_physical_flash_dump_claimed": false
+  },
+  "rtc_bank_sha256": "8ef96592ab8615f10dfb3a4f5a7f4176e354ee4347907c4d0bf96f8d5b77b59f",
+  "publication_scope": "Source distribution plus sanitized stage evidence; retained Flash/RTC payloads and raw run evidence are supplied locally.",
+  "evidence_summary": "docs/evidence/native-v0.0.2.json",
+  "guide": "docs/NATIVE-v0.0.2.md"
+}

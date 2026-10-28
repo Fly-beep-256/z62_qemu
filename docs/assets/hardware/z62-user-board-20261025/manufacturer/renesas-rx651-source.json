@@ -1,0 +1,18 @@
+{
+  "URL": "https://www.renesas.com/en/products/rx651",
+  "resolved_URL": "https://www.renesas.com/en/products/rx651",
+  "content_type": "text/html; charset=UTF-8",
+  "retrieved": "2026-10-25T22:54:11.707937+08:00",
+  "sha256": "8f787ef1804e87287c9a95cb50eff8b336253a94491d4168d33e3430a3af07cf",
+  "bytes": 339579,
+  "evidence_file": "docs/assets/hardware/z62-user-board-20261025/manufacturer/renesas-rx651.html",
+  "matches": [
+    " RX651 - 32-bit Microcontrollers with RXv2 Core, Large-capacity RAM, and Enhanced Security, Connectivity and HMI Capabilities | Renesas Skip to main content Account English English English \u4e2d\u6587 \u65e5\u672c\u8a9e Samples Cart Log In Main navigation Menu Back Prod",
+    "umb Products Microcontrollers &amp; Microprocessors RX 32-Bit Performance/Efficiency MCUs RX651 RX651 Active Product Longevity: 2041 32-bit Microcontrollers with RXv2 Core, Large-capacity RAM, and Enhanced Security, Connectivity and HMI Capabilities Datasheet User Manual Order Now Previous Overview Product Options Documentation Board",
+    "oducts Microcontrollers &amp; Microprocessors RX 32-Bit Performance/Efficiency MCUs RX651 RX651 Active Product Longevity: 2041 32-bit Microcontrollers with RXv2 Core, Large-capacity RAM, and Enhanced Security, Connectivity and HMI Capabilities Datasheet User Manual Order Now Previous Overview Product Options Documentation Boards & Ki",
+    " RX651 - 32-bit Microcontrollers with RXv2 Core, Large-capacity RAM, and Enhanced Security, Connectivity and HMI Capabilities | Renesas Skip to main content Account English English English \u4e2d\u6587 \u65e5\u672c\u8a9e Samples Cart Log In Main navigation Menu Back Products Microcontrollers &amp; Micropro",
+    "e/Efficiency MCUs RX651 RX651 Active Product Longevity: 2041 32-bit Microcontrollers with RXv2 Core, Large-capacity RAM, and Enhanced Security, Connectivity and HMI Capabilities Datasheet User Manual Order Now Previous Overview Product Options Documentation Boards & Kits Software & Tools Videos & Events Support Next Product Tree Clo",
+    " Support Next Product Tree Close product tree menu Open product tree menu Features 120MHz RXv2 core (5.05 CoreMark/MHz *1 ), single-precision FPU 2.7V to 3.6V operation, single power supply Operating temperature: -40\u00b0C to 85\u00b0C or -40\u00b0C to 105\u00b0C Large-capacity memory: 2MB code flash, 640KB SRAM Dual-bank function convenient for firmw",
+    " Events Support Next Product Tree Close product tree menu Open product tree menu Features 120MHz RXv2 core (5.05 CoreMark/MHz *1 ), single-precision FPU 2.7V to 3.6V operation, single power supply Operating temperature: -40\u00b0C to 85\u00b0C or -40\u00b0C to 105\u00b0C Large-capacity memory: 2MB code flash, 640KB SRAM Dual-bank function convenient for "
+  ]
+}

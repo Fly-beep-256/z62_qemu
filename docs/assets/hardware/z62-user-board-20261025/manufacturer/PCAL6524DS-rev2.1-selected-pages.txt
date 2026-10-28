@@ -1,0 +1,483 @@
+
+--- Original PDF page 1 / 60 ---
+
+PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with
+Agile I/O Features, Interrupt Output, and Reset
+Rev. 2.1 — 3 July 2025 Product data sheet
+Document information
+Information Content
+Keywords PCAL6524, data sheet, remote I/O expansion, microcontroller
+Abstract The PCAL6524 is a 24-bit general-purpose I/O expander that provides remote I/O expansion for
+most microcontroller families via the fast-mode plus (Fm+) I2C-bus interface.
+
+--- Original PDF page 2 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+1   General description
+The PCAL6524 device is a 24-bit general-purpose I/O expander that provides remote I/O expansion for most
+microcontroller families via the fast-mode plus (Fm+) I2C-bus interface. The ultra low-voltage interface allows for
+direct connection to a microcontroller operating down to 0.8 V.
+NXP I/O expanders provide a simple solution when additional I/Os are needed while keeping interconnections
+to a minimum. Some applications include battery-powered mobile applications for interfacing to sensors, push
+buttons, keypad, and so on. In addition to providing a flexible set of GPIOs, it simplifies interconnection of
+a processor running at one voltage level down to 0.8 V to I/O devices operating at a different voltage level
+1.65 V to 5.5 V. The PCAL6524 has a built-in level shifting feature that makes these devices flexible in mixed
+power supply systems where communication between incompatible I/O voltages is required. This feature
+allows seamless communication with next-generation low-voltage microprocessors and microcontrollers on the
+interface side (SDA/SCL) and peripherals at higher voltage on the port side.
+There are two supply voltages for PCAL6524: VDD(I2C-bus) and VDD(P). VDD(I2C-bus) provides the supply voltage
+for the interface at the controller side (for example, a microcontroller). VDD(P) provides the supply for core
+circuits and port P. The bidirectional voltage level translation in the PCAL6524 is provided through VDD(I2C-bus).
+VDD(I2C-bus) must be connected to the VDD of the external SCL/SDA lines. This operation indicates the VDD level
+of the I2C-bus to the PCAL6524, while VDD(P) determines the voltage level on port P of the PCAL6524.
+The PCAL6524 fully meets the Fm+ I2C-bus specification at speeds to 1 MHz and implements Agile I/O, which
+are additional features specifically designed to enhance the I/O. These additional features are: programmable
+output drive strength, latchable inputs, programmable pull-up/pull-down resistors, maskable interrupt, interrupt
+status register, and programmable open-drain or push-pull outputs.
+Additional Agile I/O Plus features include I2C software reset and device ID. Interrupts can be specified by level
+or edge, and can be cleared individually without disturbing the other interrupt events. Also, switch debounce
+hardware is implemented.
+At power-on, the I/Os are configured as inputs. However, the system controller can enable the I/Os as either
+inputs or outputs by writing to the I/O configuration bits. The data for each input or output is kept in the
+corresponding input or output register. The polarity of the Input Port register can be inverted with the Polarity
+Inversion register, saving external logic gates. Programmable pull-up and pull-down resistors eliminate the need
+for discrete components.
+The power-on reset puts the registers in their default state and initializes the I2C-bus/SMBus state machine. The
+RESET pin causes the same reset/initialization to occur without depowering the part. The system controller can
+also accomplish a reset via an I2C command and initialize all registers to their default state.
+The PCAL6524 open-drain interrupt (INT) output is activated when any input state differs from its corresponding
+input port register state. As well, the INT output can be specified to activate on input pin edges. There are many
+interrupt mask functions available to maximize flexibility.
+INT can be connected to the interrupt input of a microcontroller. Sending an interrupt signal on this line lets
+the remote I/O inform the microcontroller of any incoming data on its ports without communication via I2C-bus.
+Therefore, the PCAL6524 can remain a simple target device. The input latch feature holds/latches the input
+pin state and keeps the logic values that created the interrupt until the controller can service the interrupt. This
+process minimizes the interrupt service response of the host for fast moving inputs.
+The device port P outputs have 25 mA sink capabilities for directly driving LEDs while consuming low device
+current.
+One hardware pin (ADDR) can be used to program and vary the fixed I2C-bus address and allow up to four
+devices to share I2C-bus or SMBus.
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+2 / 60
+
+--- Original PDF page 3 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+2   Features and benefits
+• I2C-bus to parallel port expander
+• 1 MHz fast-mode plus I2C-bus
+• Operating power supply voltage range of 0.8 V to 3.6 V on the I2C-bus side
+• Allows bidirectional voltage-level translation and GPIO expansion between 0.8 V to 3.6 V SCL/SDA and 1.8 V,
+2.5 V, 3.3 V, 5.5 V port P
+• Low standby current consumption: 2.0 μA typical at 3.3 V VDD(P)
+• Schmitt trigger action allows slow input transition and better switching noise immunity at the SCL and SDA
+inputs
+– Vhys = 0.05 V (typical) at 0.8 V
+– Vhys = 0.18 V (typical) at 1.8 V
+– Vhys = 0.33 V (typical) at 3.3 V
+• 5.5 V tolerant I/O ports and 3.6 V tolerant I2C-bus pins
+• Active LOW reset input (RESET)
+• Open-drain active LOW interrupt output (INT)
+• Internal power-on reset
+• Noise filter on SCL/SDA inputs
+• Latched outputs with 25 mA drive maximum capability for directly driving LEDs
+• Latch-up performance exceeds 100 mA per JESD 78, Class II
+• ESD protection exceeds JESD 22
+– 2000 V human-body model (A114-A)
+– 1000 V charged-device model (C101)
+• Packages offered: HUQFN32, VFBGA36
+2.1  Agile I/O features
+• Output port configuration: bank selectable or pin selectable push-pull or open-drain output stages
+• Interrupt status: read-only register identifies the source of an interrupt
+• Bit-wise I/O programming features:
+– Output drive strength: four programmable drive strengths to reduce rise and fall times in low-capacitance
+applications
+– Input latch: Input port register values changes are kept until the input port register is read
+– Pull-up/pull-down enable: floating input or pull-up/pull-down resistor enable
+– Pull-up/pull-down selection: 100 kΩ pull-up/pull-down resistor selection
+– Interrupt mask: mask prevents the generation of the interrupt when input changes state to prevent spurious
+interrupts
+2.2  Additional Agile I/O Plus features
+• Interrupt edge specification on a bit-by-bit basis
+• Interrupt individual clear without disturbing other events
+• Read all interrupt events without clear
+• Switch debounce hardware
+• General call software reset
+• I2C software device ID function
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+3 / 60
+
+--- Original PDF page 4 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+3   Ordering information
+Table 1 describes the ordering information for PCAL6524.
+PackageType number Topside
+marking Name Description Version
+PCAL6524HE L6524 HUQFN32 Plastic thermal enhanced very thin quad flat package; no
+leads; 32 terminals; body 5 × 5 × 0.56 mm
+SOT1426-1
+PCAL6524EV 524 VFBGA36 Plastic very fine-pitch ball grid array package,
+body 2.6 x 2.6 mm
+SOT1851-1
+Table 1. Ordering information
+3.1  Ordering options
+Table 2 describes the ordering options for PCAL6524.
+Type number Orderable part
+number
+Package Packing method Minimum
+order quantity
+Temperature
+PCAL6524HEHP HUQFN32 REEL 13" Q2/T3 * STA
+NDARD MARK SMD
+5000 Tamb = -40 °C to +85 °CPCAL6524HE
+PCAL6524HEAZ HUQFN32 REEL 7" Q2/T3 * STA
+NDARD MARK SMD
+500 Tamb = -40 °C to +85 °C
+PCAL6524EV PCAL6524EVJ VFBGA36 REEL 13" Q1/T1
+*STANDARD MARK SMD
+5000 Tamb = -40 °C to +85 °C
+Table 2. Ordering options
+4   Block diagram
+Figure 1 shows the labeled block diagram for PCAL6524.
+aaa-008797
+INT
+I2C-BUS
+CONTROL
+INTERRUPT
+LOGIC
+PCAL6524
+LP FILTER
+ADDR
+INPUT
+FILTER
+SHIFT
+REGISTER
+SDA
+SCL
+24 BITS
+POWER-ON
+RESET
+VDD(P)
+VSS
+I/O
+PORT
+P0_0 to P0_7
+P1_0 to P1_7
+P2_0 to P2_7
+RESET
+VDD(I2C-bus)
+write pulse
+read pulse
+I/O control
+All I/Os are set to inputs at reset.
+Figure 1. Block diagram (positive logic)
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+4 / 60
+
+--- Original PDF page 5 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+5   Pinning information
+This section provides the pin configuration and description of the VFBGA36 and HUQFN32 packages.
+5.1  Pinning
+Figure 2 and Figure 3 show the pinning for PCAL6524HE.
+aaa-008799
+PCAL6524HE
+Transparent top view
+P2_0
+P0_6
+P0_7
+P2_1
+P0_5 P2_2
+P0_4 P2_3
+P0_3 P2_4
+P0_2 P2_5
+P0_1 P2_6
+P0_0 P2_7
+P1_0
+P1_1
+P1_2
+P1_3
+P1_4
+P1_5
+P1_6
+P1_7
+INT
+VDD(I2C-bus)
+SDA
+SCL
+RESET
+VDD(P)
+ADDR
+VSS
+8 17
+7 18
+6 19
+5 20
+4 21
+3 22
+2 23
+1 24
+9
+10
+11
+12
+13
+14
+15
+16
+32
+31
+30
+29
+28
+27
+26
+25
+terminal 1
+index area
+Figure 2. Pin configuration for HUQFN32
+Transparent top view
+aaa-025107
+PCAL6524
+1
+ball A1
+index area
+A
+B
+C
+D
+E
+F
+2 3 4 5 6
+Figure 3. Pin configuration for VFBGA36
+5.2  Pin description
+Table 3 provides detailed description of various pins on PCAL6524.
+PinSymbol
+VFBGA36 HUQFN32
+Type Description
+SCL A3 29 I Serial clock line. Connect to VDD(I2C-bus) through a pull-up resistor.
+SDA A2 30 I/O Serial data line. Connect to VDD(I2C-bus) through a pull-up resistor.
+VDD(I2C-bus) A1 31 Power
+supply
+Supply voltage of the I2C-bus. Connect directly to the VDD of the external
+I2C-bus controller. Provides voltage-level translation.
+Table 3. Pin description
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+5 / 60
+
+--- Original PDF page 6 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+PinSymbol
+VFBGA36 HUQFN32
+Type Description
+INT C4 32 O Interrupt output. Connect to VDD(I2C-bus) or VDD(P) through a pull-up
+resistor.
+P0_0[1] B1 1 I/O Port 0 input/output 0.
+P0_1[1] D4 2 I/O Port 0 input/output 1.
+P0_2[1] C1 3 I/O Port 0 input/output 2.
+P0_3[1] D2 4 I/O Port 0 input/output 3.
+P0_4[1] D1 5 I/O Port 0 input/output 4.
+P0_5[1] E1 6 I/O Port 0 input/output 5.
+P0_6[1] D3 7 I/O Port 0 input/output 6.
+P0_7[1] F1 8 I/O Port 0 input/output 7.
+P1_0[2] E2 9 I/O Port 1 input/output 0.
+P1_1[2] F2 10 I/O Port 1 input/output 1.
+P1_2[2] E3 11 I/O Port 1 input/output 2.
+P1_3[2] F3 12 I/O Port 1 input/output 3.
+P1_4[2] F4 13 I/O Port 1 input/output 4.
+P1_5[2] E4 14 I/O Port 1 input/output 5.
+P1_6[2] F5 15 I/O Port 1 input/output 6.
+P1_7[2] E5 16 I/O Port 1 input/output 7.
+P2_0[3] F6 17 I/O Port 2 input/output 0.
+P2_1[3] E6 18 I/O Port 2 input/output 1.
+P2_2[3] D5 19 I/O Port 2 input/output 2.
+P2_3[3] D6 20 I/O Port 2 input/output 3.
+P2_4[3] C5 21 I/O Port 2 input/output 4.
+P2_5[3] C6 22 I/O Port 2 input/output 5.
+P2_6[3] B5 23 I/O Port 2 input/output 6.
+P2_7[3] B6 24 I/O Port 2 input/output 7.
+VSS A6 25 Ground Supply ground
+ADDR A5 26 I Address input. Connect directly to VDD(I2C-bus), ground, SCL or SDA.
+VDD(P) A4 27 Power
+supply
+Supply voltage of PCAL6524 for Port P.
+0.1 μF bypass capacitor required on this supply located as close to the
+package as practical.
+RESET B4 28 I Active LOW reset input. Connect to VDD(I2C-bus) through a pull-up resistor if
+no active connection is used.
+n.c. B2, B3,
+C2, C3
+- n.c. Not connected
+Table 3. Pin description...continued
+[1] Pins P0_0 to P0_7 correspond to bits P0.0 to P0.7. At power-on, all I/Os are configured as inputs.
+[2] Pins P1_0 to P1_7 correspond to bits P1.0 to P1.7. At power-on, all I/Os are configured as inputs.
+[3] Pins P2_0 to P2_7 correspond to bits P2.0 to P2.7. At power-on, all I/Os are configured as inputs.
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+6 / 60
+
+--- Original PDF page 7 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+6   Functional description
+Refer to Figure 1.
+6.1  Device address
+Following a START condition, the bus controller must send the target address followed by a read (R/W = 1) or
+write (R/W = 0) operation bit. The target address of the PCAL6524 is shown in Figure 4. Target address pin
+ADDR chooses one of four target addresses. Table 4 shows all four target addresses by connecting the ADDR
+pin to SCL, SDA, VSS, or VDD.
+Device family high-order address bits Variable portion of
+address
+ADDR
+A6 A5 A4 A3 A2 A1 A0
+Address
+SCL 0 1 0 0 0 0 0 40h
+SDA 0 1 0 0 0 0 1 42h
+VSS 0 1 0 0 0 1 0 44h
+VDD 0 1 0 0 0 1 1 46h
+Table 4. PCAL6524 address map
+The last bit of the first byte defines the reading from or writing to the PCAL6524. When set to logic 1 a read is
+selected, while logic 0 selects a write operation.
+R/W
+aaa-011036
+0 1 0 0 0 A1 A0
+fixed
+target address
+programmable
+Figure 4. PCAL6524 address
+6.2  Interface definition
+Table 5 provides the interface definitions of PCAL6524.
+BitByte
+7 (MSB) 6 5 4 3 2 1 0 (LSB)
+I2C-bus target address L H L L L A1 A0 R/W
+P0.7 P0.6 P0.5 P0.4 P0.3 P0.2 P0.1 P0.0
+P1.7 P1.6 P1.5 P1.4 P1.3 P1.2 P1.1 P1.0
+I/O data bus
+P2.7 P2.6 P2.5 P2.4 P2.3 P2.2 P2.1 P2.0
+Table 5. Interface definition
+6.3  Software reset call and device ID addresses
+Two other different addresses can be sent to the device.
+• General call address allows to reset the device through the I2C-bus upon reception of the right I2C-bus
+sequence. For details, see Section 6.3.1.
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+7 / 60
+
+--- Original PDF page 8 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+• Device ID address allows to read ID information from the device (manufacturer, part identification, revision).
+For details, see Section 6.3.2.
+0
+002aac115
+0 0 0 0 0 0 0
+R/W
+Figure 5. General call address
+R/W
+002aac116
+1 1 1 1 1 0 0
+Figure 6. Device ID address
+6.3.1  Software reset
+The software reset call allows all the devices in the I2C-bus to be reset to the power-up state value through a
+specific formatted I2C-bus command. To be performed correctly, it implies that the I2C-bus is functional and that
+there is no device hanging the bus.
+The software reset sequence is defined as follows:
+1. The I2C-bus controller sends a START command.
+2. The I2C-bus controller sends the reserved general call I2C-bus address ‘0000 000’ with the R/W bit set to 0
+(write).
+3. The device acknowledges after seeing the general call address ‘0000 0000’ (00h) only. If the R/W bit is set
+to 1 (read), no acknowledge is returned to the I2C-bus controller.
+4. Once the general call address has been sent and acknowledged, the controller sends 1 byte. The value of
+the byte must be equal to 06h.
+5. The device acknowledges this value only. If the byte is not equal to 06h, the device does not acknowledge it.
+If more than 1 byte of data is sent, the device does not acknowledge anymore.
+6. Once the right byte has been sent and correctly acknowledged, the controller sends a STOP command to
+end the software reset sequence: the device then resets to the default value (power-up value) and is ready
+to be addressed again within the specified bus free time. If the controller sends a Repeated START instead,
+no reset is performed.
+The I2C-bus controller must interpret a non-acknowledge from the device (at any time) as a ‘Software Reset
+Abort’. The device does not initiate a reset of its registers.
+The unique sequence that initiates a software reset is described in Figure 7.
+aaa-008801
+0 0 0 0 0 0 0 AS 0
+SWRST Call I2C-bus address
+START condition R/W
+acknowledge
+from target(s)
+0 0 0 0 1 1 00
+SWRST data = 06h
+A
+acknowledge
+from target(s)
+P
+PCAL6524 is reset.
+Registers are set to default power-up values.
+Figure 7. Software reset sequence
+6.3.2  Device ID (PCAL6524 ID field)
+The Device ID field is a 3-byte read-only (24 bits) word giving the following information:
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+8 / 60
+
+--- Original PDF page 57 / 60 ---
+
+NXP Semiconductors PCAL6524
+Ultra Low-Voltage Translating 24-bit Fm+ I2C-bus/SMBus I/O Expander with Agile I/O Features,
+Interrupt Output, and Reset
+18   Acronyms
+Table 70 describes the acronyms used in this data sheet.
+Acronym Description
+ESD Electrostatic discharge
+FET Field-effect transistor
+GPIO General-purpose input/output
+I2C-bus Inter-Integrated Circuit bus
+I/O Input/output
+LED Light-emitting diode
+LSB Least significant bit
+MSB Most significant bit
+NACK Not Acknowledge
+POR Power-on reset
+PRR Pulse repetition rate
+SMBus System management bus
+Table 70. Acronyms
+19   Revision history
+Table 71 summarizes revisions to this document.
+Document ID Release date Description
+PCAL6524 v.2.1 3 July 2025 • Updated per CIN# 202504004I
+– Table 63: Updated typical value from 34.6 to 42
+PCAL6524 v.2 15 May 2019 • Table 2:
+– Added PCAL6524HEAZ 7"/500u packing option which was
+inadvertently removed.
+– Removed PCAL6524DR TSSOP32 package which was
+removed from the road map.
+PCAL6524 v.1.2 24 November 2016 • Added PCAL6524EV
+• Table 2: Removed PCAL6524HEAZ
+• Added 0.1 μF bypass capacitor information for VDD(P)
+PCAL6524 v.1.1 21 September 2016 • Table 61: Updated VI and VO
+PCAL6524 v.1 22 September 2015 Product data sheet
+Table 71. Revision history
+PCAL6524 All information provided in this document is subject to legal disclaimers. © 2025 NXP B.V. All rights reserved.
+Product data sheet Rev. 2.1 — 3 July 2025 Document feedback
+57 / 60

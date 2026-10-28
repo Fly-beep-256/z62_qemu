@@ -1,0 +1,146 @@
+{
+  "schema": "z62.hardware-photo/1",
+  "origin": "supplied replacement-board overview photograph",
+  "source_filename": "z62_taobao_motherboard.jpg",
+  "original": "original.jpg",
+  "sha256": "33d22e073e42ba35886db25c9cc72f990d2201d5eadf4fbced114b7f1f0cd09b",
+  "dimensions": [
+    1200,
+    1600
+  ],
+  "physical_board_identity": "identified as Z62; printed image title says Z62; board revision and serial not independently verified",
+  "capture_time_and_listing_source": "unknown",
+  "crop_processing": "literal original pixel crop, nearest-neighbor 4x scale; no generative enhancement",
+  "regions": [
+    {
+      "name": "left-controller-candidate",
+      "box_xyxy": [
+        198,
+        843,
+        332,
+        964
+      ],
+      "file": "left-controller-candidate.png"
+    },
+    {
+      "name": "right-processor-region",
+      "box_xyxy": [
+        772,
+        558,
+        1037,
+        821
+      ],
+      "file": "right-processor-region.png"
+    },
+    {
+      "name": "right-memory-region",
+      "box_xyxy": [
+        674,
+        667,
+        797,
+        795
+      ],
+      "file": "right-memory-region.png"
+    },
+    {
+      "name": "left-memory-region",
+      "box_xyxy": [
+        190,
+        695,
+        313,
+        837
+      ],
+      "file": "left-memory-region.png"
+    },
+    {
+      "name": "right-power-region",
+      "box_xyxy": [
+        899,
+        723,
+        1098,
+        1004
+      ],
+      "file": "right-power-region.png"
+    }
+  ],
+  "annotations": [
+    {
+      "number": "1",
+      "box_xyxy": [
+        227,
+        858,
+        315,
+        944
+      ],
+      "label": "ST controller candidate"
+    },
+    {
+      "number": "2",
+      "box_xyxy": [
+        897,
+        571,
+        1009,
+        681
+      ],
+      "label": "processor assembly A candidate"
+    },
+    {
+      "number": "3",
+      "box_xyxy": [
+        792,
+        698,
+        905,
+        808
+      ],
+      "label": "processor assembly B candidate"
+    },
+    {
+      "number": "4",
+      "box_xyxy": [
+        198,
+        716,
+        302,
+        831
+      ],
+      "label": "Micron-marked package, left image"
+    },
+    {
+      "number": "5",
+      "box_xyxy": [
+        687,
+        678,
+        784,
+        785
+      ],
+      "label": "Micron-marked package, right image"
+    },
+    {
+      "number": "6",
+      "box_xyxy": [
+        914,
+        727,
+        1100,
+        1001
+      ],
+      "label": "inductor/capacitor-rich power region"
+    }
+  ],
+  "annotation_file": "annotated.png",
+  "rotated_crops": [
+    {
+      "source": "left-controller-candidate.png",
+      "file": "left-controller-candidate-rotated.png",
+      "angle_degrees": 180
+    },
+    {
+      "source": "right-memory-region.png",
+      "file": "right-memory-region-rotated.png",
+      "angle_degrees": 90
+    },
+    {
+      "source": "left-memory-region.png",
+      "file": "left-memory-region-rotated.png",
+      "angle_degrees": 90
+    }
+  ]
+}

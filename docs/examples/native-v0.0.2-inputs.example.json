@@ -1,0 +1,4 @@
+{
+  "persistent_input": "inputs/local/native-v0.0.2/persistent-input.json",
+  "mcu_rtc_backup_input": "inputs/local/native-v0.0.2/rtc-backup-input.json"
+}

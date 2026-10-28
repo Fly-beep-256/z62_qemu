@@ -1,0 +1,336 @@
+{
+  "binary": "artifacts/qemu/qemu-system-arm-saiso",
+  "binary_sha256": "182a3b80d301058422371c1beefca7cd2dc6abfd4d18009e4b28eaf6feb7aa3b",
+  "qemu_version": "10.2.4",
+  "camera_access": false,
+  "native_mcu_wire_abi": 2,
+  "z6ii_sources": {
+    "nikon-z6ii.c": "f2e2885d889170f1bcebc05f1a0087528851847bb2fe0ff730635d55d9343021",
+    "nikon-z6ii-profile.h": "f7776265d870c552589aadad373772f3a776c52190c6b1dc65e9689e6d84b767",
+    "nikon-z6ii-ddr.h": "5b63676a4129b822de835932ed887ff71db7a0fff31ce223a8aae9fb587f16b8",
+    "nikon-z6ii-platform.h": "32da4336594b35a806ac8bf609649291cb03490ae9fec604b93ee7f8034b3f51",
+    "nikon-z6ii-devices.h": "608cf28158a7464b83ff1ac74f2c482d9f6f4a3e386d9c3359f5c791c6f181c7",
+    "nikon-z6ii-functional-isp.h": "c1a93b6321e618a07462d55bda17e0112cc03c45a113a78ef61d161df5ea8aa5",
+    "nikon-z6ii-bayer-source.h": "dd3c5b388a5995810f409f0982749c8b6c65584b2c40f97f7bae3d1bbe47e141",
+    "nikon-z6ii-bayer-qemu.h": "7258093bfa9f24ab1043ce72e176679c15ce8972f0214b940ebe43301c802e82",
+    "nikon-z6ii-link.h": "872b6f6ccff83b2a313c013306cf9db147a9fc2b23f96cd7f7b3e86e38c3a06c",
+    "nikon-z6ii-coupled-link.h": "de92dbbb33a8480dee8b17512f328eb30b717cc371bd54c7e295e2975e851d9c",
+    "nikon-z6ii-exmcu.h": "8324b16c4ebb962c0327bce1621b4627470378b000a5df5725d88dab0c62e583",
+    "nikon-z6ii-slave-pipeline.h": "579223f8c99912c73d97786baaaeabc0676077b0beaddf6a5388e0cf3b190917",
+    "nikon-z6ii-slave-storage.h": "71b73253a4528c20933fd6c9fc0bc02e0e3e40072d647fbc64bbc931bb3f9d18",
+    "nikon-z6ii-peer-parameter.h": "9e6ec0a9a7601d743e7389e8f9a7a0418cbfbeb75a0d62ed065349fe32684a97",
+    "nikon-z6ii-parameter-stage-contract.h": "9d5786e472985ceac26f3d46ba2c0c669d12d3b18946016eec597ca20d2e8f43",
+    "nikon-z6ii-hdmi-core.h": "0fd99c02f0c35a67735640e898b0ae37bd2c4b628bc3ca0324fb79fca06813bd",
+    "nikon-z6ii-hdmi.h": "19329dbcb481f85ae49f8316534eb5b96d21ea674278f9b2bed79b5fe4c2ee44",
+    "nikon-z6ii-hdmi-receiver-core.h": "3ebc66cd09dd1a8d8af8e573f970cb3b97557bb8b577b9eb06d9af92311539f5",
+    "nikon-z6ii-hdmi-receiver-qemu.h": "f9d04b0b8407422df0d8a4e526cebe994164b79cf23c73552801ae97e68fde81",
+    "nikon-z6ii-hdmi-receiver-lifecycle.h": "7aa2a5421848a42dfa463b16d636d0d03bda82750d28e0814ab224e15d51cf1f",
+    "nikon-z6ii-hdmi-dma-core.h": "fa13db0d3749561468f651b6ff27506af24b84447580aed83b2a84d840e0ae4b",
+    "nikon-z6ii-hdmi-dma-receiver.h": "fe29bf1dd4482ec69833622c7d57beca8e39c4160ac44df37b8dcb164936d6a7",
+    "nikon-z6ii-hdmi-dma-receiver-qemu.h": "f4b7c3a7192d8405a5a64cf2a4c88f159e006f61f63a92cc6f3dc36aeaf24eab",
+    "nikon-z6ii-hdmi-video.h": "bee6f23ea95f8e4ba042de7909660bbaa054c58f13c4250709147c6106e7f2a0",
+    "nikon-z6ii-genadc.c": "cbc0ee59e1ccd9f2ff4d4d58e7795d489b424adae08dd0a3858e92acbd669c66",
+    "nikon-z6ii-genadc.h": "d2a43681f39c069375b836d525bdefe1678c9bc62ac8074671f3fd30b6e0959f",
+    "nikon-z6ii-genadc-qemu.h": "cf3ef1487fc0f90f64a0eb188f4212c9ff4ac7e22f94b466d0251e5d9e02e1ac",
+    "nikon-z6ii-ipu2402.c": "e69c716e74ef785a62441842f1104e712e7b23af02e3847ba350ad18f3f802a7",
+    "nikon-z6ii-ipu2402.h": "149e69323ab333118fbc8a61d4b5739a40d2313b2ff181269ab8a5fc78109eaa",
+    "nikon-z6ii-ipu2402-qemu.h": "5645bb537a736967105f6e036476bbddcb9d5b7b4626612a5a79951d8e8312cd",
+    "ba2-core7494.h": "c68f398e1c997490e3a847a0a28930c3c3c804fa4b917c34dbf1255d25b456df",
+    "ba2-core7494.c": "301275879e7e1f1b6d76c3767eafe36f2f512d2b0ee05286a81230e575228f9d",
+    "ba2-opcodes7494.inc": "bad62d743e360c6c9360f21722c92787bb2d0f04bcb63a39e2a20fa1a678bd9b",
+    "ba2-bus77.h": "97dd19c385905c8fe34b75b3fc4eda8992567bd77c2ea00eeb7d49635ea9c9b5",
+    "ba2-bus77.c": "e46a274d0753e567efdb9d0d52d9afc0c0f1a4e00b8c9ccc0069cbf32b9161a1",
+    "ba2-qemu78.h": "8edc507f12c13d4a7122d552b6179c79d80989d9e0f514c4157d41b23ddc1860",
+    "ba2-qemu78.c": "55ea9f1598a8ddeb50df7d9ced4ca572aec2fb8a1d4109d116ef698a24daec30",
+    "ba2-bus79.h": "06ceb4730168c15ba13e9a9b8435c9a3bf751d03efa52c2b00db5b925e52a5b6",
+    "ba2-bus79.c": "7db379eac8b8223a1f6b5834e92bb067961bcfd0b17d0894f528722acf0eb526",
+    "ba2-reti-ram-read.h": "4242befa775e2bad9e349086475c644a873031a546d22e4fb1ea2bbcd6e1092a",
+    "ba2-reti-ram-read.c": "855a47bd72a7c29f9475dea899bd8f444ecaa43aa0c1b55968a1b1576d3cdced",
+    "ba2-mlwz-ram-read.h": "5742449ad949a3da31c64b5a2293dc2e8286dc57ac87b0453166b2607a823baa",
+    "ba2-mlwz-ram-read.c": "c9cee935c4f500d1c097c2529aa691d59b6785c180946eb6ea55323387819a1f",
+    "ba2-startup-ram-read.h": "a12bc3e9db95794fdb4f09857d309ff2ebf26255b8db94033698d44f6d2e0153",
+    "ba2-startup-ram-read.c": "c034f36ff0cadbaacdaccc4e0ae4b33fe05d82ebdbf1a4905b21f04eef9af499",
+    "ba2-controller136.h": "69c25df985c39e2e7be0388b7e8aeb430653886d7b3cb7acd1b42d67134bfea6",
+    "ba2-controller136.c": "f0e3e9adef9796280fcde5c0a8e6ab7b4d6194bca8ee0476a09037c3bbad0375",
+    "ba2-startup-bridge137.h": "075f25e77c279ffe60fbdb72a676ea5f1c0495bf4e7de6607a1a4677fee6582b",
+    "ba2-startup-bridge137.c": "8eb2ca00cb47176d38f0a4f6d41ce19b69ea7d21a7e3ba4d08a8eabba992dab7",
+    "ba2-irq138.h": "2380cd17e99459284135d9e6e76730dd4806a55368c02cfe4519878aa57f340a",
+    "ba2-irq138.c": "81b5d1afa3189a5397937cc28f7563320dfaf4ac8aadee76e27caef6b4a3261d",
+    "ba2-tick139.h": "c7ff73488d3d6d3b7c0e38f6adabb4a1ce2bd4d3716c834a5e1233d8f1058cc7",
+    "ba2-tick139.c": "ba043f2efc2416f54b6deb8ac03f1591613c71d75eb0a1f6d2e5b60e626b7a01",
+    "ba2-engine140.h": "fa85de7cc6b566c83b3e10c02c578e19c41f988c25ed464b2284e5a70b41f20e",
+    "ba2-engine140.c": "1a149a6522314539bcd18dd0e2d2b3b93832613ab36c2655a5662cc08d6f669f",
+    "ba2-reset-bank98.h": "1ade1f3093c101a7db0e86e46ca7e594bddf5c6af2cf7037ab5eae7882a54c42",
+    "nikon-z6ii-ba2-qemu.h": "c5cddf88bc2089ea337f5b973d5a3df50bfad98020f9b5c7f34b71f9ac306994",
+    "ba2-window98.h": "512750bd0d82bdc16b4dd93eabf38c88816078cf6f36b77d3fe1fb7c81abde9e",
+    "ba2-decode-index7494.h": "988f957fa615ffcbc6e21919851746c867829a3415453966e8fbaddd757ab039",
+    "ba2-spr5000-storage-candidate.h": "384273202405725ac4b7cbba2091c572c4c7b11afc35fdeab535025d981cd304",
+    "ba2-spr5000-storage-candidate.c": "e113d0dfc39ec89f189aab80a9c99305cdec3551fc65f15dcc162e92efc97520",
+    "ba2-spr5001-4000-storage-candidates.h": "f0f553819cb101e935ae3bfa0103975449fca6a590c1945ed398155aa00a940b",
+    "ba2-spr5001-4000-storage-candidates.c": "4fd1645b761bb932b35d2ece143a860e7013274094a0b470dde1618e14dc7553",
+    "ba2-spr5004-5005-snapshot-candidates.h": "c240ff5d99eb2f2cae9a75712bd57bdd04a4be55337a47d05e22365bc0fcac2f",
+    "ba2-spr5004-5005-snapshot-candidates.c": "0d96fbf5e176da8aa45446f6d3d03476b56a5d8f38477ed7b00cd7193949a733",
+    "nikon-z6ii-hdmi-i2c-reset-core.h": "27d41c678cfaf69c23fef636a9a24aa8d1047cff7379ea248cf2089229bc7fc6",
+    "nikon-z6ii-hdmi-i2c-reset.h": "07455617471cfb019dfcd21a91a00f1530aca41c2bb2dd051e16412512021849",
+    "nikon-z6ii-hdmi-phy-i2c-core.h": "e07c34ed7abe827db30880ad3fafa52409b6611aad5a4dcf09323266e335c6c9",
+    "nikon-z6ii-hdmi-phy-i2c.h": "c1fc7d6f54279cda1394d34fd2ec308a6ef2f368e24a91805432b3fe0f11111f",
+    "nikon-z6ii-hdmi-irq-core.h": "6603fcb734258aaca2629e77a9e3cb341d1ad697dfeaf0a709680d2e9b3aaf50",
+    "nikon-z6ii-hdmi-phy-pll-core.h": "d8a705fbd6662af3eb1261ddd296a27794c27628a4a017924a590d00adb24664",
+    "nikon-z6ii-hdmi-phy-pll.h": "c1970862e74bc2bcbe3386596034a94aa38c21fe2a6e02ab9ae30f4a68a35cbd",
+    "nikon-z6ii-post68-core.h": "60fdf02565c5c6f5c901d7691d3ae29903ad77e6ce2cf87d156a8be55c795905",
+    "nikon-z6ii-post68-qemu.h": "25c88bab2ffce53bfe45892f52e1cd0acfebc81d3659c5650f81a3975cdea40b",
+    "mcu_wire_bus.h": "c7d9fe159a94c45d17d8b7d61c3962a3f6314e4c9939da4b0f65c4f42fe45be7",
+    "mcu_wire_posix.h": "515944e364682beda148f73f9ddd01cbec703fbb18277162351a4a430adf8673",
+    "nikon-z6ii-wire.h": "617d9848fdb35b58be3099fa5ae6623e92e9841f4d9d7bfc86658e7382be22a5",
+    "nikon-ex1850-wire.h": "7d68de7208802f832de998d1f6eab782fb006bae49fed5ac84affed6d002fec7",
+    "nikon-z6ii-capseq-actuator.h": "bc3adca0e47307e8b62edcf8cb284bb0d21fe4996222511a1545ab2995d7496c"
+  },
+  "immutable_model_sources": {
+    "nikon-z6ii.c": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii.c",
+    "nikon-z6ii-profile.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-profile.h",
+    "nikon-z6ii-ddr.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-ddr.h",
+    "nikon-z6ii-platform.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-platform.h",
+    "nikon-z6ii-devices.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-devices.h",
+    "nikon-z6ii-functional-isp.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-functional-isp.h",
+    "nikon-z6ii-bayer-source.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-bayer-source.h",
+    "nikon-z6ii-bayer-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-bayer-qemu.h",
+    "nikon-z6ii-link.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-link.h",
+    "nikon-z6ii-coupled-link.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-coupled-link.h",
+    "nikon-z6ii-exmcu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-exmcu.h",
+    "nikon-z6ii-slave-pipeline.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-slave-pipeline.h",
+    "nikon-z6ii-slave-storage.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-slave-storage.h",
+    "nikon-z6ii-peer-parameter.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-peer-parameter.h",
+    "nikon-z6ii-parameter-stage-contract.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-parameter-stage-contract.h",
+    "nikon-z6ii-hdmi-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-core.h",
+    "nikon-z6ii-hdmi.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi.h",
+    "nikon-z6ii-hdmi-receiver-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-receiver-core.h",
+    "nikon-z6ii-hdmi-receiver-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-receiver-qemu.h",
+    "nikon-z6ii-hdmi-receiver-lifecycle.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-receiver-lifecycle.h",
+    "nikon-z6ii-hdmi-dma-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-dma-core.h",
+    "nikon-z6ii-hdmi-dma-receiver.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-dma-receiver.h",
+    "nikon-z6ii-hdmi-dma-receiver-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-dma-receiver-qemu.h",
+    "nikon-z6ii-hdmi-video.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-video.h",
+    "nikon-z6ii-genadc.c": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-genadc.c",
+    "nikon-z6ii-genadc.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-genadc.h",
+    "nikon-z6ii-genadc-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-genadc-qemu.h",
+    "nikon-z6ii-ipu2402.c": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-ipu2402.c",
+    "nikon-z6ii-ipu2402.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-ipu2402.h",
+    "nikon-z6ii-ipu2402-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-ipu2402-qemu.h",
+    "ba2-core7494.h": "artifacts/qemu/EXPEED-model-sources/ba2-core7494.h",
+    "ba2-core7494.c": "artifacts/qemu/EXPEED-model-sources/ba2-core7494.c",
+    "ba2-opcodes7494.inc": "artifacts/qemu/EXPEED-model-sources/ba2-opcodes7494.inc",
+    "ba2-bus77.h": "artifacts/qemu/EXPEED-model-sources/ba2-bus77.h",
+    "ba2-bus77.c": "artifacts/qemu/EXPEED-model-sources/ba2-bus77.c",
+    "ba2-qemu78.h": "artifacts/qemu/EXPEED-model-sources/ba2-qemu78.h",
+    "ba2-qemu78.c": "artifacts/qemu/EXPEED-model-sources/ba2-qemu78.c",
+    "ba2-bus79.h": "artifacts/qemu/EXPEED-model-sources/ba2-bus79.h",
+    "ba2-bus79.c": "artifacts/qemu/EXPEED-model-sources/ba2-bus79.c",
+    "ba2-reti-ram-read.h": "artifacts/qemu/EXPEED-model-sources/ba2-reti-ram-read.h",
+    "ba2-reti-ram-read.c": "artifacts/qemu/EXPEED-model-sources/ba2-reti-ram-read.c",
+    "ba2-mlwz-ram-read.h": "artifacts/qemu/EXPEED-model-sources/ba2-mlwz-ram-read.h",
+    "ba2-mlwz-ram-read.c": "artifacts/qemu/EXPEED-model-sources/ba2-mlwz-ram-read.c",
+    "ba2-startup-ram-read.h": "artifacts/qemu/EXPEED-model-sources/ba2-startup-ram-read.h",
+    "ba2-startup-ram-read.c": "artifacts/qemu/EXPEED-model-sources/ba2-startup-ram-read.c",
+    "ba2-controller136.h": "artifacts/qemu/EXPEED-model-sources/ba2-controller136.h",
+    "ba2-controller136.c": "artifacts/qemu/EXPEED-model-sources/ba2-controller136.c",
+    "ba2-startup-bridge137.h": "artifacts/qemu/EXPEED-model-sources/ba2-startup-bridge137.h",
+    "ba2-startup-bridge137.c": "artifacts/qemu/EXPEED-model-sources/ba2-startup-bridge137.c",
+    "ba2-irq138.h": "artifacts/qemu/EXPEED-model-sources/ba2-irq138.h",
+    "ba2-irq138.c": "artifacts/qemu/EXPEED-model-sources/ba2-irq138.c",
+    "ba2-tick139.h": "artifacts/qemu/EXPEED-model-sources/ba2-tick139.h",
+    "ba2-tick139.c": "artifacts/qemu/EXPEED-model-sources/ba2-tick139.c",
+    "ba2-engine140.h": "artifacts/qemu/EXPEED-model-sources/ba2-engine140.h",
+    "ba2-engine140.c": "artifacts/qemu/EXPEED-model-sources/ba2-engine140.c",
+    "ba2-reset-bank98.h": "artifacts/qemu/EXPEED-model-sources/ba2-reset-bank98.h",
+    "nikon-z6ii-ba2-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-ba2-qemu.h",
+    "ba2-window98.h": "artifacts/qemu/EXPEED-model-sources/ba2-window98.h",
+    "ba2-decode-index7494.h": "artifacts/qemu/EXPEED-model-sources/ba2-decode-index7494.h",
+    "ba2-spr5000-storage-candidate.h": "artifacts/qemu/EXPEED-model-sources/ba2-spr5000-storage-candidate.h",
+    "ba2-spr5000-storage-candidate.c": "artifacts/qemu/EXPEED-model-sources/ba2-spr5000-storage-candidate.c",
+    "ba2-spr5001-4000-storage-candidates.h": "artifacts/qemu/EXPEED-model-sources/ba2-spr5001-4000-storage-candidates.h",
+    "ba2-spr5001-4000-storage-candidates.c": "artifacts/qemu/EXPEED-model-sources/ba2-spr5001-4000-storage-candidates.c",
+    "ba2-spr5004-5005-snapshot-candidates.h": "artifacts/qemu/EXPEED-model-sources/ba2-spr5004-5005-snapshot-candidates.h",
+    "ba2-spr5004-5005-snapshot-candidates.c": "artifacts/qemu/EXPEED-model-sources/ba2-spr5004-5005-snapshot-candidates.c",
+    "nikon-z6ii-hdmi-i2c-reset-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-i2c-reset-core.h",
+    "nikon-z6ii-hdmi-i2c-reset.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-i2c-reset.h",
+    "nikon-z6ii-hdmi-phy-i2c-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-phy-i2c-core.h",
+    "nikon-z6ii-hdmi-phy-i2c.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-phy-i2c.h",
+    "nikon-z6ii-hdmi-irq-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-irq-core.h",
+    "nikon-z6ii-hdmi-phy-pll-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-phy-pll-core.h",
+    "nikon-z6ii-hdmi-phy-pll.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-hdmi-phy-pll.h",
+    "nikon-z6ii-post68-core.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-post68-core.h",
+    "nikon-z6ii-post68-qemu.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-post68-qemu.h",
+    "mcu_wire_bus.h": "artifacts/qemu/EXPEED-model-sources/mcu_wire_bus.h",
+    "mcu_wire_posix.h": "artifacts/qemu/EXPEED-model-sources/mcu_wire_posix.h",
+    "nikon-z6ii-wire.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-wire.h",
+    "nikon-ex1850-wire.h": "artifacts/qemu/EXPEED-model-sources/nikon-ex1850-wire.h",
+    "nikon-z6ii-capseq-actuator.h": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii-capseq-actuator.h"
+  },
+  "model_generator_sources": {
+    "generate_devices.py": {
+      "source": "inputs/reference/7eed77d50e3d7537/generate_devices.py",
+      "snapshot": "artifacts/qemu/EXPEED-model-generators/generate_devices.py",
+      "sha256": "7eed77d50e3d7537dbdb2341f55080f66a4653eb77d9381d5a5a8863c8bdbd4a"
+    },
+    "generate_z6ii_profile.py": {
+      "source": "inputs/reference/3c2c654b7df17998/generate_z6ii_profile.py",
+      "snapshot": "artifacts/qemu/EXPEED-model-generators/generate_z6ii_profile.py",
+      "sha256": "3c2c654b7df1799821d3bdcf91c09ecc234d91ac0cb1b9927123764e80eb7eb9"
+    },
+    "build_z6ii.py": {
+      "source": "inputs/reference/692e287c58900d25/build_z6ii.py",
+      "snapshot": "artifacts/qemu/EXPEED-model-generators/build_z6ii.py",
+      "sha256": "692e287c58900d25a22b6686b6a2658fccc1d50e2eabce941cba3f7cdb4a8415"
+    },
+    "mcu_wire_contract.py": {
+      "source": "provenance/original-harness/mcu_wire_contract.py",
+      "snapshot": "artifacts/qemu/EXPEED-model-generators/mcu_wire_contract.py",
+      "sha256": "2f9a627df81455798f5454fc8bbc2c5a68e82f1338b48aa97173bc3723f0e8f4"
+    }
+  },
+  "Kconfig_overlay_sha256": "cfe1b199b2e705ad2ad58c77dddb5bf2df029200a1f1c05faa2fc5a12afecbba",
+  "Kconfig_overlay_snapshot": "artifacts/qemu/EXPEED-model-sources/nikon-z6ii.Kconfig",
+  "generated_Kconfig_sha256": "af0f3093d669b080af03095651964a9736c03a6962fe2cd57bce646c3f2a3325",
+  "machine_list": "Supported machines are:\nnikon-ex1850-reset   Nikon EX1850 original reset vector; strict missing peripherals\nnikon-z6-display     Nikon Z6 C3.80 experimental board and native display\nnikon-z6ii-master-assisted Nikon Z6II master assisted functional peripherals; strict unknown accesses\nnikon-z6ii-master-boot Nikon Z6II original master entry with integrated two-ended functional boot model\nnikon-z6ii-master-coupled Nikon Z6II master native protocol with run-local shared queue backing\nnikon-z6ii-master-coupled-notify Nikon Z6II master diagnostic peer event banks and native ISR status\nnikon-z6ii-master    Nikon Z6II C1.70 master strict offline startup probe\nnikon-z6ii-master-protocol Nikon Z6II master original protocol diagnostic with explicit peer snapshots\nnikon-z6ii-slave-assisted Nikon Z6II slave assisted functional peripherals; strict unknown accesses\nnikon-z6ii-slave-boot Nikon Z6II original slave entry with integrated two-ended functional boot model\nnikon-z6ii-slave-coupled Nikon Z6II slave native protocol with run-local shared queue backing\nnikon-z6ii-slave-coupled-notify Nikon Z6II slave diagnostic peer event banks and native ISR status\nnikon-z6ii-slave     Nikon Z6II C1.70 slave strict offline startup probe\nnikon-z6ii-slave-protocol Nikon Z6II slave original protocol diagnostic with explicit peer snapshots\nnone                 empty machine\n",
+  "source50_TCG_observer": {
+    "installed": true,
+    "default_enabled": false,
+    "sources": {
+      "target/arm/tcg/translate.c": {
+        "sha256": "2e968a3f2bb87a621d743e8bf042474baa140e3eca4f9e01c15cc597b03d507d",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/translate.c"
+      },
+      "target/arm/tcg/helper.h": {
+        "sha256": "18011e264209f3bb154247b37e75e8f01bc91d1719aee4091f3ff8dd29bcde3b",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/helper.h"
+      },
+      "target/arm/tcg/op_helper.c": {
+        "sha256": "c6fb57d75b1c16bda132e65d61b9ec6cc63ebf9724aeaefb2dd821ab052d18ff",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/op_helper.c"
+      },
+      "accel/tcg/icount-common.c": {
+        "sha256": "906eb02b0e58cdc4e85a8d8ed06aeb282a259ae10b71571975a5915719456062",
+        "snapshot": "artifacts/qemu/common-observer-sources/accel/tcg/icount-common.c"
+      },
+      "include/exec/icount.h": {
+        "sha256": "911e2c716fc1519f2726538a2531a9c36f1df5efa7f56fc11018030a8260313f",
+        "snapshot": "artifacts/qemu/common-observer-sources/include/exec/icount.h"
+      },
+      "target/arm/tcg/z6ii-source50-observer.h": {
+        "sha256": "0f5ae64999753d4a6defcb2aa43ade328be5c483503475ba9ddda7915853cf1d",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-source50-observer.h"
+      },
+      "target/arm/tcg/z6ii-source50-observer.inc.c": {
+        "sha256": "0cf2c3d77254b6870d337b6bcdf2096a5df1dbd57a65e42796ce68e4dc3d888c",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-source50-observer.inc.c"
+      },
+      "target/arm/tcg/z6ii-boot-observer.h": {
+        "sha256": "0a42140d6d3be53598bce011e90d156600345ccfaf9b77cbe5e2f30dc953fff9",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-observer.h"
+      },
+      "target/arm/tcg/z6ii-boot-observer.inc.c": {
+        "sha256": "182a9d6b5f2ec643fdf64c6f6cfe4b30b763edc168c404a9df0630aa24a6553f",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-observer.inc.c"
+      },
+      "target/arm/tcg/z6ii-boot-physical.inc.c": {
+        "sha256": "03b00e5ecfb29e9915b8428ce46f79186a4022522a8823b15589838eeadb7e49",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-physical.inc.c"
+      },
+      "target/arm/tcg/z6ii-saiso-sites.h": {
+        "sha256": "59428224e9bf296b95d87c96193249bdda2f5f0beb25fd32ba5c07b6f7ecd960",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-saiso-sites.h"
+      },
+      "target/arm/tcg/z6ii-saiso-observer.inc.c": {
+        "sha256": "6eaa1d9cdd74cfd1c337dbf31e5957b67741c2d8b3d012f5ebbecfed50614bbb",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-saiso-observer.inc.c"
+      }
+    },
+    "registry_sha256": "5c49495dbfc86a4ced63a6905e83960a48d3f74175f1d6e438b79d926cd7057d",
+    "registry_snapshot": "artifacts/qemu/common-observer-sources/source50_observer_sources.py",
+    "peer_clocks_synchronized": false,
+    "original_firmware_instructions_modified": false
+  },
+  "boot_TCG_observer": {
+    "installed": true,
+    "default_enabled": false,
+    "original_firmware_instructions_modified": false,
+    "bounded_records": true,
+    "saiso_focus": {
+      "environment": "Z6II_BOOT_SAISO_FOCUS=1",
+      "active_sites": 305,
+      "head": 8,
+      "changes": 96,
+      "period_ns": 2000000000,
+      "periodic": 192,
+      "priority": 64,
+      "tail": 8,
+      "max_cores": 8,
+      "per_site_per_core": true,
+      "omissions_counted": true,
+      "ordinary_MMIO_and_copy_lanes_enabled": false,
+      "guest_writes": 0,
+      "pre_instruction": true,
+      "phase1": "adjacent following PC; pair required",
+      "RAM_reads": "ordinary RAM only; M4 physical SRAM; A15 read-only short-descriptor walk",
+      "permissions_and_peer_clock_synchronization_verified": false
+    },
+    "common_sources": {
+      "target/arm/tcg/translate.c": {
+        "sha256": "2e968a3f2bb87a621d743e8bf042474baa140e3eca4f9e01c15cc597b03d507d",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/translate.c"
+      },
+      "target/arm/tcg/helper.h": {
+        "sha256": "18011e264209f3bb154247b37e75e8f01bc91d1719aee4091f3ff8dd29bcde3b",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/helper.h"
+      },
+      "target/arm/tcg/op_helper.c": {
+        "sha256": "c6fb57d75b1c16bda132e65d61b9ec6cc63ebf9724aeaefb2dd821ab052d18ff",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/op_helper.c"
+      },
+      "accel/tcg/icount-common.c": {
+        "sha256": "906eb02b0e58cdc4e85a8d8ed06aeb282a259ae10b71571975a5915719456062",
+        "snapshot": "artifacts/qemu/common-observer-sources/accel/tcg/icount-common.c"
+      },
+      "include/exec/icount.h": {
+        "sha256": "911e2c716fc1519f2726538a2531a9c36f1df5efa7f56fc11018030a8260313f",
+        "snapshot": "artifacts/qemu/common-observer-sources/include/exec/icount.h"
+      },
+      "target/arm/tcg/z6ii-source50-observer.h": {
+        "sha256": "0f5ae64999753d4a6defcb2aa43ade328be5c483503475ba9ddda7915853cf1d",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-source50-observer.h"
+      },
+      "target/arm/tcg/z6ii-source50-observer.inc.c": {
+        "sha256": "0cf2c3d77254b6870d337b6bcdf2096a5df1dbd57a65e42796ce68e4dc3d888c",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-source50-observer.inc.c"
+      },
+      "target/arm/tcg/z6ii-boot-observer.h": {
+        "sha256": "0a42140d6d3be53598bce011e90d156600345ccfaf9b77cbe5e2f30dc953fff9",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-observer.h"
+      },
+      "target/arm/tcg/z6ii-boot-observer.inc.c": {
+        "sha256": "182a9d6b5f2ec643fdf64c6f6cfe4b30b763edc168c404a9df0630aa24a6553f",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-observer.inc.c"
+      },
+      "target/arm/tcg/z6ii-boot-physical.inc.c": {
+        "sha256": "03b00e5ecfb29e9915b8428ce46f79186a4022522a8823b15589838eeadb7e49",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-boot-physical.inc.c"
+      },
+      "target/arm/tcg/z6ii-saiso-sites.h": {
+        "sha256": "59428224e9bf296b95d87c96193249bdda2f5f0beb25fd32ba5c07b6f7ecd960",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-saiso-sites.h"
+      },
+      "target/arm/tcg/z6ii-saiso-observer.inc.c": {
+        "sha256": "6eaa1d9cdd74cfd1c337dbf31e5957b67741c2d8b3d012f5ebbecfed50614bbb",
+        "snapshot": "artifacts/qemu/common-observer-sources/target/arm/tcg/z6ii-saiso-observer.inc.c"
+      }
+    }
+  },
+  "original_firmware_instructions_modified": false,
+  "protocol_changes": 0,
+  "dual_contract_binary": true,
+  "contract_role": "EXPEED",
+  "formal_manifests_unmodified": true,
+  "upstream_binary_sha256": "9a682006b4b85c653336207237aaa110f1cdd3f9201f48a698013dff4f5be111",
+  "upstream_manifest": "provenance/original-build/EXPEED-build-manifest.json",
+  "packaging_relocation": "provenance/relocation.json"
+}

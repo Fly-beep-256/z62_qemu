@@ -1,0 +1,86 @@
+# macOS and OS metadata
+.DS_Store
+._*
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Local builds, runtime directories, and unverified outputs
+.local/
+.bin/
+build/
+provenance/
+.qemu-cache/
+bin/
+build/
+provenance/
+dist/
+runtime/
+results/
+artifacts/
+run-artifacts/
+
+# Proprietary firmware images, dumps, keys, and raw captures (NEVER COMMIT)
+/firmware/
+inputs/
+*_decoded/
+/analyze/decoded/
+*.[bB][iI][nN]
+*.[bB][iI]
+*.rom
+*.img
+*.dump
+*.key
+*.seed
+*.bus
+
+# Compiler, linker, and binary outputs
+*.o
+*.obj
+*.elf
+*.exe
+*.dll
+*.so
+*.so.*
+*.dylib
+*.a
+*.lib
+qemu-*.tar.xz
+*.deb
+
+# Diagnostic raw stimuli and transient logs
+*.raw
+*.raw12
+*.raw14
+*.wav
+*.ppm
+*.pgm
+*.log
+
+# Editor settings
+.vscode/
+.idea/
+
+# Upstream firmware projects and boot blobs are outside the native source release.
+# The ARM-only build disables install_blobs and does not build these ROM projects.
+/src/qemu/roms/
+/src/qemu/pc-bios/*.bz2
+/src/qemu/pc-bios/openbios-*
+/src/qemu/pc-bios/palcode-clipper
+/src/qemu/pc-bios/skiboot.lid
+/src/qemu/pc-bios/u-boot.e500
+/src/qemu/pc-bios/qemu_vga.ndrv
+*.dtb
+*.qcow2
+*.qcow
+*.iso
+
+# Local authentication material
+.env
+.env.*
+*.pem
+*.p12

@@ -1,0 +1,28 @@
+{
+  "schema": "z62.profile/1",
+  "name": "shooting-modes",
+  "label": "辅助演示: shooting-modes",
+  "kind": "host-assisted-demo",
+  "default_seconds": 360,
+  "baseline": "profiles/shooting-modes/baseline.json",
+  "mcu": "profiles/shooting-modes/mcu.json",
+  "environment": "profiles/shooting-modes/environment.json",
+  "qemu_manifest": "artifacts/qemu/EXPEED-build-manifest.json",
+  "mcu_manifest": "artifacts/qemu/MCU-build-manifest.json",
+  "coordinator": "profiles/shooting-modes/run_local_three_probe.py",
+  "scenario": "profiles/shooting-modes/run_local_gpio_scenario.py",
+  "known_wait_ms": 5000,
+  "poll_ns": 100000,
+  "guest_state_injection": true,
+  "application_entry_direct_load": true,
+  "physical_flash_dump": false,
+  "acceptance_scope": "Assisted demonstrations only; RAM/register writes and original function calls must be reported",
+  "synthetic_inputs": [
+    "descriptor-derived Flash container with recorded RAM payloads",
+    "public RNG battery credential",
+    "external GPIO/ADC/GENADC/POST68",
+    "Bayer source",
+    "BA2 and peripheral candidate policies",
+    "host RAM/register setup and direct original-function calls"
+  ]
+}

@@ -1,0 +1,6 @@
+config NIKON_Z6_LAB
+    bool
+    depends on TCG && ARM
+    select GENERIC_LOADER
+    select A15MPCORE
+    select SDHCI
